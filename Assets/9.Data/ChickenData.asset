@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03673a69712f9a04c8a8afe517a15159, type: 3}
+  m_Name: ChickenData
+  m_EditorClassIdentifier: 
+  animalName: "\uB2ED"
+  animalPrice: 0
+  animalIcon: {fileID: 151245714796005254, guid: 8afec7f21d82b6241a43292c480b5fdb, type: 3}
+  animalPrefab: {fileID: 8979693368173043311, guid: e70ab5643f9cf4a4d9cd964a7d905c5f, type: 3}
+  productionInterval: 3
+  productData: {fileID: 11400000, guid: 4c5445ce975dd874cbe10248c0e54a8e, type: 2}
+  maxProductionCount: 10
+  animalType: 1

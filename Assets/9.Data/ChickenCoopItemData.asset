@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2abbf4080b335e94cae47429c7c4fc9d, type: 3}
+  m_Name: ChickenCoopItemData
+  m_EditorClassIdentifier: 
+  itemName: "\uB2ED\uC7A5"
+  itemPrice: 3000
+  itemIcon: {fileID: -96963659532576680, guid: 9d339680a0e74b64aa28211038c8e6bb, type: 3}
+  itemPrefab: {fileID: 9221872427881102256, guid: 9d85c1896525cbd4bb977d72b445f0ac, type: 3}
+  itemType: 1
+  animalData: {fileID: 0}

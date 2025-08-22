@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67520ae865e167f4a9dd92d226484b06, type: 3}
+  m_Name: EggData
+  m_EditorClassIdentifier: 
+  productName: "\uB2EC\uAC40"
+  productIcon: {fileID: -4866611375927864841, guid: 75fe216c1899f194ea7e1ab25e05b993, type: 3}
+  productValue: 30

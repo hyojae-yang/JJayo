@@ -1,0 +1,25 @@
+using UnityEngine;
+
+// 아이템 종류를 정의하는 enum
+public enum ItemType
+{
+    Animal,
+    Building,
+    Equipment,
+    Consumable
+}
+
+[CreateAssetMenu(fileName = "New Purchasable Item", menuName = "Tycoon Game/Purchasable Item Data")]
+public class PurchasableItemData : ScriptableObject
+{
+    public string itemName;
+    public int itemPrice;
+    public Sprite itemIcon;
+    public GameObject itemPrefab;
+
+    // 아이템 종류를 구분하는 변수
+    public ItemType itemType;
+
+    // 동물인 경우 추가 데이터 (Animal 타입에만 사용)
+    public AnimalData animalData;
+}
