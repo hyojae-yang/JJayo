@@ -2,38 +2,50 @@ using UnityEngine;
 
 public class ChickenCoop : MonoBehaviour
 {
-    // 닭장 고유 데이터 (인스펙터에서 할당)
+    // 싱글턴 인스턴스 (게임 내에서 유일한 닭장 오브젝트를 참조)
+    public static ChickenCoop Instance { get; private set; }
+
+    [Header("닭장 고유 데이터")]
     public ChickenCoopData chickenCoopData;
 
-    // 현재 닭장 상태
+    [Header("현재 닭장 상태")]
     public int currentEggCount = 0;
     public int numberOfChickens;
 
     // 알 생산을 위한 타이머
     private float productionTimer = 0f;
 
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     void Start()
     {
-        // 게임 시작 시 닭의 수를 0으로 초기화
-        numberOfChickens = 0;
+        // Start에서는 닭의 수를 0으로 초기화하지 않도록 수정했습니다.
+        // numberOfChickens = 0;
     }
 
     void Update()
     {
-        // 닭이 없으면 생산하지 않습니다.
         if (numberOfChickens <= 0)
         {
             return;
         }
 
-        // 닭의 수에 비례하여 생산 속도 증가
         productionTimer += Time.deltaTime * numberOfChickens;
 
-        // 알 생산 주기가 되면 알을 추가
         if (productionTimer >= chickenCoopData.eggProductionInterval)
         {
             currentEggCount++;
-            Debug.Log($"닭장에서 알을 {currentEggCount}개 생산했습니다!");
+            NotificationManager.Instance.ShowNotification($"닭장에서 알을 {currentEggCount}개 생산했습니다!");
             productionTimer = 0f;
         }
     }
@@ -41,14 +53,14 @@ public class ChickenCoop : MonoBehaviour
     // 마우스를 클릭하면 호출되는 함수 (알 수거)
     void OnMouseDown()
     {
-        // 바구니를 착용했는지 확인
+        // 바구니를 착용했는지 확인하고 알을 수거합니다.
         if (EquipmentManager.Instance.currentEquipment == EquipmentType.Basket)
         {
             if (currentEggCount > 0)
             {
                 int eggsTransferred = PlayerInventory.Instance.AddEggs(currentEggCount);
                 currentEggCount -= eggsTransferred;
-                Debug.Log($"바구니에 알 {eggsTransferred}개를 담았습니다. 닭장에 남은 알: {currentEggCount}");
+                NotificationManager.Instance.ShowNotification($"바구니에 알 {eggsTransferred}개를 담았습니다. 닭장에 남은 알: {currentEggCount}");
                 productionTimer = 0f;
             }
         }
@@ -60,6 +72,18 @@ public class ChickenCoop : MonoBehaviour
     public void AddChicken()
     {
         numberOfChickens++;
-        Debug.Log("새로운 닭이 닭장에 추가되었습니다. 현재 닭의 수: " + numberOfChickens);
+        NotificationManager.Instance.ShowNotification("새로운 닭이 닭장에 추가되었습니다. 현재 닭의 수: " + numberOfChickens);
+    }
+
+    /// <summary>
+    /// 닭을 제거하고 수를 감소시킵니다.
+    /// </summary>
+    public void RemoveChicken()
+    {
+        if (numberOfChickens > 0)
+        {
+            numberOfChickens--;
+            NotificationManager.Instance.ShowNotification("닭 한 마리가 판매되었습니다. 현재 닭의 수: " + numberOfChickens);
+        }
     }
 }

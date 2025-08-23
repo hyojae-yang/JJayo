@@ -47,7 +47,7 @@ public class GameManager : MonoBehaviour
         {
             gameDate = gameDate.AddDays(1);
             timeElapsed -= 60f;
-            Debug.Log("새로운 날이 밝았습니다!");
+            NotificationManager.Instance.ShowNotification("새로운 날이 밝았습니다!");
         }
     }
 
@@ -58,7 +58,7 @@ public class GameManager : MonoBehaviour
     public void AddMoney(int amount)
     {
         currentMoney += amount;
-        Debug.Log($"돈을 {amount}만큼 획득했습니다. 현재 소지 금액: {currentMoney}");
+        NotificationManager.Instance.ShowNotification($"돈을 {amount}만큼 획득했습니다. 현재 소지 금액: {currentMoney}");
         // 돈이 변경될 때 이벤트를 호출
         OnMoneyChanged?.Invoke(currentMoney);
     }
@@ -73,13 +73,13 @@ public class GameManager : MonoBehaviour
         if (currentMoney >= amount)
         {
             currentMoney -= amount;
-            Debug.Log($"돈을 {amount}만큼 사용했습니다. 현재 소지 금액: {currentMoney}");
+            NotificationManager.Instance.ShowNotification($"돈을 {amount}만큼 사용했습니다. 현재 소지 금액: {currentMoney}");
             // 돈이 변경될 때 이벤트를 호출
             OnMoneyChanged?.Invoke(currentMoney);
             return true;
         }
 
-        Debug.Log($"소지 금액이 부족합니다! 현재 소지 금액: {currentMoney}");
+        NotificationManager.Instance.ShowNotification($"소지 금액이 부족합니다! 현재 소지 금액: {currentMoney}");
         return false;
     }
 }

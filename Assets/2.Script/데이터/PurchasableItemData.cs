@@ -6,7 +6,8 @@ public enum ItemType
     Animal,
     Building,
     Equipment,
-    Consumable
+    Consumable,
+    Upgrade // 업그레이드 아이템 종류 추가
 }
 
 [CreateAssetMenu(fileName = "New Purchasable Item", menuName = "Tycoon Game/Purchasable Item Data")]
@@ -22,4 +23,13 @@ public class PurchasableItemData : ScriptableObject
 
     // 동물인 경우 추가 데이터 (Animal 타입에만 사용)
     public AnimalData animalData;
+
+    // 장비인 경우 추가 데이터 (Equipment 타입에만 사용)
+    public EquipmentData equipmentData;
+
+    // 소모품인 경우 추가 데이터 (Consumable 타입에만 사용)
+    public ConsumableData consumableData;
+
+    // 업그레이드 아이템인 경우 추가 데이터
+    public UpgradeData upgradeData; // 수정된 부분: 이제 UpgrageData 기본 클래스를 참조합니다.
 }

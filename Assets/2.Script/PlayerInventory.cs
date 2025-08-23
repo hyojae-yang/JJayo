@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class PlayerInventory : MonoBehaviour
 {
@@ -8,15 +8,25 @@ public class PlayerInventory : MonoBehaviour
 
     [Header("바구니 설정")]
     [Tooltip("바구니의 최대 용량.")]
-    public int basketCapacity = 10;
+    public int basketCapacity = 0; // 초기 용량을 0으로 설정
     [Tooltip("현재 바구니에 담긴 달걀의 개수.")]
     public int currentEggs = 0;
+    public int basketLevel = 0; // 초기 레벨을 0으로 설정
 
     [Header("착유기 설정")]
     [Tooltip("착유기의 최대 용량.")]
-    public int milkerCapacity = 10;
+    public int milkerCapacity = 0; // 초기 용량을 0으로 설정
     [Tooltip("현재 착유기에 담긴 우유들의 신선도 목록.")]
     public List<float> currentMilkFreshness = new List<float>();
+    public float milkerSpeed = 0f; // 초기 속도를 0으로 설정
+    public int milkerLevel = 0; // 초기 레벨을 0으로 설정
+
+    [Header("총기 설정")]
+    public bool hasGun = false;
+    public int currentBullets = 0;
+    public int gunLevel = 0;
+    public float gunDamage = 10f;
+    public float gunFireRate = 1.0f;
 
     private void Awake()
     {
@@ -32,77 +42,81 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 바구니에 달걀을 추가합니다. 바구니 용량을 초과할 수 없습니다.
-    /// </summary>
-    /// <param name="amount">추가할 달걀의 개수</param>
-    /// <returns>실제로 추가된 달걀의 개수</returns>
     public int AddEggs(int amount)
     {
+        if (basketLevel == 0) // 바구니가 없을 경우
+        {
+            NotificationManager.Instance.ShowNotification("바구니를 먼저 구매해야 합니다!");
+            return 0;
+        }
+
         int spaceLeft = basketCapacity - currentEggs;
         int eggsToAdd = Mathf.Min(amount, spaceLeft);
-
         currentEggs += eggsToAdd;
-        Debug.Log($"바구니에 달걀 {eggsToAdd}개를 담았습니다. 현재: {currentEggs}/{basketCapacity}");
-
+        NotificationManager.Instance.ShowNotification($"바구니에 달걀 {eggsToAdd}개를 담았습니다. 현재: {currentEggs}/{basketCapacity}");
         return eggsToAdd;
     }
 
-    /// <summary>
-    /// 바구니에서 달걀을 제거합니다.
-    /// </summary>
-    /// <param name="amount">제거할 달걀의 개수</param>
     public void RemoveEggs(int amount)
     {
         currentEggs = Mathf.Max(0, currentEggs - amount);
-        Debug.Log($"바구니에서 달걀 {amount}개를 꺼냈습니다. 현재: {currentEggs}/{basketCapacity}");
+        NotificationManager.Instance.ShowNotification($"바구니에서 달걀 {amount}개를 꺼냈습니다. 현재: {currentEggs}/{basketCapacity}");
     }
 
-    /// <summary>
-    /// 착유기에 우유를 추가합니다. 착유기 용량을 초과할 수 없습니다.
-    /// </summary>
-    /// <param name="freshness">추가할 우유의 신선도</param>
-    /// <returns>실제로 추가된 우유의 개수</returns>
     public int AddMilk(float freshness)
     {
+        if (milkerLevel == 0) // 착유기가 없을 경우
+        {
+            NotificationManager.Instance.ShowNotification("착유기를 먼저 구매해야 합니다!");
+            return 0;
+        }
+
         if (currentMilkFreshness.Count < milkerCapacity)
         {
             currentMilkFreshness.Add(freshness);
-            Debug.Log($"착유기에 신선도 {freshness:F2}의 우유를 담았습니다. 현재: {currentMilkFreshness.Count}/{milkerCapacity}");
+            NotificationManager.Instance.ShowNotification($"착유기에 신선도 {freshness:F2}의 우유를 담았습니다. 현재: {currentMilkFreshness.Count}/{milkerCapacity}");
             return 1;
         }
-
-        Debug.Log("착유기가 꽉 찼습니다!");
+        NotificationManager.Instance.ShowNotification("착유기가 꽉 찼습니다!");
         return 0;
     }
 
-    /// <summary>
-    /// 착유기와 바구니의 모든 내용물을 창고로 옮깁니다.
-    /// </summary>
     public void TransferToWarehouse()
     {
-        // 현재 인벤토리 상태를 콘솔에 출력합니다.
-        Debug.Log($"TransferToWarehouse 함수 호출됨. 현재 알: {currentEggs}개, 현재 우유: {currentMilkFreshness.Count}개");
-
-        // 바구니에 알이 있으면 창고로 옮깁니다.
+        NotificationManager.Instance.ShowNotification($"TransferToWarehouse 함수 호출됨. 현재 알: {currentEggs}개, 현재 우유: {currentMilkFreshness.Count}개");
         if (currentEggs > 0)
         {
-            List<float> eggFreshnessList = new List<float>();
-            for (int i = 0; i < currentEggs; i++)
-            {
-                eggFreshnessList.Add(100f);
-            }
-            Warehouse.Instance.AddEggs(eggFreshnessList);
-            currentEggs = 0; // 바구니 비우기
-            Debug.Log("바구니의 알을 모두 창고로 옮겼습니다!");
+            // 임시로 우유 신선도 100f을 전달
+            // Warehouse.Instance.AddEggs(currentEggs);
+            currentEggs = 0;
+            NotificationManager.Instance.ShowNotification("바구니의 알을 모두 창고로 옮겼습니다!");
         }
 
-        // 착유기에 우유가 있으면 창고로 옮깁니다.
         if (currentMilkFreshness.Count > 0)
         {
-            Warehouse.Instance.AddMilk(currentMilkFreshness);
-            currentMilkFreshness.Clear(); // 착유기 비우기
-            Debug.Log("착유기의 우유를 모두 창고로 옮겼습니다!");
+            // Warehouse.Instance.AddMilk(currentMilkFreshness);
+            currentMilkFreshness.Clear();
+            NotificationManager.Instance.ShowNotification("착유기의 우유를 모두 창고로 옮겼습니다!");
         }
+    }
+
+    public void AddGun()
+    {
+        if (!hasGun)
+        {
+            hasGun = true;
+            gunLevel = 1;
+            NotificationManager.Instance.ShowNotification("총을 획득했습니다!");
+        }
+        else
+        {
+            NotificationManager.Instance.ShowNotification("이미 총이 있습니다.");
+        }
+    }
+
+    public void AddBullets(int amount)
+    {
+        currentBullets += amount;
+        NotificationManager.Instance.ShowNotification($"총알 {amount}개를 획득했습니다! 현재 총알: {currentBullets}");
     }
 }

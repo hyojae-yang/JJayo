@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2abbf4080b335e94cae47429c7c4fc9d, type: 3}
+  m_Name: MilkerItemData
+  m_EditorClassIdentifier: 
+  itemName: "\uCC29\uC720\uAE30"
+  itemPrice: 0
+  itemIcon: {fileID: -4365194643702221075, guid: 924f7acfa380fad4db86fd429f953512, type: 3}
+  itemPrefab: {fileID: 0}
+  itemType: 2
+  animalData: {fileID: 0}
+  equipmentData: {fileID: 11400000, guid: 4ede9df5b085e09459938d25ff972029, type: 2}
+  consumableData: {fileID: 0}
+  upgradeData: {fileID: 11400000, guid: 5b2c97bb91b470f479ff874889d0c1ab, type: 2}

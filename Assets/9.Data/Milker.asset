@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adca5d2879104bb46bfd45a3903c2acd, type: 3}
+  m_Name: Milker
+  m_EditorClassIdentifier: 
+  level: 0
+  upgradePrice: 0
+  upgradeLevels:
+  - level: 1
+    upgradePrice: 0
+    capacity: 10
+    speed: 1
+  - level: 2
+    upgradePrice: 500
+    capacity: 20
+    speed: 1.5
+  - level: 3
+    upgradePrice: 1000
+    capacity: 40
+    speed: 2
+  - level: 4
+    upgradePrice: 2000
+    capacity: 70
+    speed: 2.5
+  - level: 5
+    upgradePrice: 4000
+    capacity: 100
+    speed: 3

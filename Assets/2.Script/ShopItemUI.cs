@@ -4,41 +4,33 @@ using TMPro;
 
 public class ShopItemUI : MonoBehaviour
 {
-    [Header("UI 요소")]
-    public Image itemIcon;
     public TextMeshProUGUI itemNameText;
     public TextMeshProUGUI itemPriceText;
+    public Image itemIcon;
     public Button actionButton;
 
-    // 이 변수를 선언해야 합니다.
-    private ShopManager shopManager;
-    private PurchasableItemData itemData;
-
     // 구매용 아이템 카드 설정
-    public void SetupBuyItem(ShopManager manager, PurchasableItemData data)
+    public void SetupBuyItem(ShopManager shopManager, PurchasableItemData itemData)
     {
-        shopManager = manager;
-        // 전달받은 데이터를 클래스 변수에 저장
-        itemData = data;
+        itemNameText.text = itemData.itemName;
+        itemPriceText.text = itemData.itemPrice.ToString("C0");
+        itemIcon.sprite = itemData.itemIcon;
 
-        itemNameText.text = data.itemName;
-        itemPriceText.text = data.itemPrice.ToString("C0");
-        itemIcon.sprite = data.itemIcon;
-
-        // OnClickBuy 함수 호출
+        // 버튼 텍스트를 "구매"로 명시적으로 설정
+        actionButton.GetComponentInChildren<TextMeshProUGUI>().text = "구매";
         actionButton.onClick.RemoveAllListeners();
         actionButton.onClick.AddListener(() => shopManager.OnClickBuy(itemData));
     }
 
     // 판매용 아이템 카드 설정
-    public void SetupSellItem(ShopManager manager, Animal animalToSell)
+    public void SetupSellItem(ShopManager shopManager, Animal animalToSell)
     {
-        shopManager = manager;
-
         itemNameText.text = animalToSell.animalData.animalName;
         itemPriceText.text = (animalToSell.animalData.animalPrice / 2).ToString("C0");
         itemIcon.sprite = animalToSell.animalData.animalIcon;
 
+        // 버튼 텍스트를 "판매"로 명시적으로 설정
+        actionButton.GetComponentInChildren<TextMeshProUGUI>().text = "판매";
         actionButton.onClick.RemoveAllListeners();
         actionButton.onClick.AddListener(() => shopManager.SellItem(animalToSell));
     }

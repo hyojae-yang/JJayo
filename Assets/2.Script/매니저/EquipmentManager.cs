@@ -5,7 +5,8 @@ public enum EquipmentType
 {
     None,       // 아무것도 장착하지 않음
     Basket,     // 바구니
-    Milker      // 착유기
+    Milker,     // 착유기
+    Gun         // 총을 추가합니다!
 }
 
 public class EquipmentManager : MonoBehaviour
@@ -38,6 +39,27 @@ public class EquipmentManager : MonoBehaviour
     public void Equip(EquipmentType newEquipment)
     {
         currentEquipment = newEquipment;
-        Debug.Log($"장비를 {newEquipment}로 교체했습니다.");
+
+        // Enum 값을 한글로 변환하여 알림창에 표시
+        string equipmentName = GetEquipmentName(newEquipment);
+        NotificationManager.Instance.ShowNotification($"장비를 {equipmentName}로 교체했습니다.");
+    }
+
+    /// <summary>
+    /// 장비 Enum 값을 한글 이름으로 반환합니다.
+    /// </summary>
+    public string GetEquipmentName(EquipmentType type)
+    {
+        switch (type)
+        {
+            case EquipmentType.Basket:
+                return "바구니";
+            case EquipmentType.Milker:
+                return "착유기";
+            case EquipmentType.Gun:
+                return "총";
+            default:
+                return "맨손";
+        }
     }
 }

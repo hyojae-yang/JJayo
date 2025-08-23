@@ -22,6 +22,12 @@ public class PlayerUI : MonoBehaviour
         // GameManager의 OnMoneyChanged 이벤트에 UpdateMoney 함수를 구독
         gameManager.OnMoneyChanged += UpdateMoney;
 
+        // 착유기 게이지의 최대값을 PlayerInventory의 용량으로 설정
+        milkerGauge.maxValue = playerInventory.milkerCapacity;
+
+        // 바구니 게이지의 최대값을 PlayerInventory의 용량으로 설정
+        basketGauge.maxValue = playerInventory.basketCapacity;
+
         // 게임 시작 시 한 번 업데이트
         UpdateMoney(gameManager.CurrentMoney);
     }
@@ -35,10 +41,10 @@ public class PlayerUI : MonoBehaviour
     private void UpdateGauges()
     {
         // 착유기 게이지 업데이트
-        milkerGauge.value = (float)playerInventory.currentMilkFreshness.Count / playerInventory.milkerCapacity;
+        milkerGauge.value = playerInventory.currentMilkFreshness.Count;
 
         // 바구니 게이지 업데이트
-        basketGauge.value = (float)playerInventory.currentEggs / playerInventory.basketCapacity;
+        basketGauge.value = playerInventory.currentEggs;
     }
 
     /// <summary>
@@ -47,7 +53,6 @@ public class PlayerUI : MonoBehaviour
     /// <param name="newMoney">새로운 돈의 양</param>
     private void UpdateMoney(int newMoney)
     {
-        // 기호를 직접 추가하거나, 문화권에 맞게 자동으로 표시되도록 설정
         moneyText.text = newMoney.ToString("C0");
     }
 }

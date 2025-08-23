@@ -72,7 +72,7 @@ public class Warehouse : MonoBehaviour
             storedEggFreshness[i] = newAverageFreshness;
         }
 
-        Debug.Log($"창고에 달걀 {newEggsFreshness.Count}개를 추가했습니다. 현재 총 달걀: {storedEggFreshness.Count}개, 평균 신선도: {newAverageFreshness:F2}");
+        NotificationManager.Instance.ShowNotification($"창고에 달걀 {newEggsFreshness.Count}개를 추가했습니다. 현재 총 달걀: {storedEggFreshness.Count}개, 평균 신선도: {newAverageFreshness:F2}");
     }
 
     /// <summary>
@@ -107,7 +107,7 @@ public class Warehouse : MonoBehaviour
             storedMilkFreshness[i] = newAverageFreshness;
         }
 
-        Debug.Log($"창고에 우유 {newMilkFreshness.Count}개를 추가했습니다. 현재 총 우유: {storedMilkFreshness.Count}개, 평균 신선도: {newAverageFreshness:F2}");
+        NotificationManager.Instance.ShowNotification($"창고에 우유 {newMilkFreshness.Count}개를 추가했습니다. 현재 총 우유: {storedMilkFreshness.Count}개, 평균 신선도: {newAverageFreshness:F2}");
     }
 
     /// <summary>
@@ -125,6 +125,6 @@ public class Warehouse : MonoBehaviour
             storedMilkFreshness[i] = Mathf.Max(0, storedMilkFreshness[i] - 1);
         }
 
-        Debug.Log("창고에 있는 모든 아이템의 신선도가 감소했습니다.");
+        NotificationManager.Instance.ShowNotification("창고에 있는 모든 아이템의 신선도가 감소했습니다.");
     }
 }

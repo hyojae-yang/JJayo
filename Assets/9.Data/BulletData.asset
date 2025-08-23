@@ -18,3 +18,6 @@ MonoBehaviour:
   itemPrefab: {fileID: 0}
   itemType: 3
   animalData: {fileID: 0}
+  equipmentData: {fileID: 11400000, guid: 1c006a060a92d654e96040e7d0c81ecd, type: 2}
+  consumableData: {fileID: 11400000, guid: 497c2a066ada62e4294c26ea3b11f95c, type: 2}
+  upgradeData: {fileID: 11400000, guid: 40e8d99ade6b09140989656e58cfead5, type: 2}
