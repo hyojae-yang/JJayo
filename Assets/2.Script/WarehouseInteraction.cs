@@ -12,7 +12,6 @@ public class WarehouseInteraction : MonoBehaviour
         // 이 방법은 PlayerInventory 스크립트가 어디에 붙어있든 상관없이 작동합니다.
         if (PlayerInventory.Instance != null)
         {
-            Debug.Log("창고로 옮기는 중...");
             PlayerInventory.Instance.TransferToWarehouse();
         }
         else

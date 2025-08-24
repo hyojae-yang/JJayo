@@ -10,6 +10,9 @@ public class PlayerUI : MonoBehaviour
     public TextMeshProUGUI moneyText;
     public TextMeshProUGUI dayText;
 
+    // ★★★ 새로 추가된 부분: 시간 게이지 연결
+    public Slider dayGauge;
+
     [Header("매니저 연결")]
     private PlayerInventory playerInventory;
     private GameManager gameManager;
@@ -22,20 +25,45 @@ public class PlayerUI : MonoBehaviour
         // GameManager의 OnMoneyChanged 이벤트에 UpdateMoney 함수를 구독
         gameManager.OnMoneyChanged += UpdateMoney;
 
-        // 착유기 게이지의 최대값을 PlayerInventory의 용량으로 설정
-        milkerGauge.maxValue = playerInventory.milkerCapacity;
+        // ★★★ 새로 추가된 부분: GameManager의 OnTimeChanged 이벤트에 UpdateDayGauge 함수를 구독
+        gameManager.OnTimeChanged += UpdateDayGauge;
 
-        // 바구니 게이지의 최대값을 PlayerInventory의 용량으로 설정
-        basketGauge.maxValue = playerInventory.basketCapacity;
+        // PlayerInventory의 OnCapacityChanged 이벤트에 UpdateMaxCapacities 함수를 구독
+        playerInventory.OnCapacityChanged += UpdateMaxCapacities;
 
-        // 게임 시작 시 한 번 업데이트
+        // ★★★ 새로 추가된 부분: 시간 게이지 최대값 설정
+        if (dayGauge != null)
+        {
+            dayGauge.maxValue = 1f; // 0.0f에서 1.0f로 진행
+        }
+
+        // 게임 시작 시 초기값 설정
         UpdateMoney(gameManager.CurrentMoney);
+        UpdateMaxCapacities(); // 초기 게이지 최대값 설정
     }
 
     void Update()
     {
         UpdateGauges();
-        dayText.text = gameManager.CurrentDate; // 날짜 텍스트는 매 프레임 업데이트
+        dayText.text = gameManager.CurrentDate;
+    }
+
+    // ★★★ 새로 추가된 부분: 시간 게이지 업데이트 함수
+    private void UpdateDayGauge(float timeProgress)
+    {
+        if (dayGauge != null)
+        {
+            dayGauge.value = timeProgress;
+        }
+    }
+
+    /// <summary>
+    /// 착유기 및 바구니 게이지의 최대 용량을 업데이트하는 함수
+    /// </summary>
+    private void UpdateMaxCapacities()
+    {
+        milkerGauge.maxValue = playerInventory.milkerCapacity;
+        basketGauge.maxValue = playerInventory.basketCapacity;
     }
 
     private void UpdateGauges()

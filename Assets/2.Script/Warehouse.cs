@@ -14,7 +14,7 @@ public class Warehouse : MonoBehaviour
     public List<float> storedMilkFreshness = new List<float>();
 
     [Tooltip("아이템의 신선도가 감소하는 주기(초).")]
-    public float freshnessDecayInterval = 60f;
+    public float freshnessDecayInterval = 120f;
     private float decayTimer = 0f;
 
     private void Awake()
@@ -127,4 +127,58 @@ public class Warehouse : MonoBehaviour
 
         NotificationManager.Instance.ShowNotification("창고에 있는 모든 아이템의 신선도가 감소했습니다.");
     }
+    // **********************************************
+    // ★★★ 상인 시스템 연동 함수 추가 시작 ★★★
+    // **********************************************
+
+    /// <summary>
+    /// 창고에 있는 우유의 총 개수를 반환합니다.
+    /// </summary>
+    public int GetMilkCount()
+    {
+        return storedMilkFreshness.Count;
+    }
+
+    /// <summary>
+    /// 창고에 있는 모든 우유의 평균 신선도를 계산하여 반환합니다.
+    /// </summary>
+    public float GetAverageMilkFreshness()
+    {
+        if (storedMilkFreshness.Count == 0)
+        {
+            return 0f;
+        }
+
+        float totalFreshness = 0;
+        foreach (float freshness in storedMilkFreshness)
+        {
+            totalFreshness += freshness;
+        }
+
+        return totalFreshness / storedMilkFreshness.Count;
+    }
+
+    /// <summary>
+    /// 상인에게 판매할 우유를 창고에서 제거합니다.
+    /// (신선도가 높은 우유부터 판매)
+    /// </summary>
+    /// <param name="amount">제거할 우유 개수</param>
+    public void RemoveMilk(int amount)
+    {
+        if (amount > storedMilkFreshness.Count)
+        {
+            Debug.LogError("창고에 판매할 우유가 부족합니다!");
+            return;
+        }
+
+        // 1. 우유를 신선도 순으로 정렬 (내림차순)
+        storedMilkFreshness.Sort((a, b) => b.CompareTo(a));
+
+        // 2. 가장 신선한 우유부터 판매량만큼 제거
+        storedMilkFreshness.RemoveRange(0, amount);
+    }
+
+    // **********************************************
+    // ★★★ 상인 시스템 연동 함수 추가 끝 ★★★
+    // **********************************************
 }

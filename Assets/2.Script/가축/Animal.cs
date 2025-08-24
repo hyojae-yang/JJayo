@@ -13,6 +13,13 @@ public class Animal : MonoBehaviour
         production = GetComponent<Production>();
         freshness = GetComponent<Freshness>();
         animalUI = GetComponent<AnimalUI>();
+
+        // ★★★ AnimalData의 생산 관련 값을 Production에 전달합니다.
+        if (production != null && animalData != null)
+        {
+            production.productionTime = animalData.productionInterval;
+            production.productionMax = animalData.maxProductionCount;
+        }
     }
 
     void Update()
@@ -22,7 +29,7 @@ public class Animal : MonoBehaviour
             animalUI.UpdateProductionGauge(production.currentProductionCount, production.productionMax);
         }
     }
-    // 수정된 OnMouseDown() 함수
+
     void OnMouseDown()
     {
         // 착유기를 착용했는지 확인
@@ -30,14 +37,17 @@ public class Animal : MonoBehaviour
         {
             if (production.currentProductionCount > 0)
             {
-                // 'freshness' 객체 안의 'currentFreshness' 값을 전달
-                int milkTransferred = PlayerInventory.Instance.AddMilk(freshness.currentFreshness);
-
-                // 실제로 우유가 옮겨진 경우에만 젖소의 우유 생산량을 1 감소
-                if (milkTransferred > 0)
+                // 'freshness' 객체가 존재한다면 그 안의 값을 전달
+                if (freshness != null)
                 {
-                    production.currentProductionCount--;
-                    NotificationManager.Instance.ShowNotification(gameObject.name + "의 우유를 수거했습니다. 남은 양: " + production.currentProductionCount);
+                    int milkTransferred = PlayerInventory.Instance.AddMilk(freshness.currentFreshness);
+
+                    // 실제로 우유가 옮겨진 경우에만 젖소의 우유 생산량을 1 감소
+                    if (milkTransferred > 0)
+                    {
+                        production.currentProductionCount--;
+                        NotificationManager.Instance.ShowNotification(animalData.animalName + "의 우유를 수거했습니다.");
+                    }
                 }
             }
         }

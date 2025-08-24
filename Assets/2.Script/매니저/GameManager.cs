@@ -2,29 +2,57 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-    // 싱글톤 인스턴스
+    // Singleton instance
     public static GameManager Instance { get; private set; }
 
-    [Header("게임 데이터")]
-    [Tooltip("현재 소지 금액")]
+    [Header("Game Data")]
+    [Tooltip("Current amount of money")]
     [SerializeField]
     private int currentMoney = 1000;
 
-    [Header("시간 및 날짜")]
-    [Tooltip("게임 시작 시간")]
+    // 명성도 변수 수정: public으로 변경하여 인스펙터에서 설정 가능하게 함
+    [Tooltip("플레이어의 명성도")]
+    public int playerReputation = 0; // 초기 명성도 값을 여기서 설정할 수 있습니다.
+
+    [Header("Player UI")]
+    [Tooltip("명성도를 표시할 TextMeshProUGUI 컴포넌트를 연결하세요.")]
+    public TextMeshProUGUI reputationText;
+
+    [Header("Time and Date")]
+    [Tooltip("Game start date")]
     public DateTime gameDate = new DateTime(1, 1, 1);
-    [Tooltip("현실 60초에 게임 시간 1일")]
+
+    [Tooltip("Game day length in seconds (real time)")]
+    public float dayLengthInSeconds = 120f;
+
     private float timeElapsed = 0f;
 
-    // --- 프로퍼티 ---
+    [Header("Pasture Upgrade Data")]
+    public PastureUpgradeData pastureUpgradeData;
+
+    [Tooltip("Current pasture level")]
+    [SerializeField]
+    private int currentPastureLevel = 0;
+
+    public int CurrentPastureLevel => currentPastureLevel;
+
+    [Header("Visual Feedback")]
+    [Tooltip("Connect the main camera here")]
+    public Camera mainCamera;
+    [Tooltip("Set the camera background color for each level")]
+    public Color[] pastureColors;
+
+    // Properties
     public int CurrentMoney => currentMoney;
     public string CurrentDate => $"{gameDate.Year}년 {gameDate.Month}월 {gameDate.Day}일";
 
-    // 돈이 변경될 때 호출되는 이벤트
+    // Events
     public event Action<int> OnMoneyChanged;
+    public event Action<float> OnTimeChanged;
 
     void Awake()
     {
@@ -37,49 +65,105 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        if (mainCamera != null && pastureColors.Length > currentPastureLevel)
+        {
+            mainCamera.backgroundColor = pastureColors[currentPastureLevel];
+        }
+
+        // 명성도 UI 초기화
+        UpdateReputationUI();
     }
 
     void Update()
     {
         timeElapsed += Time.deltaTime;
+        OnTimeChanged?.Invoke(1f - (timeElapsed / dayLengthInSeconds));
 
-        if (timeElapsed >= 60f)
+        if (timeElapsed >= dayLengthInSeconds)
         {
             gameDate = gameDate.AddDays(1);
-            timeElapsed -= 60f;
-            NotificationManager.Instance.ShowNotification("새로운 날이 밝았습니다!");
+            timeElapsed -= dayLengthInSeconds;
+            NotificationManager.Instance.ShowNotification("새로운 하루가 시작되었습니다!");
+            TraderManager.Instance.StartTrade();
         }
     }
 
     /// <summary>
-    /// 지정된 양만큼 돈을 추가합니다.
+    /// Adds money by a specified amount.
     /// </summary>
-    /// <param name="amount">추가할 돈의 양</param>
+    /// <param name="amount">Amount to add</param>
     public void AddMoney(int amount)
     {
         currentMoney += amount;
-        NotificationManager.Instance.ShowNotification($"돈을 {amount}만큼 획득했습니다. 현재 소지 금액: {currentMoney}");
-        // 돈이 변경될 때 이벤트를 호출
         OnMoneyChanged?.Invoke(currentMoney);
     }
 
     /// <summary>
-    /// 지정된 양만큼 돈을 사용합니다.
+    /// Spends money by a specified amount.
     /// </summary>
-    /// <param name="amount">사용할 돈의 양</param>
-    /// <returns>돈 사용 성공 여부</returns>
+    /// <param name="amount">Amount to spend</param>
+    /// <returns>Returns true if spending was successful, false otherwise</returns>
     public bool SpendMoney(int amount)
     {
         if (currentMoney >= amount)
         {
             currentMoney -= amount;
-            NotificationManager.Instance.ShowNotification($"돈을 {amount}만큼 사용했습니다. 현재 소지 금액: {currentMoney}");
-            // 돈이 변경될 때 이벤트를 호출
             OnMoneyChanged?.Invoke(currentMoney);
             return true;
         }
 
-        NotificationManager.Instance.ShowNotification($"소지 금액이 부족합니다! 현재 소지 금액: {currentMoney}");
+        NotificationManager.Instance.ShowNotification($"돈이 부족합니다!");
         return false;
+    }
+
+    /// <summary>
+    /// 지정된 양만큼 명성도를 변경합니다.
+    /// </summary>
+    /// <param name="amount">변경할 명성도의 양 (+/-)</param>
+    public void ChangeReputation(int amount)
+    {
+        playerReputation += amount;
+        UpdateReputationUI();
+        Debug.Log($"명성도 변경: {amount}. 현재 명성도: {playerReputation}");
+    }
+
+    /// <summary>
+    /// 명성도 UI 텍스트를 현재 값으로 업데이트합니다.
+    /// </summary>
+    private void UpdateReputationUI()
+    {
+        if (reputationText != null)
+        {
+            reputationText.text = $"명성도: {playerReputation}";
+        }
+    }
+
+    /// <summary>
+    /// Upgrades the pasture by 1 level.
+    /// </summary>
+    public void UpgradePasture()
+    {
+        if (pastureUpgradeData == null)
+        {
+            Debug.LogError("PastureUpgradeData is not assigned to the GameManager.");
+            return;
+        }
+
+        int nextLevel = currentPastureLevel + 1;
+        if (nextLevel < pastureUpgradeData.upgradeLevels.Count)
+        {
+            currentPastureLevel = nextLevel;
+            Debug.Log($"Pasture upgraded to level {currentPastureLevel}.");
+
+            if (mainCamera != null && pastureColors.Length > currentPastureLevel)
+            {
+                mainCamera.backgroundColor = pastureColors[currentPastureLevel];
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Pasture is already at max level.");
+        }
     }
 }

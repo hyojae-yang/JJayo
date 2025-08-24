@@ -16,7 +16,7 @@ MonoBehaviour:
   animalPrice: 500
   animalIcon: {fileID: 5125218584153085759, guid: b2c760c424af0d34d84f1198669c5328, type: 3}
   animalPrefab: {fileID: 746704991644772496, guid: 272d649f8c86f744ebd78488269667c2, type: 3}
-  productionInterval: 3
+  productionInterval: 2
   productData: {fileID: 11400000, guid: c469b33cce22deb46897420c90246098, type: 2}
   maxProductionCount: 10
   animalType: 0

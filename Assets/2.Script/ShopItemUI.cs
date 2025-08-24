@@ -10,7 +10,7 @@ public class ShopItemUI : MonoBehaviour
     public Button actionButton;
 
     // 구매용 아이템 카드 설정
-    public void SetupBuyItem(ShopManager shopManager, PurchasableItemData itemData)
+    public void SetupBuyItem(ShopUI shopUI, PurchasableItemData itemData)
     {
         itemNameText.text = itemData.itemName;
         itemPriceText.text = itemData.itemPrice.ToString("C0");
@@ -19,11 +19,11 @@ public class ShopItemUI : MonoBehaviour
         // 버튼 텍스트를 "구매"로 명시적으로 설정
         actionButton.GetComponentInChildren<TextMeshProUGUI>().text = "구매";
         actionButton.onClick.RemoveAllListeners();
-        actionButton.onClick.AddListener(() => shopManager.OnClickBuy(itemData));
+        actionButton.onClick.AddListener(() => shopUI.OnClickBuy(itemData));
     }
 
     // 판매용 아이템 카드 설정
-    public void SetupSellItem(ShopManager shopManager, Animal animalToSell)
+    public void SetupSellItem(ShopUI shopUI, Animal animalToSell)
     {
         itemNameText.text = animalToSell.animalData.animalName;
         itemPriceText.text = (animalToSell.animalData.animalPrice / 2).ToString("C0");
@@ -32,6 +32,7 @@ public class ShopItemUI : MonoBehaviour
         // 버튼 텍스트를 "판매"로 명시적으로 설정
         actionButton.GetComponentInChildren<TextMeshProUGUI>().text = "판매";
         actionButton.onClick.RemoveAllListeners();
-        actionButton.onClick.AddListener(() => shopManager.SellItem(animalToSell));
+        // 소 판매 버튼 클릭 시 ShopUI의 OnClickSell 함수 호출
+        actionButton.onClick.AddListener(() => shopUI.OnClickSell(animalToSell));
     }
 }

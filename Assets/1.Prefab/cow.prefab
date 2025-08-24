@@ -164,7 +164,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44600f1e705ff9b4eaac458eb8073475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  freshness: 25
+  currentFreshness: 25
 --- !u!114 &1669861638288622970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -178,7 +178,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   productionMax: 10
-  productionTime: 10
+  productionTime: 1
   currentProductionCount: 0
 --- !u!114 &-2207118411081226688
 MonoBehaviour:

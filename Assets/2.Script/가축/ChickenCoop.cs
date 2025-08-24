@@ -45,7 +45,6 @@ public class ChickenCoop : MonoBehaviour
         if (productionTimer >= chickenCoopData.eggProductionInterval)
         {
             currentEggCount++;
-            NotificationManager.Instance.ShowNotification($"닭장에서 알을 {currentEggCount}개 생산했습니다!");
             productionTimer = 0f;
         }
     }
