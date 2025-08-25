@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 3
   tags:
   - Building
+  - Cow
+  - Wolf
   layers:
   - Default
   - TransparentFX

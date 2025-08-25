@@ -12,24 +12,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffbf2f03fc77e6d439cfc6dbe698d273, type: 3}
   m_Name: Gun
   m_EditorClassIdentifier: 
+  level: 0
+  upgradePrice: 0
   upgradeLevels:
   - level: 1
-    damageIncrease: 1
-    fireRateIncrease: 2
     upgradePrice: 0
-  - level: 2
-    damageIncrease: 2
-    fireRateIncrease: 1
-    upgradePrice: 1500
-  - level: 3
-    damageIncrease: 3
-    fireRateIncrease: 0.5
-    upgradePrice: 3000
-  - level: 4
-    damageIncrease: 5
-    fireRateIncrease: 0.5
-    upgradePrice: 4500
-  - level: 5
     damageIncrease: 10
-    fireRateIncrease: 0.1
+    fireRateIncrease: 2
+  - level: 2
+    upgradePrice: 1500
+    damageIncrease: 20
+    fireRateIncrease: 1
+  - level: 3
+    upgradePrice: 3000
+    damageIncrease: 30
+    fireRateIncrease: 0.5
+  - level: 4
+    upgradePrice: 4500
+    damageIncrease: 50
+    fireRateIncrease: 0.5
+  - level: 5
     upgradePrice: 6000
+    damageIncrease: 100
+    fireRateIncrease: 0.1

@@ -11,6 +11,10 @@ public class ShopService : MonoBehaviour
     public List<Transform> cowSpawnPoints;
     public List<Transform> buildingSpawnPoints;
 
+    // ★★★ 젖소 오브젝트 풀 변수 추가 ★★★
+    [Header("오브젝트 풀")]
+    public ObjectPool cowObjectPool;
+
     private PlayerInventory playerInventory;
     private GameManager gameManager;
 
@@ -34,10 +38,8 @@ public class ShopService : MonoBehaviour
         shopItems.RemoveAll(item => item == null);
     }
 
-    // 아이템 구매 가능 여부 확인
     public bool CanBuy(PurchasableItemData itemData)
     {
-        // 돈이 부족하면 구매 불가
         if (gameManager.CurrentMoney < itemData.itemPrice)
         {
             NotificationManager.Instance.ShowNotification("돈이 부족합니다.");
@@ -74,7 +76,6 @@ public class ShopService : MonoBehaviour
                 if (itemData.upgradeData == null) return false;
                 int currentLevel = 0;
 
-                // ★★★ 수정: 목초 레벨은 GameManager에서만 가져옵니다. ★★★
                 if (itemData.upgradeData is BasketUpgradeData)
                     currentLevel = playerInventory.basketLevel;
                 else if (itemData.upgradeData is MilkerUpgradeData)
@@ -84,8 +85,6 @@ public class ShopService : MonoBehaviour
                 else if (itemData.upgradeData is PastureUpgradeData)
                     currentLevel = gameManager.CurrentPastureLevel;
 
-                // ★★★ 수정: 목초 업그레이드도 이젠 레벨 0부터 판매 가능하도록 조건을 변경합니다. ★★★
-                // (이전에는 장비가 있어야 업그레이드 아이템이 보였습니다.)
                 if (itemData.upgradeData is PastureUpgradeData pastureData)
                 {
                     if (currentLevel >= pastureData.upgradeLevels.Count - 1)
@@ -95,7 +94,6 @@ public class ShopService : MonoBehaviour
                     }
                     itemData.itemPrice = pastureData.upgradeLevels[currentLevel + 1].upgradePrice;
                 }
-                // 기존 업그레이드 로직 (장비가 있어야 업그레이드 가능)은 유지합니다.
                 else
                 {
                     if (currentLevel == 0) return false;
@@ -134,7 +132,6 @@ public class ShopService : MonoBehaviour
         return true;
     }
 
-    // 구매 처리
     public void PurchaseItem(PurchasableItemData itemToPurchase)
     {
         if (gameManager.SpendMoney(itemToPurchase.itemPrice))
@@ -147,9 +144,20 @@ public class ShopService : MonoBehaviour
                         case AnimalType.Cow:
                             if (cowSpawnPoints.Count > 0)
                             {
-                                Instantiate(itemToPurchase.animalData.animalPrefab, cowSpawnPoints[0].position, Quaternion.identity);
-                                cowSpawnPoints.RemoveAt(0);
-                                NotificationManager.Instance.ShowNotification("젖소를 구매했습니다!");
+                                // ★★★ 수정: Instantiate 대신 오브젝트 풀에서 젖소를 가져옵니다. ★★★
+                                GameObject newCow = cowObjectPool.GetFromPool();
+                                if (newCow != null)
+                                {
+                                    newCow.transform.position = cowSpawnPoints[0].position;
+                                    cowSpawnPoints.RemoveAt(0);
+                                    NotificationManager.Instance.ShowNotification("젖소를 구매했습니다!");
+                                }
+                                else
+                                {
+                                    // 풀에 여유가 없는 경우 (선택 사항)
+                                    NotificationManager.Instance.ShowNotification("젖소를 놓을 자리가 없습니다.");
+                                    gameManager.AddMoney(itemToPurchase.itemPrice);
+                                }
                             }
                             else
                             {
@@ -212,28 +220,15 @@ public class ShopService : MonoBehaviour
                 case ItemType.Upgrade:
                     if (itemToPurchase.upgradeData is BasketUpgradeData)
                     {
-                        BasketUpgradeData data = itemToPurchase.upgradeData as BasketUpgradeData;
-                        int newLevel = playerInventory.basketLevel + 1;
-                        int newCapacity = data.upgradeLevels[newLevel - 1].capacity;
-                        playerInventory.SetBasketCapacity(newCapacity, newLevel);
-                        NotificationManager.Instance.ShowNotification("바구니가 레벨 " + newLevel + "로 업그레이드 되었습니다!");
+                        playerInventory.UpgradeBasket();
                     }
                     else if (itemToPurchase.upgradeData is MilkerUpgradeData)
                     {
-                        MilkerUpgradeData data = itemToPurchase.upgradeData as MilkerUpgradeData;
-                        int newLevel = playerInventory.milkerLevel + 1;
-                        int newCapacity = data.upgradeLevels[newLevel - 1].capacity;
-                        float newSpeed = data.upgradeLevels[newLevel - 1].speed;
-                        playerInventory.SetMilkerCapacity(newCapacity, newLevel, newSpeed);
-                        NotificationManager.Instance.ShowNotification("착유기가 레벨 " + newLevel + "로 업그레이드 되었습니다!");
+                        playerInventory.UpgradeMilker();
                     }
                     else if (itemToPurchase.upgradeData is GunUpgradeData)
                     {
-                        GunUpgradeData data = itemToPurchase.upgradeData as GunUpgradeData;
-                        playerInventory.gunLevel++;
-                        playerInventory.gunDamage = data.upgradeLevels[playerInventory.gunLevel - 1].damageIncrease;
-                        playerInventory.gunFireRate = data.upgradeLevels[playerInventory.gunLevel - 1].fireRateIncrease;
-                        NotificationManager.Instance.ShowNotification("총이 레벨 " + playerInventory.gunLevel + "로 업그레이드 되었습니다!");
+                        playerInventory.UpgradeGun();
                     }
                     else if (itemToPurchase.upgradeData is PastureUpgradeData)
                     {
@@ -254,7 +249,16 @@ public class ShopService : MonoBehaviour
         int sellPrice = animalToSell.animalData.animalPrice / 2;
         gameManager.AddMoney(sellPrice);
         NotificationManager.Instance.ShowNotification(animalToSell.animalData.animalName + "을(를) " + sellPrice + "원에 판매했습니다!");
-        Destroy(animalToSell.gameObject);
+
+        // ★★★ 수정: Destroy 대신 오브젝트를 풀로 반환합니다. ★★★
+        if (cowObjectPool != null)
+        {
+            cowObjectPool.ReturnToPool(animalToSell.gameObject);
+        }
+        else
+        {
+            Destroy(animalToSell.gameObject);
+        }
     }
 
     public void SellChicken()

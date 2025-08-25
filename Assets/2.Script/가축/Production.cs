@@ -41,8 +41,6 @@ public class Production : MonoBehaviour
             {
                 freshness.SetFreshnessBasedOnPasture();
             }
-
-            Debug.Log(gameObject.name + "가 생산했습니다. 현재 " + currentProductionCount + "개");
         }
     }
 }

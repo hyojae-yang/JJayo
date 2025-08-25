@@ -1,9 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class PlayerUI : MonoBehaviour
 {
+    // 싱글톤 패턴이 아닌, 다른 스크립트에서 참조할 수 있도록 public Instance 속성을 추가
+    public static PlayerUI Instance { get; private set; }
+
     [Header("UI 요소 연결")]
     public Slider milkerGauge;
     public Slider basketGauge;
@@ -16,6 +20,18 @@ public class PlayerUI : MonoBehaviour
     [Header("매니저 연결")]
     private PlayerInventory playerInventory;
     private GameManager gameManager;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     void Start()
     {
@@ -62,8 +78,9 @@ public class PlayerUI : MonoBehaviour
     /// </summary>
     private void UpdateMaxCapacities()
     {
-        milkerGauge.maxValue = playerInventory.milkerCapacity;
-        basketGauge.maxValue = playerInventory.basketCapacity;
+        // ★★★ 수정된 부분: 속성(Property)인 MilkerCapacity와 BasketCapacity를 사용합니다. ★★★
+        milkerGauge.maxValue = playerInventory.MilkerCapacity;
+        basketGauge.maxValue = playerInventory.BasketCapacity;
     }
 
     private void UpdateGauges()

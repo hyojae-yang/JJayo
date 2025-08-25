@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Warehouse : MonoBehaviour
 {
@@ -127,9 +128,14 @@ public class Warehouse : MonoBehaviour
 
         NotificationManager.Instance.ShowNotification("창고에 있는 모든 아이템의 신선도가 감소했습니다.");
     }
-    // **********************************************
-    // ★★★ 상인 시스템 연동 함수 추가 시작 ★★★
-    // **********************************************
+
+    /// <summary>
+    /// 창고에 있는 달걀의 총 개수를 반환합니다.
+    /// </summary>
+    public int GetEggCount()
+    {
+        return storedEggFreshness.Count;
+    }
 
     /// <summary>
     /// 창고에 있는 우유의 총 개수를 반환합니다.
@@ -177,8 +183,4 @@ public class Warehouse : MonoBehaviour
         // 2. 가장 신선한 우유부터 판매량만큼 제거
         storedMilkFreshness.RemoveRange(0, amount);
     }
-
-    // **********************************************
-    // ★★★ 상인 시스템 연동 함수 추가 끝 ★★★
-    // **********************************************
 }

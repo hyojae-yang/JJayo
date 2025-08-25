@@ -36,4 +36,12 @@ public class ObjectPool : MonoBehaviour
         pool.Add(newObj);
         return newObj;
     }
+
+    // ★★★ 이 부분을 추가해주세요 ★★★
+    public void ReturnToPool(GameObject obj)
+    {
+        obj.SetActive(false);
+        // 필요에 따라 오브젝트를 초기 상태로 리셋하는 로직을 추가할 수 있습니다.
+        // 예를 들어, obj.transform.position = Vector3.one * 9999; 같은 코드를 추가할 수 있습니다.
+    }
 }

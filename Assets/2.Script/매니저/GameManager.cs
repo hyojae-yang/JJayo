@@ -14,9 +14,13 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private int currentMoney = 1000;
 
-    // 명성도 변수 수정: public으로 변경하여 인스펙터에서 설정 가능하게 함
     [Tooltip("플레이어의 명성도")]
-    public int playerReputation = 0; // 초기 명성도 값을 여기서 설정할 수 있습니다.
+    public int playerReputation = 0;
+
+    [Tooltip("오늘 생산된 우유의 양")]
+    public int dailyMilkProduced = 0;
+    [Tooltip("오늘 생산된 달걀의 양")]
+    public int dailyEggsProduced = 0;
 
     [Header("Player UI")]
     [Tooltip("명성도를 표시할 TextMeshProUGUI 컴포넌트를 연결하세요.")]
@@ -53,7 +57,8 @@ public class GameManager : MonoBehaviour
     // Events
     public event Action<int> OnMoneyChanged;
     public event Action<float> OnTimeChanged;
-
+    public event Action<int> OnDayChanged;
+    public event Action OnMonthChanged;
     void Awake()
     {
         if (Instance == null)
@@ -82,8 +87,17 @@ public class GameManager : MonoBehaviour
 
         if (timeElapsed >= dayLengthInSeconds)
         {
+            int prevMonth = gameDate.Month;
             gameDate = gameDate.AddDays(1);
             timeElapsed -= dayLengthInSeconds;
+
+            // ★★★ 월이 변경되었는지 확인하고 이벤트를 호출 ★★★
+            if (gameDate.Month != prevMonth)
+            {
+                OnMonthChanged?.Invoke();
+            }
+
+            OnDayChanged?.Invoke(gameDate.Day);
             NotificationManager.Instance.ShowNotification("새로운 하루가 시작되었습니다!");
             TraderManager.Instance.StartTrade();
         }
