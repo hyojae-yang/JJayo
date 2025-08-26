@@ -28,17 +28,16 @@ public class ShopUI : MonoBehaviour
 
     private PurchasableItemData itemToPurchase;
     private Animal animalToSell;
+    private bool isSellingChicken = false;
 
     private void Awake()
     {
-        // ★★★ 변경된 부분: DontDestroyOnLoad 코드를 제거하고 씬에 종속적인 싱글톤 패턴으로 변경 ★★★
         if (Instance == null)
         {
             Instance = this;
         }
         else
         {
-            // 이미 존재하는 인스턴스가 있다면, 새로 생성된 자신을 파괴합니다.
             Destroy(gameObject);
         }
     }
@@ -50,7 +49,6 @@ public class ShopUI : MonoBehaviour
         sellPanel.SetActive(false);
         confirmationPanel.SetActive(false);
 
-        // 확인 및 취소 버튼에 이벤트 리스너를 미리 추가하여 중복을 방지합니다.
         confirmButton.onClick.AddListener(OnClickConfirm);
         cancelButton.onClick.AddListener(OnClickCancel);
 
@@ -93,10 +91,8 @@ public class ShopUI : MonoBehaviour
 
         if (ShopService.Instance == null) return;
 
-        foreach (var data in ShopService.Instance.shopItems)
+        foreach (var data in ShopService.Instance.GetShopItems())
         {
-            if (data == null) continue;
-
             if (ShopService.Instance.CanBuy(data))
             {
                 GameObject itemCard = Instantiate(uiItemCardPrefab, buyContentPanel);
@@ -127,18 +123,21 @@ public class ShopUI : MonoBehaviour
         ChickenCoop chickenCoop = FindAnyObjectByType<ChickenCoop>();
         if (chickenCoop != null && chickenCoop.numberOfChickens > 0)
         {
-            var chickenSellData = ShopService.Instance.shopItems.FirstOrDefault(item => item.animalData != null && item.animalData.animalType == AnimalType.Chicken);
-            if (chickenSellData != null)
-            {
-                GameObject itemCard = Instantiate(uiItemCardPrefab, sellContentPanel);
-                ShopItemUI itemUI = itemCard.GetComponent<ShopItemUI>();
-                itemUI.itemNameText.text = chickenSellData.animalData.animalName + $" (현재 {chickenCoop.numberOfChickens}마리)";
-                itemUI.itemPriceText.text = (chickenSellData.animalData.animalPrice / 2).ToString("C0");
-                itemUI.itemIcon.sprite = chickenSellData.animalData.animalIcon;
+            int sellPrice = ShopService.Instance.GetChickenSellPrice();
 
-                itemUI.actionButton.onClick.RemoveAllListeners();
-                itemUI.actionButton.onClick.AddListener(() => OnClickSellChicken());
+            GameObject itemCard = Instantiate(uiItemCardPrefab, sellContentPanel);
+            ShopItemUI itemUI = itemCard.GetComponent<ShopItemUI>();
+
+            var chickenData = ShopService.Instance.GetShopItems().FirstOrDefault(item => item.animalData != null && item.animalData.animalType == AnimalType.Chicken);
+            if (chickenData != null)
+            {
+                itemUI.itemNameText.text = chickenData.animalData.animalName + $" (현재 {chickenCoop.numberOfChickens}마리)";
+                itemUI.itemPriceText.text = sellPrice.ToString("C0");
+                itemUI.itemIcon.sprite = chickenData.animalData.animalIcon;
             }
+
+            itemUI.actionButton.onClick.RemoveAllListeners();
+            itemUI.actionButton.onClick.AddListener(() => OnClickSellChicken(sellPrice));
         }
     }
 
@@ -146,6 +145,7 @@ public class ShopUI : MonoBehaviour
     {
         itemToPurchase = itemData;
         animalToSell = null;
+        isSellingChicken = false;
         confirmationPanel.SetActive(true);
         confirmText.text = $"{itemData.itemName}을(를) {itemData.itemPrice}원에 구매하시겠습니까?";
     }
@@ -154,22 +154,19 @@ public class ShopUI : MonoBehaviour
     {
         this.animalToSell = animalToSell;
         itemToPurchase = null;
+        isSellingChicken = false;
         confirmationPanel.SetActive(true);
         int sellPrice = animalToSell.animalData.animalPrice / 2;
         confirmText.text = $"{animalToSell.animalData.animalName}을(를) {sellPrice}원에 판매하시겠습니까?";
     }
 
-    public void OnClickSellChicken()
+    public void OnClickSellChicken(int price)
     {
         itemToPurchase = null;
         animalToSell = null;
+        isSellingChicken = true;
         confirmationPanel.SetActive(true);
-        var chickenData = ShopService.Instance.shopItems.FirstOrDefault(item => item.animalData != null && item.animalData.animalType == AnimalType.Chicken);
-        if (chickenData != null)
-        {
-            int sellPrice = chickenData.animalData.animalPrice / 2;
-            confirmText.text = $"닭 1마리를 {sellPrice}원에 판매하시겠습니까?";
-        }
+        confirmText.text = $"닭 1마리를 {price}원에 판매하시겠습니까?";
     }
 
     public void OnClickConfirm()
@@ -179,14 +176,14 @@ public class ShopUI : MonoBehaviour
             ShopService.Instance.PurchaseItem(itemToPurchase);
             PopulateBuyItems();
         }
+        else if (isSellingChicken)
+        {
+            ShopService.Instance.SellChicken();
+            PopulateSellItems();
+        }
         else if (animalToSell != null)
         {
             ShopService.Instance.SellItem(animalToSell);
-            PopulateSellItems();
-        }
-        else
-        {
-            ShopService.Instance.SellChicken();
             PopulateSellItems();
         }
 
@@ -197,6 +194,7 @@ public class ShopUI : MonoBehaviour
     {
         itemToPurchase = null;
         animalToSell = null;
+        isSellingChicken = false;
         confirmationPanel.SetActive(false);
     }
 }

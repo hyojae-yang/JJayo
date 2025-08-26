@@ -21,7 +21,7 @@ public class SaveLoadManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        savePath = Application.persistentDataPath + "/savefile.json";
+        savePath = Path.Combine(Application.persistentDataPath, "savefile.json");
         Debug.Log("Game data save path: " + savePath);
     }
 
@@ -30,33 +30,32 @@ public class SaveLoadManager : MonoBehaviour
     /// </summary>
     public void SaveGame()
     {
-        // 1. Create a SaveData object and populate it with current game data.
-        SaveData data = new SaveData();
-
-        // Get data from GameManager
-        data.currentMoney = GameManager.Instance.CurrentMoney;
-        data.reputation = GameManager.Instance.playerReputation;
-        data.gameDay = GameManager.Instance.gameDate.Day;
-        data.gameMonth = GameManager.Instance.gameDate.Month;
-        data.gameYear = GameManager.Instance.gameDate.Year;
-
-        // Get milk data from PlayerInventory
-        data.milkInventory = new List<MilkData>();
-        foreach (var milk in PlayerInventory.Instance.milkList)
+        if (GameManager.Instance == null)
         {
-            data.milkInventory.Add(new MilkData { freshness = milk.freshness });
+            Debug.LogError("GameManager instance not found. Cannot save game.");
+            return;
         }
 
-        // Get egg data from Warehouse
-        data.eggCount = Warehouse.Instance.GetEggCount();
+        // Use the centralized GameData object from GameManager.
+        GameData dataToSave = GameManager.Instance.gameData;
 
-        // 2. Convert the SaveData object to a JSON string.
-        string json = JsonUtility.ToJson(data, true);
+        // Convert the GameData object to a JSON string.
+        string json = JsonUtility.ToJson(dataToSave, true);
 
-        // 3. Write the JSON string to a file.
-        File.WriteAllText(savePath, json);
-        Debug.Log("Game saved successfully!");
-        NotificationManager.Instance.ShowNotification("Game saved!");
+        // Write the JSON string to a file.
+        try
+        {
+            File.WriteAllText(savePath, json);
+            Debug.Log("Game saved successfully!");
+            if (NotificationManager.Instance != null)
+            {
+                NotificationManager.Instance.ShowNotification("Game saved!");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to save game: {e.Message}");
+        }
     }
 
     /// <summary>
@@ -66,33 +65,37 @@ public class SaveLoadManager : MonoBehaviour
     {
         if (File.Exists(savePath))
         {
-            // 1. Read the JSON string from the file.
-            string json = File.ReadAllText(savePath);
-
-            // 2. Convert the JSON string to a SaveData object.
-            SaveData data = JsonUtility.FromJson<SaveData>(json);
-
-            // 3. Restore game state from the loaded data.
-            GameManager.Instance.LoadGameData(data.currentMoney, data.reputation, new System.DateTime(data.gameYear, data.gameMonth, data.gameDay));
-
-            // Restore milk data
-            PlayerInventory.Instance.milkList.Clear();
-            foreach (var milkData in data.milkInventory)
+            try
             {
-                PlayerInventory.Instance.AddMilk(new Milk(milkData.freshness));
+                // Read the JSON string from the file.
+                string json = File.ReadAllText(savePath);
+
+                // Convert the JSON string to a GameData object.
+                GameData loadedData = JsonUtility.FromJson<GameData>(json);
+
+                // Pass the loaded data to GameManager to handle restoration.
+                if (GameManager.Instance != null)
+                {
+                    GameManager.Instance.LoadGameData(loadedData);
+                }
             }
-
-            // Restore egg data
-            Warehouse.Instance.SetEggCount(data.eggCount);
-
-            // ★★★ 변경된 부분: 여기에서 NotificationManager를 직접 호출하지 않습니다. ★★★
-            Debug.Log("Game loaded successfully!");
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Failed to load game: {e.Message}");
+                if (NotificationManager.Instance != null)
+                {
+                    NotificationManager.Instance.ShowNotification("Save file corrupted!");
+                }
+            }
         }
         else
         {
-            // 저장 파일이 없을 때는 현재 씬의 NotificationManager를 호출해도 안전합니다.
+            // If the file doesn't exist, show a notification.
             Debug.LogWarning("No save file found!");
-            NotificationManager.Instance.ShowNotification("No saved game found.");
+            if (NotificationManager.Instance != null)
+            {
+                NotificationManager.Instance.ShowNotification("No saved game found.");
+            }
         }
     }
 
@@ -100,7 +103,6 @@ public class SaveLoadManager : MonoBehaviour
     /// Checks if a save file exists.
     /// </summary>
     /// <returns>Returns true if a save file exists, otherwise false.</returns>
-    // ★★★ 추가된 부분: 저장 파일 존재 여부를 확인하는 함수 ★★★
     public bool HasSaveFile()
     {
         return File.Exists(savePath);

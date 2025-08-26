@@ -4,58 +4,67 @@ using System.Collections.Generic;
 public class WolfManager : MonoBehaviour
 {
     public static WolfManager Instance { get; private set; }
+
     [Header("늑대 풀링 시스템")]
     public ObjectPool wolfObjectPool;
 
     [Header("늑대 스탯 설정")]
     public float baseHealth = 30f;
     public float baseDamage = 20f;
-    public float difficultyScale = 1.2f; // 매달 늑대의 체력/공격력 배율
+    public float difficultyScale = 1.2f;
 
     [Header("늑대 이벤트 설정")]
-    // private으로 변경하여 인스펙터에 노출되지 않음
     private List<int> eventDates = new List<int>();
 
-    void Start()
+    void Awake()
     {
-        if (GameManager.Instance != null)
+        if (Instance == null)
         {
-            // 월이 변경될 때마다 이벤트 날짜를 다시 계산
-            GameManager.Instance.OnMonthChanged += GenerateRandomEventDates;
-            // 일자가 변경될 때마다 늑대 이벤트를 확인
-            GameManager.Instance.OnDayChanged += CheckForWolfEvent;
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
         }
     }
 
-    // 매달 랜덤한 이벤트 날짜를 생성합니다.
+    void Start()
+    {
+        // GameManager 대신 TimeManager의 이벤트를 구독
+        if (TimeManager.Instance != null)
+        {
+            TimeManager.Instance.OnMonthChanged += GenerateRandomEventDates;
+            TimeManager.Instance.OnDayChanged += CheckForWolfEvent;
+        }
+        GenerateRandomEventDates();
+    }
     public void GenerateRandomEventDates()
     {
         eventDates.Clear();
 
-        int currentMonth = GameManager.Instance.gameDate.Month;
+        int currentMonth = GameManager.Instance.gameData.month;
         int maxEventCount;
 
-        // ★★★ 사용자 구상 반영: 3개월 단위로 이벤트 횟수 증가 ★★★
         if (currentMonth <= 3)
         {
-            maxEventCount = 1; // 0~1회
+            maxEventCount = 1;
         }
         else if (currentMonth <= 6)
         {
-            maxEventCount = 3; // 1~3회
+            maxEventCount = 3;
         }
         else if (currentMonth <= 9)
         {
-            maxEventCount = 4; // 2~4회
+            maxEventCount = 4;
         }
         else
         {
-            maxEventCount = 5; // 3~5회
+            maxEventCount = 5;
         }
 
         int eventCount = UnityEngine.Random.Range(0, maxEventCount + 1);
 
-        // 날짜를 담을 HashSet을 사용하여 중복 방지
         HashSet<int> randomDays = new HashSet<int>();
         while (randomDays.Count < eventCount)
         {
@@ -75,8 +84,7 @@ public class WolfManager : MonoBehaviour
     {
         if (eventDates.Contains(currentDay))
         {
-            // ★★★ 사용자 구상 반영: 연도에 따라 소환 마릿수 증가 ★★★
-            int currentYear = GameManager.Instance.gameDate.Year;
+            int currentYear = GameManager.Instance.gameData.year;
             int minWolves, maxWolves;
 
             if (currentYear == 1)
@@ -122,7 +130,7 @@ public class WolfManager : MonoBehaviour
             else
             {
                 minWolves = 5;
-                maxWolves = 5; // 9년차부터 5마리 고정
+                maxWolves = 5;
             }
 
             int wolvesToSpawn = UnityEngine.Random.Range(minWolves, maxWolves + 1);
@@ -152,9 +160,8 @@ public class WolfManager : MonoBehaviour
             Wolf wolfScript = wolfObj.GetComponent<Wolf>();
             if (wolfScript != null)
             {
-                // ★★★ 현재 연도에 따라 스탯을 계산하여 전달합니다. ★★★
-                int currentYear = GameManager.Instance.gameDate.Year;
-                float scaledHealth = baseHealth * Mathf.Pow(difficultyScale, currentYear - 1); // 1년차는 배율 0
+                int currentYear = GameManager.Instance.gameData.year;
+                float scaledHealth = baseHealth * Mathf.Pow(difficultyScale, currentYear - 1);
                 float scaledDamage = baseDamage * Mathf.Pow(difficultyScale, currentYear - 1);
 
                 wolfScript.Initialize(this, scaledHealth, scaledDamage);
@@ -164,12 +171,10 @@ public class WolfManager : MonoBehaviour
 
     public void ReturnWolfToPool(GameObject wolfObj)
     {
-        // ★★★ 늑대 풀로 반환하기 전 초기화 ★★★
-        wolfObj.GetComponent<Wolf>().isReturning = false; // 반환 상태 초기화
+        wolfObj.GetComponent<Wolf>().isReturning = false;
         wolfObj.SetActive(false);
     }
 
-    // ★★★ 새로 추가된 부분: 모든 늑대를 풀로 돌려보내는 메서드 ★★★
     public void ReturnAllWolvesToPool()
     {
         GameObject[] activeWolves = GameObject.FindGameObjectsWithTag("Wolf");

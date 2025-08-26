@@ -1,5 +1,3 @@
-// ShopService.cs
-
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,17 +6,17 @@ public class ShopService : MonoBehaviour
 {
     public static ShopService Instance { get; private set; }
 
-    [Header("데이터 및 스폰 포인트")]
-    public List<PurchasableItemData> shopItems;
+    [Header("스폰 포인트")]
     public List<Transform> cowSpawnPoints;
     public List<Transform> buildingSpawnPoints;
 
-    // ★★★ 젖소 오브젝트 풀 변수 추가 ★★★
     [Header("오브젝트 풀")]
     public ObjectPool cowObjectPool;
 
-    private PlayerInventory playerInventory;
-    private GameManager gameManager;
+    // GameData를 필요할 때마다 GameManager에서 직접 가져오므로 더 이상 멤버 변수로 두지 않습니다.
+    // private GameData gameData; 
+    // shopItems도 더 이상 멤버 변수로 두지 않습니다.
+    // private List<PurchasableItemData> shopItems;
 
     private void Awake()
     {
@@ -33,16 +31,41 @@ public class ShopService : MonoBehaviour
         }
     }
 
-    void Start()
+    // Start() 함수는 이제 필요 없으므로 삭제합니다.
+    // void Start()
+    // {
+    //     gameData = GameManager.Instance.gameData;
+    //     if (gameData == null)
+    //     {
+    //         Debug.LogError("GameData를 찾을 수 없습니다.");
+    //     }
+    // }
+
+    public List<PurchasableItemData> GetShopItems()
     {
-        playerInventory = PlayerInventory.Instance;
-        gameManager = GameManager.Instance;
-        shopItems.RemoveAll(item => item == null);
+        if (ShopManager.Instance != null)
+        {
+            return ShopManager.Instance.GetShopItems();
+        }
+        Debug.LogError("ShopManager를 찾을 수 없어 빈 리스트를 반환합니다.");
+        return new List<PurchasableItemData>();
     }
 
+    /// <summary>
+    /// 아이템을 구매할 수 있는지 확인합니다.
+    /// </summary>
     public bool CanBuy(PurchasableItemData itemData)
     {
-        if (gameManager.CurrentMoney < itemData.itemPrice)
+        // ★★★ 수정 부분 ★★★
+        // GameData를 필요할 때마다 GameManager에서 가져오도록 변경
+        GameData gameData = GameManager.Instance.gameData;
+        if (gameData == null)
+        {
+            Debug.LogError("GameData를 찾을 수 없어 구매 가능 여부를 확인할 수 없습니다.");
+            return false;
+        }
+
+        if (gameData.money < itemData.itemPrice)
         {
             NotificationManager.Instance.ShowNotification("돈이 부족합니다.");
             return false;
@@ -53,8 +76,9 @@ public class ShopService : MonoBehaviour
             case ItemType.Building:
                 if (itemData.itemPrefab != null)
                 {
-                    if (FindObjectsOfType<Transform>().Any(t => t.CompareTag("Building") && t.name.Contains(itemData.itemName)))
+                    if (FindObjectsByType<Transform>(FindObjectsSortMode.None).Any(t => t.CompareTag("Building") && t.name.Contains(itemData.itemName)))
                     {
+                        NotificationManager.Instance.ShowNotification("이미 건물을 가지고 있습니다.");
                         return false;
                     }
                 }
@@ -64,13 +88,25 @@ public class ShopService : MonoBehaviour
                 switch (itemData.equipmentData.equipmentType)
                 {
                     case EquipmentType.Gun:
-                        if (playerInventory.hasGun) return false;
+                        if (gameData.hasGun)
+                        {
+                            NotificationManager.Instance.ShowNotification("이미 총을 가지고 있습니다.");
+                            return false;
+                        }
                         break;
                     case EquipmentType.Basket:
-                        if (playerInventory.basketLevel > 0) return false;
+                        if (gameData.basketLevel > 0)
+                        {
+                            NotificationManager.Instance.ShowNotification("이미 바구니를 가지고 있습니다.");
+                            return false;
+                        }
                         break;
                     case EquipmentType.Milker:
-                        if (playerInventory.milkerLevel > 0) return false;
+                        if (gameData.milkerLevel > 0)
+                        {
+                            NotificationManager.Instance.ShowNotification("이미 착유기를 가지고 있습니다.");
+                            return false;
+                        }
                         break;
                 }
                 break;
@@ -79,13 +115,13 @@ public class ShopService : MonoBehaviour
                 int currentLevel = 0;
 
                 if (itemData.upgradeData is BasketUpgradeData)
-                    currentLevel = playerInventory.basketLevel;
+                    currentLevel = gameData.basketLevel;
                 else if (itemData.upgradeData is MilkerUpgradeData)
-                    currentLevel = playerInventory.milkerLevel;
+                    currentLevel = gameData.milkerLevel;
                 else if (itemData.upgradeData is GunUpgradeData)
-                    currentLevel = playerInventory.gunLevel;
+                    currentLevel = gameData.gunLevel;
                 else if (itemData.upgradeData is PastureUpgradeData)
-                    currentLevel = gameManager.CurrentPastureLevel;
+                    currentLevel = gameData.pastureLevel;
 
                 if (itemData.upgradeData is PastureUpgradeData pastureData)
                 {
@@ -98,161 +134,193 @@ public class ShopService : MonoBehaviour
                 }
                 else
                 {
-                    if (currentLevel == 0) return false;
-                }
+                    if (currentLevel == 0)
+                    {
+                        NotificationManager.Instance.ShowNotification("장비를 먼저 구매해야 업그레이드할 수 있습니다.");
+                        return false;
+                    }
 
-                if (itemData.upgradeData is BasketUpgradeData basketData)
-                {
-                    if (currentLevel >= basketData.upgradeLevels.Count) return false;
-                    itemData.itemPrice = basketData.upgradeLevels[currentLevel].upgradePrice;
-                }
-                else if (itemData.upgradeData is MilkerUpgradeData milkerData)
-                {
-                    if (currentLevel >= milkerData.upgradeLevels.Count) return false;
-                    itemData.itemPrice = milkerData.upgradeLevels[currentLevel].upgradePrice;
-                }
-                else if (itemData.upgradeData is GunUpgradeData gunData)
-                {
-                    if (currentLevel >= gunData.upgradeLevels.Count) return false;
-                    itemData.itemPrice = gunData.upgradeLevels[currentLevel].upgradePrice;
+                    if (itemData.upgradeData is BasketUpgradeData basketData)
+                    {
+                        if (currentLevel >= basketData.upgradeLevels.Count) return false;
+                        itemData.itemPrice = basketData.upgradeLevels[currentLevel].upgradePrice;
+                    }
+                    else if (itemData.upgradeData is MilkerUpgradeData milkerData)
+                    {
+                        if (currentLevel >= milkerData.upgradeLevels.Count) return false;
+                        itemData.itemPrice = milkerData.upgradeLevels[currentLevel].upgradePrice;
+                    }
+                    else if (itemData.upgradeData is GunUpgradeData gunData)
+                    {
+                        if (currentLevel >= gunData.upgradeLevels.Count) return false;
+                        itemData.itemPrice = gunData.upgradeLevels[currentLevel].upgradePrice;
+                    }
                 }
                 break;
             case ItemType.Animal:
                 if (itemData.animalData != null && itemData.animalData.animalType == AnimalType.Chicken)
                 {
-                    if (FindAnyObjectByType<ChickenCoop>() == null) return false;
+                    if (FindAnyObjectByType<ChickenCoop>() == null)
+                    {
+                        NotificationManager.Instance.ShowNotification("닭장이 없습니다. 먼저 닭장을 구매하세요.");
+                        return false;
+                    }
                 }
                 break;
             case ItemType.Consumable:
-                if (itemData.consumableData != null && itemData.itemName == "총알(30개)" && !playerInventory.hasGun)
+                if (itemData.consumableData != null && itemData.itemName == "총알(30개)" && !gameData.hasGun)
                 {
+                    NotificationManager.Instance.ShowNotification("총이 있어야 총알을 구매할 수 있습니다.");
                     return false;
                 }
                 break;
         }
-
         return true;
     }
 
+    /// <summary>
+    /// 아이템 구매를 처리합니다.
+    /// </summary>
     public void PurchaseItem(PurchasableItemData itemToPurchase)
     {
-        if (gameManager.SpendMoney(itemToPurchase.itemPrice))
+        // ★★★ 수정 부분 ★★★
+        GameData gameData = GameManager.Instance.gameData;
+        if (gameData == null)
         {
-            switch (itemToPurchase.itemType)
-            {
-                case ItemType.Animal:
-                    switch (itemToPurchase.animalData.animalType)
-                    {
-                        case AnimalType.Cow:
-                            if (cowSpawnPoints.Count > 0)
-                            {
-                                // ★★★ 수정: Instantiate 대신 오브젝트 풀에서 젖소를 가져옵니다. ★★★
-                                GameObject newCow = cowObjectPool.GetFromPool();
-                                if (newCow != null)
-                                {
-                                    newCow.transform.position = cowSpawnPoints[0].position;
-                                    cowSpawnPoints.RemoveAt(0);
-                                    NotificationManager.Instance.ShowNotification("젖소를 구매했습니다!");
-                                }
-                                else
-                                {
-                                    // 풀에 여유가 없는 경우 (선택 사항)
-                                    NotificationManager.Instance.ShowNotification("젖소를 놓을 자리가 없습니다.");
-                                    gameManager.AddMoney(itemToPurchase.itemPrice);
-                                }
-                            }
-                            else
-                            {
-                                NotificationManager.Instance.ShowNotification("젖소를 놓을 자리가 없습니다.");
-                                gameManager.AddMoney(itemToPurchase.itemPrice);
-                            }
-                            break;
-                        case AnimalType.Chicken:
-                            if (ChickenCoop.Instance != null)
-                            {
-                                ChickenCoop.Instance.AddChicken();
-                                NotificationManager.Instance.ShowNotification("닭을 구매했습니다.");
-                            }
-                            else
-                            {
-                                NotificationManager.Instance.ShowNotification("닭장이 없습니다. 먼저 닭장을 구매하세요!");
-                                gameManager.AddMoney(itemToPurchase.itemPrice);
-                            }
-                            break;
-                    }
-                    break;
-                case ItemType.Building:
-                    if (buildingSpawnPoints.Count > 0)
-                    {
-                        Instantiate(itemToPurchase.itemPrefab, buildingSpawnPoints[0].position, Quaternion.identity);
-                        buildingSpawnPoints.RemoveAt(0);
-                        NotificationManager.Instance.ShowNotification(itemToPurchase.itemName + "을(를) 구매했습니다. 목장에 설치되었습니다!");
-                    }
-                    else
-                    {
-                        NotificationManager.Instance.ShowNotification("건물을 놓을 자리가 없습니다.");
-                        gameManager.AddMoney(itemToPurchase.itemPrice);
-                    }
-                    break;
-                case ItemType.Equipment:
-                    if (itemToPurchase.equipmentData != null)
-                    {
-                        switch (itemToPurchase.equipmentData.equipmentType)
-                        {
-                            case EquipmentType.Gun:
-                                playerInventory.hasGun = true;
-                                playerInventory.gunLevel = 1;
-                                NotificationManager.Instance.ShowNotification("총을 구매했습니다!");
-                                break;
-                            case EquipmentType.Basket:
-                                playerInventory.basketLevel = 1;
-                                NotificationManager.Instance.ShowNotification("바구니를 구매했습니다!");
-                                break;
-                            case EquipmentType.Milker:
-                                playerInventory.milkerLevel = 1;
-                                NotificationManager.Instance.ShowNotification("착유기를 구매했습니다!");
-                                break;
-                        }
-                    }
-                    break;
-                case ItemType.Consumable:
-                    playerInventory.AddBullets(itemToPurchase.consumableData.amount);
-                    NotificationManager.Instance.ShowNotification(itemToPurchase.itemName + "을(를) 구매했습니다.");
-                    break;
-                case ItemType.Upgrade:
-                    if (itemToPurchase.upgradeData is BasketUpgradeData)
-                    {
-                        playerInventory.UpgradeBasket();
-                    }
-                    else if (itemToPurchase.upgradeData is MilkerUpgradeData)
-                    {
-                        playerInventory.UpgradeMilker();
-                    }
-                    else if (itemToPurchase.upgradeData is GunUpgradeData)
-                    {
-                        playerInventory.UpgradeGun();
-                    }
-                    else if (itemToPurchase.upgradeData is PastureUpgradeData)
-                    {
-                        gameManager.UpgradePasture();
-                        NotificationManager.Instance.ShowNotification("목초가 레벨 " + gameManager.CurrentPastureLevel + "로 업그레이드 되었습니다!");
-                    }
-                    break;
-            }
+            Debug.LogError("GameData를 찾을 수 없어 아이템을 구매할 수 없습니다.");
+            return;
         }
-        else
+
+        gameData.money -= itemToPurchase.itemPrice;
+
+        switch (itemToPurchase.itemType)
         {
-            NotificationManager.Instance.ShowNotification("소지 금액이 부족합니다.");
+            case ItemType.Animal:
+                switch (itemToPurchase.animalData.animalType)
+                {
+                    case AnimalType.Cow:
+                        if (cowSpawnPoints.Count > 0)
+                        {
+                            GameObject newCow = cowObjectPool.GetFromPool();
+                            if (newCow != null)
+                            {
+                                newCow.transform.position = cowSpawnPoints[0].position;
+                                cowSpawnPoints.RemoveAt(0);
+                                NotificationManager.Instance.ShowNotification("젖소를 구매했습니다!");
+                            }
+                            else
+                            {
+                                NotificationManager.Instance.ShowNotification("젖소를 놓을 자리가 없습니다. 돈을 되돌려드립니다.");
+                                gameData.money += itemToPurchase.itemPrice;
+                            }
+                        }
+                        else
+                        {
+                            NotificationManager.Instance.ShowNotification("젖소를 놓을 자리가 없습니다. 돈을 되돌려드립니다.");
+                            gameData.money += itemToPurchase.itemPrice;
+                        }
+                        break;
+                    case AnimalType.Chicken:
+                        if (ChickenCoop.Instance != null)
+                        {
+                            ChickenCoop.Instance.AddChicken();
+                            NotificationManager.Instance.ShowNotification("닭을 구매했습니다.");
+                        }
+                        else
+                        {
+                            NotificationManager.Instance.ShowNotification("닭장이 없습니다. 먼저 닭장을 구매하세요! 돈을 되돌려드립니다.");
+                            gameData.money += itemToPurchase.itemPrice;
+                        }
+                        break;
+                }
+                break;
+            case ItemType.Building:
+                if (buildingSpawnPoints.Count > 0)
+                {
+                    Instantiate(itemToPurchase.itemPrefab, buildingSpawnPoints[0].position, Quaternion.identity);
+                    buildingSpawnPoints.RemoveAt(0);
+                    NotificationManager.Instance.ShowNotification(itemToPurchase.itemName + "을(를) 구매했습니다. 목장에 설치되었습니다!");
+                }
+                else
+                {
+                    NotificationManager.Instance.ShowNotification("건물을 놓을 자리가 없습니다. 돈을 되돌려드립니다.");
+                    gameData.money += itemToPurchase.itemPrice;
+                }
+                break;
+            case ItemType.Equipment:
+                if (itemToPurchase.equipmentData != null)
+                {
+                    switch (itemToPurchase.equipmentData.equipmentType)
+                    {
+                        case EquipmentType.Gun:
+                            gameData.hasGun = true;
+                            gameData.gunLevel = 1;
+                            NotificationManager.Instance.ShowNotification("총을 구매했습니다!");
+                            break;
+                        case EquipmentType.Basket:
+                            gameData.basketLevel = 1;
+                            NotificationManager.Instance.ShowNotification("바구니를 구매했습니다!");
+                            break;
+                        case EquipmentType.Milker:
+                            gameData.milkerLevel = 1;
+                            NotificationManager.Instance.ShowNotification("착유기를 구매했습니다!");
+                            break;
+                    }
+                }
+                break;
+            case ItemType.Consumable:
+                if (itemToPurchase.itemName == "총알(30개)")
+                {
+                    gameData.bulletCount += itemToPurchase.consumableData.amount;
+                    NotificationManager.Instance.ShowNotification(itemToPurchase.itemName + "을(를) 구매했습니다.");
+                }
+                break;
+            case ItemType.Upgrade:
+                if (itemToPurchase.upgradeData is BasketUpgradeData)
+                {
+                    gameData.basketLevel++;
+                    NotificationManager.Instance.ShowNotification("바구니가 업그레이드 되었습니다!");
+                }
+                else if (itemToPurchase.upgradeData is MilkerUpgradeData)
+                {
+                    gameData.milkerLevel++;
+                    NotificationManager.Instance.ShowNotification("착유기가 업그레이드 되었습니다!");
+                }
+                else if (itemToPurchase.upgradeData is GunUpgradeData)
+                {
+                    gameData.gunLevel++;
+                    NotificationManager.Instance.ShowNotification("총이 업그레이드 되었습니다!");
+                }
+                else if (itemToPurchase.upgradeData is PastureUpgradeData)
+                {
+                    gameData.pastureLevel++;
+                    if (PastureManager.Instance != null)
+                    {
+                        PastureManager.Instance.UpdateVisuals();
+                    }
+                    NotificationManager.Instance.ShowNotification("목초가 레벨 " + gameData.pastureLevel + "로 업그레이드 되었습니다!");
+                }
+                break;
         }
     }
 
+    /// <summary>
+    /// 동물을 판매합니다.
+    /// </summary>
     public void SellItem(Animal animalToSell)
     {
+        // ★★★ 수정 부분 ★★★
+        GameData gameData = GameManager.Instance.gameData;
+        if (gameData == null)
+        {
+            Debug.LogError("GameData를 찾을 수 없어 아이템을 판매할 수 없습니다.");
+            return;
+        }
+
         int sellPrice = animalToSell.animalData.animalPrice / 2;
-        gameManager.AddMoney(sellPrice);
+        gameData.money += sellPrice;
         NotificationManager.Instance.ShowNotification(animalToSell.animalData.animalName + "을(를) " + sellPrice + "원에 판매했습니다!");
 
-        // ★★★ 수정: Destroy 대신 오브젝트를 풀로 반환합니다. ★★★
         if (cowObjectPool != null)
         {
             cowObjectPool.ReturnToPool(animalToSell.gameObject);
@@ -263,19 +331,45 @@ public class ShopService : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 닭을 판매합니다.
+    /// </summary>
     public void SellChicken()
     {
+        // ★★★ 수정 부분 ★★★
+        GameData gameData = GameManager.Instance.gameData;
+        if (gameData == null)
+        {
+            Debug.LogError("GameData를 찾을 수 없어 닭을 판매할 수 없습니다.");
+            return;
+        }
+
         ChickenCoop chickenCoop = FindAnyObjectByType<ChickenCoop>();
         if (chickenCoop != null && chickenCoop.numberOfChickens > 0)
         {
-            var chickenSellData = shopItems.FirstOrDefault(item => item.animalData != null && item.animalData.animalType == AnimalType.Chicken);
+            // shopItems 멤버 변수를 사용하지 않고 GetShopItems()를 직접 호출
+            var chickenSellData = GetShopItems().FirstOrDefault(item => item.animalData != null && item.animalData.animalType == AnimalType.Chicken);
             if (chickenSellData != null)
             {
                 int sellPrice = chickenSellData.animalData.animalPrice / 2;
-                gameManager.AddMoney(sellPrice);
+                gameData.money += sellPrice;
                 chickenCoop.RemoveChicken();
                 NotificationManager.Instance.ShowNotification($"닭 1마리를 {sellPrice}원에 판매했습니다. 남은 닭: {chickenCoop.numberOfChickens}마리");
             }
         }
+    }
+
+    /// <summary>
+    /// 닭 판매 가격을 반환하는 메서드를 추가합니다.
+    /// </summary>
+    public int GetChickenSellPrice()
+    {
+        // shopItems 멤버 변수를 사용하지 않고 GetShopItems()를 직접 호출
+        var chickenSellData = GetShopItems().FirstOrDefault(item => item.animalData != null && item.animalData.animalType == AnimalType.Chicken);
+        if (chickenSellData != null)
+        {
+            return chickenSellData.animalData.animalPrice / 2;
+        }
+        return 0;
     }
 }

@@ -17,13 +17,10 @@ public class InfoPanelManager : MonoBehaviour
     [Header("Panel 1: Upgrade UI Texts")]
     public TextMeshProUGUI pastureLevelText;
     public TextMeshProUGUI pastureStatsText;
-
     public TextMeshProUGUI basketLevelText;
     public TextMeshProUGUI basketStatsText;
-
     public TextMeshProUGUI milkerLevelText;
     public TextMeshProUGUI milkerStatsText;
-
     public TextMeshProUGUI gunLevelText;
     public TextMeshProUGUI gunStatsText;
 
@@ -33,7 +30,13 @@ public class InfoPanelManager : MonoBehaviour
     public TextMeshProUGUI avgFreshnessText;
     public TextMeshProUGUI dailyMilkText;
     public TextMeshProUGUI dailyEggText;
-    public TextMeshProUGUI bulletsCountText; // ★★★ 추가된 부분 ★★★
+    public TextMeshProUGUI bulletsCountText;
+
+    // 필요한 매니저들을 참조 변수로 추가
+    private GameManager gameManager;
+    private PlayerInventory playerInventory;
+    private Warehouse warehouse;
+    private PastureManager pastureManager;
 
     private void Awake()
     {
@@ -45,6 +48,15 @@ public class InfoPanelManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    void Start()
+    {
+        // Start에서 각 매니저 인스턴스를 가져옵니다.
+        gameManager = GameManager.Instance;
+        playerInventory = PlayerInventory.Instance;
+        warehouse = Warehouse.Instance;
+        pastureManager = PastureManager.Instance;
     }
 
     public void ToggleInfoPanel()
@@ -87,29 +99,27 @@ public class InfoPanelManager : MonoBehaviour
 
     private void UpdateUpgradeInfo()
     {
-        if (pastureLevelText != null && pastureStatsText != null && GameManager.Instance != null)
+        if (pastureManager != null && pastureManager.pastureUpgradeData != null)
         {
-            int level = GameManager.Instance.CurrentPastureLevel;
+            int level = pastureManager.CurrentPastureLevel;
             pastureLevelText.text = $"레벨: {level}";
 
-            if (GameManager.Instance.pastureUpgradeData != null)
-            {
-                var freshnessRange = GameManager.Instance.pastureUpgradeData.GetFreshnessRange(level);
-                pastureStatsText.text = $"신선도 범위: {freshnessRange.min}% ~ {freshnessRange.max}%";
-            }
-            else
-            {
-                pastureStatsText.text = "능력치 정보 없음";
-            }
+            var freshnessRange = pastureManager.pastureUpgradeData.GetFreshnessRange(level);
+            pastureStatsText.text = $"신선도 범위: {freshnessRange.min}% ~ {freshnessRange.max}%";
+        }
+        else
+        {
+            if (pastureLevelText != null) pastureLevelText.text = "레벨: 0";
+            if (pastureStatsText != null) pastureStatsText.text = "능력치 정보 없음";
         }
 
-        if (PlayerInventory.Instance != null)
+        if (playerInventory != null)
         {
             // 바구니 정보
             if (basketLevelText != null && basketStatsText != null)
             {
-                int level = PlayerInventory.Instance.basketLevel;
-                int capacity = PlayerInventory.Instance.BasketCapacity;
+                int level = playerInventory.basketLevel;
+                int capacity = playerInventory.BasketCapacity;
                 basketLevelText.text = $"레벨: {level}";
                 basketStatsText.text = $"용량: {capacity}개";
             }
@@ -117,9 +127,9 @@ public class InfoPanelManager : MonoBehaviour
             // 착유기 정보
             if (milkerLevelText != null && milkerStatsText != null)
             {
-                int level = PlayerInventory.Instance.milkerLevel;
-                int capacity = PlayerInventory.Instance.MilkerCapacity;
-                int milkingYield = PlayerInventory.Instance.MilkingYield;
+                int level = playerInventory.milkerLevel;
+                int capacity = playerInventory.MilkerCapacity;
+                int milkingYield = playerInventory.MilkingYield;
                 milkerLevelText.text = $"레벨: {level}";
                 milkerStatsText.text = $"용량: {capacity}L\n착유량: {milkingYield}개";
             }
@@ -127,8 +137,8 @@ public class InfoPanelManager : MonoBehaviour
             // 총기 정보
             if (gunLevelText != null && gunStatsText != null)
             {
-                int level = PlayerInventory.Instance.gunLevel;
-                float damage = PlayerInventory.Instance.GunDamage;
+                int level = playerInventory.gunLevel;
+                float damage = playerInventory.GunDamage;
                 gunLevelText.text = $"레벨: {level}";
                 gunStatsText.text = $"데미지: {damage:F1}";
             }
@@ -137,14 +147,14 @@ public class InfoPanelManager : MonoBehaviour
 
     private void UpdateInventoryInfo()
     {
-        if (Warehouse.Instance != null)
+        if (warehouse != null)
         {
             if (milkCountText != null)
-                milkCountText.text = $"{Warehouse.Instance.GetMilkCount()}개";
+                milkCountText.text = $"{warehouse.GetMilkCount()}개";
             if (eggCountText != null)
-                eggCountText.text = $"{Warehouse.Instance.GetEggCount()}개";
+                eggCountText.text = $"{warehouse.GetEggCount()}개";
             if (avgFreshnessText != null)
-                avgFreshnessText.text = $"{Warehouse.Instance.GetAverageMilkFreshness():F2}%";
+                avgFreshnessText.text = $"{warehouse.GetAverageMilkFreshness():F2}%";
         }
         else
         {
@@ -153,18 +163,17 @@ public class InfoPanelManager : MonoBehaviour
             if (avgFreshnessText != null) avgFreshnessText.text = "0.00%";
         }
 
-        if (GameManager.Instance != null)
+        if (gameManager != null)
         {
             if (dailyMilkText != null)
-                dailyMilkText.text = $"{GameManager.Instance.dailyMilkProduced}개";
+                dailyMilkText.text = $"{gameManager.gameData.dailyMilkProduced}개";
             if (dailyEggText != null)
-                dailyEggText.text = $"{GameManager.Instance.dailyEggsProduced}개";
+                dailyEggText.text = $"{gameManager.gameData.dailyEggsProduced}개";
         }
 
-        // ★★★ 추가된 부분: 총알 개수 업데이트 ★★★
-        if (bulletsCountText != null && PlayerInventory.Instance != null)
+        if (bulletsCountText != null && playerInventory != null)
         {
-            bulletsCountText.text = $"총알:{PlayerInventory.Instance.currentBullets}개";
+            bulletsCountText.text = $"총알:{playerInventory.currentBullets}개";
         }
     }
 }

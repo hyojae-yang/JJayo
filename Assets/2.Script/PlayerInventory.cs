@@ -31,7 +31,6 @@ public class PlayerInventory : MonoBehaviour
 
     [Header("착유기 설정")]
     [Tooltip("현재 착유기에 담긴 우유들의 신선도 목록.")]
-    // ★★★ 수정: 리스트 타입을 Milk 클래스로 변경 ★★★
     public List<Milk> milkList = new List<Milk>();
     public int milkerLevel = 0;
     [Tooltip("착유기 업그레이드 데이터 ScriptableObject를 연결하세요.")]
@@ -100,13 +99,17 @@ public class PlayerInventory : MonoBehaviour
         return eggsToAdd;
     }
 
+    public int GetEggCount()
+    {
+        return currentEggs;
+    }
+
     public void RemoveEggs(int amount)
     {
         currentEggs = Mathf.Max(0, currentEggs - amount);
         NotificationManager.Instance.ShowNotification($"바구니에서 달걀 {amount}개를 꺼냈습니다. 현재: {currentEggs}/{BasketCapacity}");
     }
 
-    // ★★★ 수정: AddMilk 함수에 Milk 인스턴스를 받도록 변경하고, 리스트에 추가 ★★★
     public void AddMilk(Milk milk)
     {
         if (milkerLevel == 0)
@@ -134,13 +137,12 @@ public class PlayerInventory : MonoBehaviour
     public void TransferToWarehouse()
     {
         NotificationManager.Instance.ShowNotification($"현재 알: {currentEggs}개, 현재 우유: {milkList.Count}개");
+
         if (currentEggs > 0)
         {
-            // 달걀은 신선도가 100으로 고정되어 있으므로, 새로운 리스트를 만들어 전달
-            List<float> eggsToTransferFreshness = Enumerable.Repeat(100f, currentEggs).ToList();
             if (Warehouse.Instance != null)
             {
-                Warehouse.Instance.AddEggs(eggsToTransferFreshness);
+                Warehouse.Instance.AddEggs(currentEggs);
             }
             currentEggs = 0;
             NotificationManager.Instance.ShowNotification("바구니의 알을 모두 창고로 옮겼습니다!");
@@ -150,7 +152,6 @@ public class PlayerInventory : MonoBehaviour
         {
             if (Warehouse.Instance != null)
             {
-                // ★★★ 수정: 우유 리스트 자체를 전달하고, 이후 초기화 ★★★
                 Warehouse.Instance.AddMilk(new List<Milk>(milkList));
             }
             milkList.Clear();
@@ -175,49 +176,5 @@ public class PlayerInventory : MonoBehaviour
     public void AddBullets(int amount)
     {
         currentBullets += amount;
-    }
-
-    public int GetMilkCount()
-    {
-        if (Warehouse.Instance != null)
-        {
-            return Warehouse.Instance.GetMilkCount();
-        }
-        return 0;
-    }
-
-    public float GetAverageFreshness()
-    {
-        if (Warehouse.Instance != null)
-        {
-            return Warehouse.Instance.GetAverageMilkFreshness();
-        }
-        return 0f;
-    }
-
-    public bool CanSellMilk(int requiredAmount, float requiredFreshness)
-    {
-        if (GetMilkCount() < requiredAmount)
-        {
-            NotificationManager.Instance.ShowNotification("창고에 우유가 부족합니다!");
-            return false;
-        }
-
-        if (GetAverageFreshness() < requiredFreshness)
-        {
-            NotificationManager.Instance.ShowNotification("우유의 평균 신선도가 낮아 상인의 요구 조건을 충족하지 못합니다.");
-            return false;
-        }
-
-        return true;
-    }
-
-    public void SellMilk(int amount)
-    {
-        if (Warehouse.Instance != null)
-        {
-            Warehouse.Instance.RemoveMilk(amount);
-            NotificationManager.Instance.ShowNotification($"우유 {amount}개를 상인에게 판매했습니다!");
-        }
     }
 }

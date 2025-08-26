@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEngine.SceneManagement; // 씬 관리를 위해 추가
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -11,66 +11,29 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     [Header("Game Data")]
-    [Tooltip("Current amount of money")]
-    [SerializeField]
-    private int currentMoney = 1000;
-
-    [Tooltip("플레이어의 명성도")]
-    public int playerReputation = 0;
-
-    [Tooltip("오늘 생산된 우유의 양")]
-    public int dailyMilkProduced = 0;
-    [Tooltip("오늘 생산된 달걀의 양")]
-    public int dailyEggsProduced = 0;
+    public GameData gameData = new GameData();
 
     [Header("Player UI")]
-    [Tooltip("명성도를 표시할 TextMeshProUGUI 컴포넌트를 연결하세요.")]
+    // UI 업데이트는 이제 GameManager가 직접 처리하거나,
+    // 각 매니저가 UI 업데이트를 담당하게 할 수 있습니다.
     public TextMeshProUGUI reputationText;
+    public TextMeshProUGUI timeText;
+    public TextMeshProUGUI moneyText;
 
     [Header("Time and Date")]
-    [Tooltip("Game start date")]
-    public DateTime gameDate = new DateTime(1, 1, 1);
-
-    [Tooltip("Game day length in seconds (real time)")]
     public float dayLengthInSeconds = 120f;
 
-    private float timeElapsed = 0f;
-
-    [Header("Pasture Upgrade Data")]
+    [Header("Dependencies")]
     public PastureUpgradeData pastureUpgradeData;
-
-    [Tooltip("Current pasture level")]
-    [SerializeField]
-    public int currentPastureLevel = 0;
-
-    public int CurrentPastureLevel => currentPastureLevel;
-
-    [Header("Visual Feedback")]
-    [Tooltip("Connect the main camera here")]
     public Camera mainCamera;
-    [Tooltip("Set the camera background color for each level")]
     public Color[] pastureColors;
 
     // Properties
-    public int CurrentMoney
-    {
-        get => currentMoney;
-        set
-        {
-            currentMoney = value;
-            OnMoneyChanged?.Invoke(currentMoney);
-        }
-    }
-    public string CurrentDate => $"{gameDate.Year}년 {gameDate.Month}월 {gameDate.Day}일";
+    public int CurrentPastureLevel => gameData.pastureLevel;
+    public string CurrentDate => $"{gameData.year}년 {gameData.month}월 {gameData.day}일";
 
-    // Events
-    public event Action<int> OnMoneyChanged;
-    public event Action<float> OnTimeChanged;
-    public event Action<int> OnDayChanged;
-    public event Action OnMonthChanged;
-
-    // ★★★ 추가된 변수: 게임이 로드되었는지 확인하는 플래그 ★★★
-    private bool isGameLoaded = false;
+    // Start() 함수에서 의존성을 초기화할 필요가 없습니다.
+    // 다른 매니저들은 각자의 Awake/Start에서 GameManager를 참조하면 됩니다.
 
     void Awake()
     {
@@ -78,157 +41,90 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            InitializeGame();
         }
         else
         {
             Destroy(gameObject);
         }
+    }
 
-        if (mainCamera != null && pastureColors.Length > currentPastureLevel)
-        {
-            mainCamera.backgroundColor = pastureColors[currentPastureLevel];
-        }
-
+    private void InitializeGame()
+    {
+        // 게임을 처음 시작할 때만 호출됩니다.
+        gameData = new GameData();
         UpdateReputationUI();
     }
 
-    // ★★★ 추가된 Start() 함수: 게임이 로드되었을 때 알림을 띄웁니다. ★★★
-    void Start()
+    
+
+    
+
+    public void LoadGameData(GameData loadedData)
     {
-        // GameManager는 씬 전환 시 파괴되지 않으므로, Start에서 알림을 띄울 수 있습니다.
-        if (isGameLoaded)
+        // 저장된 데이터를 gameData에 덮어씁니다.
+        gameData = loadedData;
+
+        // 다른 매니저들에게 로드된 데이터를 기반으로 자신의 상태를 복원하라고 알립니다.
+        // 각 매니저가 자신의 Start()에서 GameManager.Instance.gameData를 참조하여
+        // 스스로 복원하게 하는 것이 더 좋은 방법입니다.
+        if (PastureManager.Instance != null)
         {
-            if (NotificationManager.Instance != null)
-            {
-                NotificationManager.Instance.ShowNotification("게임을 불러왔습니다!");
-            }
-            isGameLoaded = false; // 알림을 띄운 후 플래그 초기화
+            PastureManager.Instance.UpdateVisuals();
+        }
+
+        // UI를 한 곳에서 업데이트하도록 통합
+        UpdateUI();
+
+        if (NotificationManager.Instance != null)
+        {
+            NotificationManager.Instance.ShowNotification("게임을 불러왔습니다!");
         }
     }
 
-    public void LoadGameData(int money, int reputation, DateTime date)
-    {
-        CurrentMoney = money;
-        playerReputation = reputation;
-        gameDate = date;
-        UpdateReputationUI();
-        OnDayChanged?.Invoke(gameDate.Day);
-
-        // ★★★ 게임이 로드되었음을 알리는 플래그 설정 ★★★
-        isGameLoaded = true;
-    }
-
-    void Update()
-    {
-        timeElapsed += Time.deltaTime;
-        OnTimeChanged?.Invoke(1f - (timeElapsed / dayLengthInSeconds));
-
-        if (timeElapsed >= dayLengthInSeconds)
-        {
-            int prevMonth = gameDate.Month;
-            gameDate = gameDate.AddDays(1);
-            timeElapsed -= dayLengthInSeconds;
-
-            if (SaveLoadManager.Instance != null)
-            {
-                SaveLoadManager.Instance.SaveGame();
-            }
-
-            if (gameDate.Month != prevMonth)
-            {
-                OnMonthChanged?.Invoke();
-            }
-
-            OnDayChanged?.Invoke(gameDate.Day);
-            NotificationManager.Instance.ShowNotification("새로운 하루가 시작되었습니다!");
-            TraderManager.Instance.StartTrade();
-
-            if (WolfManager.Instance != null)
-            {
-                WolfManager.Instance.ReturnAllWolvesToPool();
-            }
-        }
-    }
-
-    /// <summary>
-    /// Adds money by a specified amount.
-    /// </summary>
-    /// <param name="amount">Amount to add</param>
-    public void AddMoney(int amount)
-    {
-        CurrentMoney += amount;
-    }
-
-    /// <summary>
-    /// Spends money by a specified amount.
-    /// </summary>
-    /// <param name="amount">Amount to spend</param>
-    /// <returns>Returns true if spending was successful, false otherwise</returns>
-    public bool SpendMoney(int amount)
-    {
-        if (CurrentMoney >= amount)
-        {
-            CurrentMoney -= amount;
-            return true;
-        }
-
-        NotificationManager.Instance.ShowNotification($"돈이 부족합니다!");
-        return false;
-    }
-
-    /// <summary>
-    /// 지정된 양만큼 명성도를 변경합니다.
-    /// </summary>
-    /// <param name="amount">변경할 명성도의 양 (+/-)</param>
+    // 게임 데이터에 직접 접근하는 메서드는 최소화합니다.
+    // 다른 매니저들이 gameData를 직접 수정하게 만듭니다.
     public void ChangeReputation(int amount)
     {
-        playerReputation += amount;
+        gameData.reputation += amount;
         UpdateReputationUI();
-        Debug.Log($"명성도 변경: {amount}. 현재 명성도: {playerReputation}");
+        Debug.Log($"명성도 변경: {amount}. 현재 명성도: {gameData.reputation}");
     }
 
-    /// <summary>
-    /// 명성도 UI 텍스트를 현재 값으로 업데이트합니다.
-    /// </summary>
+    // UI 업데이트를 통합하는 메서드
+    public void UpdateUI()
+    {
+        if (moneyText != null)
+        {
+            moneyText.text = gameData.money.ToString("N0") + "원";
+        }
+        if (reputationText != null)
+        {
+            reputationText.text = $"명성도: {gameData.reputation}";
+        }
+        if (timeText != null)
+        {
+            // TimeManager가 업데이트 하도록 변경
+        }
+    }
+
     private void UpdateReputationUI()
     {
         if (reputationText != null)
         {
-            reputationText.text = $"명성도: {playerReputation}";
+            reputationText.text = $"명성도: {gameData.reputation}";
         }
     }
 
-    /// <summary>
-    /// Upgrades the pasture by 1 level.
-    /// </summary>
-    public void UpgradePasture()
-    {
-        if (pastureUpgradeData == null)
-        {
-            Debug.LogError("PastureUpgradeData is not assigned to the GameManager.");
-            return;
-        }
+    // 이 메서드는 이제 PastureManager가 직접 호출
+    // public void UpgradePasture()
+    // {
+    //     if (PastureManager.Instance != null)
+    //     {
+    //         PastureManager.Instance.UpgradePasture();
+    //     }
+    // }
 
-        int nextLevel = currentPastureLevel + 1;
-        if (nextLevel < pastureUpgradeData.upgradeLevels.Count)
-        {
-            currentPastureLevel = nextLevel;
-            Debug.Log($"Pasture upgraded to level {currentPastureLevel}.");
-
-            if (mainCamera != null && pastureColors.Length > currentPastureLevel)
-            {
-                mainCamera.backgroundColor = pastureColors[currentPastureLevel];
-            }
-        }
-        else
-        {
-            Debug.LogWarning("Pasture is already at max level.");
-        }
-    }
-
-    /// <summary>
-    /// Saves the game and returns to the title scene.
-    /// </summary>
     public void GoToTitleScene()
     {
         if (SaveLoadManager.Instance != null)
@@ -241,7 +137,55 @@ public class GameManager : MonoBehaviour
             Debug.LogWarning("SaveLoadManager 인스턴스를 찾을 수 없습니다. 저장 없이 이동합니다.");
         }
 
-        // 타이틀 씬으로 전환
         SceneManager.LoadScene("TitleScene");
+    }
+}
+// GameData 클래스는 그대로 유지
+[System.Serializable]
+public class GameData
+{
+    public int money;
+    public int reputation;
+    public int pastureLevel;
+    public int day;
+    public int month;
+    public int year;
+    public int dailyMilkProduced;
+    public int dailyEggsProduced;
+    public int traderRequiredMilkAmount;
+    public int traderRequiredFreshness;
+    public int traderOfferedPrice;
+    public float traderCurrentEggPrice;
+    public int milkCount;
+    public float milkAverageFreshness;
+    public int eggCount;
+    public bool hasGun;
+    public int gunLevel;
+    public int basketLevel;
+    public int milkerLevel;
+    public int bulletCount;
+
+    public GameData()
+    {
+        this.money = 1000;
+        this.reputation = 0;
+        this.pastureLevel = 0;
+        this.day = 1;
+        this.month = 1;
+        this.year = 1;
+        this.dailyMilkProduced = 0;
+        this.dailyEggsProduced = 0;
+        this.traderRequiredMilkAmount = 0;
+        this.traderRequiredFreshness = 0;
+        this.traderOfferedPrice = 0;
+        this.traderCurrentEggPrice = 0;
+        this.milkCount = 0;
+        this.milkAverageFreshness = 0f;
+        this.eggCount = 0;
+        this.hasGun = false;
+        this.gunLevel = 0;
+        this.basketLevel = 0;
+        this.milkerLevel = 0;
+        this.bulletCount = 0;
     }
 }
