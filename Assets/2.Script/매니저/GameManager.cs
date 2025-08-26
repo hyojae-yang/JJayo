@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine.SceneManagement; // 씬 관리를 위해 추가
 
 public class GameManager : MonoBehaviour
 {
@@ -40,7 +41,7 @@ public class GameManager : MonoBehaviour
 
     [Tooltip("Current pasture level")]
     [SerializeField]
-    private int currentPastureLevel = 0;
+    public int currentPastureLevel = 0;
 
     public int CurrentPastureLevel => currentPastureLevel;
 
@@ -51,7 +52,15 @@ public class GameManager : MonoBehaviour
     public Color[] pastureColors;
 
     // Properties
-    public int CurrentMoney => currentMoney;
+    public int CurrentMoney
+    {
+        get => currentMoney;
+        set
+        {
+            currentMoney = value;
+            OnMoneyChanged?.Invoke(currentMoney);
+        }
+    }
     public string CurrentDate => $"{gameDate.Year}년 {gameDate.Month}월 {gameDate.Day}일";
 
     // Events
@@ -59,6 +68,10 @@ public class GameManager : MonoBehaviour
     public event Action<float> OnTimeChanged;
     public event Action<int> OnDayChanged;
     public event Action OnMonthChanged;
+
+    // ★★★ 추가된 변수: 게임이 로드되었는지 확인하는 플래그 ★★★
+    private bool isGameLoaded = false;
+
     void Awake()
     {
         if (Instance == null)
@@ -76,8 +89,33 @@ public class GameManager : MonoBehaviour
             mainCamera.backgroundColor = pastureColors[currentPastureLevel];
         }
 
-        // 명성도 UI 초기화
         UpdateReputationUI();
+    }
+
+    // ★★★ 추가된 Start() 함수: 게임이 로드되었을 때 알림을 띄웁니다. ★★★
+    void Start()
+    {
+        // GameManager는 씬 전환 시 파괴되지 않으므로, Start에서 알림을 띄울 수 있습니다.
+        if (isGameLoaded)
+        {
+            if (NotificationManager.Instance != null)
+            {
+                NotificationManager.Instance.ShowNotification("게임을 불러왔습니다!");
+            }
+            isGameLoaded = false; // 알림을 띄운 후 플래그 초기화
+        }
+    }
+
+    public void LoadGameData(int money, int reputation, DateTime date)
+    {
+        CurrentMoney = money;
+        playerReputation = reputation;
+        gameDate = date;
+        UpdateReputationUI();
+        OnDayChanged?.Invoke(gameDate.Day);
+
+        // ★★★ 게임이 로드되었음을 알리는 플래그 설정 ★★★
+        isGameLoaded = true;
     }
 
     void Update()
@@ -91,7 +129,11 @@ public class GameManager : MonoBehaviour
             gameDate = gameDate.AddDays(1);
             timeElapsed -= dayLengthInSeconds;
 
-            // ★★★ 월이 변경되었는지 확인하고 이벤트를 호출 ★★★
+            if (SaveLoadManager.Instance != null)
+            {
+                SaveLoadManager.Instance.SaveGame();
+            }
+
             if (gameDate.Month != prevMonth)
             {
                 OnMonthChanged?.Invoke();
@@ -100,6 +142,11 @@ public class GameManager : MonoBehaviour
             OnDayChanged?.Invoke(gameDate.Day);
             NotificationManager.Instance.ShowNotification("새로운 하루가 시작되었습니다!");
             TraderManager.Instance.StartTrade();
+
+            if (WolfManager.Instance != null)
+            {
+                WolfManager.Instance.ReturnAllWolvesToPool();
+            }
         }
     }
 
@@ -109,8 +156,7 @@ public class GameManager : MonoBehaviour
     /// <param name="amount">Amount to add</param>
     public void AddMoney(int amount)
     {
-        currentMoney += amount;
-        OnMoneyChanged?.Invoke(currentMoney);
+        CurrentMoney += amount;
     }
 
     /// <summary>
@@ -120,10 +166,9 @@ public class GameManager : MonoBehaviour
     /// <returns>Returns true if spending was successful, false otherwise</returns>
     public bool SpendMoney(int amount)
     {
-        if (currentMoney >= amount)
+        if (CurrentMoney >= amount)
         {
-            currentMoney -= amount;
-            OnMoneyChanged?.Invoke(currentMoney);
+            CurrentMoney -= amount;
             return true;
         }
 
@@ -179,5 +224,24 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogWarning("Pasture is already at max level.");
         }
+    }
+
+    /// <summary>
+    /// Saves the game and returns to the title scene.
+    /// </summary>
+    public void GoToTitleScene()
+    {
+        if (SaveLoadManager.Instance != null)
+        {
+            SaveLoadManager.Instance.SaveGame();
+            Debug.Log("게임을 저장하고 타이틀 씬으로 이동합니다.");
+        }
+        else
+        {
+            Debug.LogWarning("SaveLoadManager 인스턴스를 찾을 수 없습니다. 저장 없이 이동합니다.");
+        }
+
+        // 타이틀 씬으로 전환
+        SceneManager.LoadScene("TitleScene");
     }
 }

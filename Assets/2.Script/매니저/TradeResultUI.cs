@@ -18,6 +18,10 @@ public class TradeResultUI : MonoBehaviour
     [Tooltip("상세 메시지 텍스트")]
     public TextMeshProUGUI detailMessageText;
 
+    [Header("달걀 판매 결과 UI")]
+    [Tooltip("달걀 판매 결과를 표시할 텍스트")]
+    public TextMeshProUGUI eggResultText; // 추가된 변수
+
     // 상인 매니저 스크립트를 연결하여 패널을 닫을 수 있게 합니다.
     [Tooltip("상인 매니저 스크립트")]
     public TraderManager traderManager;
@@ -44,17 +48,19 @@ public class TradeResultUI : MonoBehaviour
     /// TraderManager로부터 결과를 받아 UI에 표시합니다.
     /// </summary>
     /// <param name="success">거래 성공 여부</param>
-    /// <param name="moneyChange">돈 변화량</param>
+    /// <param name="moneyChange">돈 변화량 (우유 거래)</param>
     /// <param name="reputationChange">명성도 변화량</param>
     /// <param name="message">상세 메시지</param>
-    public void DisplayResult(bool success, int moneyChange, int reputationChange, string message)
+    /// <param name="eggsSold">판매한 달걀 개수</param>
+    /// <param name="eggRevenue">달걀 판매로 얻은 총 금액</param>
+    public void DisplayResult(bool success, int moneyChange, int reputationChange, string message, int eggsSold = 0, int eggRevenue = 0)
     {
         // 1. 제목 설정
         titleText.text = success ? "거래 성공!" : "거래 실패";
 
-        // 2. 돈 변화 표시 (+/- 부호와 함께)
+        // 2. 우유 거래 돈 변화 표시 (+/- 부호와 함께)
         string moneySign = moneyChange >= 0 ? "+" : "-";
-        moneyText.text = $"획득 자금: {moneySign}{Mathf.Abs(moneyChange)} 골드";
+        moneyText.text = $"우유 판매: {moneySign}{Mathf.Abs(moneyChange)} 골드";
 
         // 3. 명성도 변화 표시 (+/- 부호와 함께)
         string repSign = reputationChange >= 0 ? "+" : "";
@@ -63,8 +69,22 @@ public class TradeResultUI : MonoBehaviour
         // 4. 상세 메시지 설정
         detailMessageText.text = message;
 
-        // 5. 패널 활성화
+        // 5. 달걀 판매 결과 표시 (새로 추가된 부분)
+        if (eggResultText != null)
+        {
+            if (eggsSold > 0)
+            {
+                eggResultText.text = $"달걀 판매: {eggsSold}개 ({eggRevenue} 골드)";
+            }
+            else
+            {
+                eggResultText.text = "달걀 판매: 없음";
+            }
+        }
+
+        // 6. 패널 활성화
         resultPanel.SetActive(true);
+        Time.timeScale = 0; // 결과창이 열리면 게임 시간 정지
     }
 
     /// <summary>
@@ -77,16 +97,13 @@ public class TradeResultUI : MonoBehaviour
         {
             resultPanel.SetActive(false);
         }
-        // 3. 상인 패널 닫기
+        // 2. 상인 패널 닫기
         if (traderManager != null && traderManager.traderUIPanel != null)
         {
             traderManager.traderUIPanel.SetActive(false);
         }
 
-        // 2. 게임 시간 재개
+        // 3. 게임 시간 재개
         Time.timeScale = 1;
-
-        
-        
     }
 }

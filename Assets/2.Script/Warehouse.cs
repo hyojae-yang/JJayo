@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System;
+using System.Linq;
 
 public class Warehouse : MonoBehaviour
 {
@@ -12,7 +12,8 @@ public class Warehouse : MonoBehaviour
     public List<float> storedEggFreshness = new List<float>();
 
     [Tooltip("창고에 보관된 모든 우유의 신선도 목록.")]
-    public List<float> storedMilkFreshness = new List<float>();
+    // ★★★ 수정: List<float>에서 List<Milk>로 변경 ★★★
+    public List<Milk> storedMilkList = new List<Milk>();
 
     [Tooltip("아이템의 신선도가 감소하는 주기(초).")]
     public float freshnessDecayInterval = 120f;
@@ -42,73 +43,47 @@ public class Warehouse : MonoBehaviour
     }
 
     /// <summary>
-    /// 창고에 달걀을 추가하고 신선도를 평균값으로 계산합니다.
+    /// 창고에 달걀을 추가합니다.
     /// </summary>
     /// <param name="newEggsFreshness">추가할 달걀들의 신선도 리스트</param>
     public void AddEggs(List<float> newEggsFreshness)
     {
-        // 1. 기존 신선도 총합 계산
-        float oldTotalFreshness = 0;
-        foreach (float freshness in storedEggFreshness)
-        {
-            oldTotalFreshness += freshness;
-        }
-
-        // 2. 새로 들어올 달걀의 신선도 총합 계산
-        float newTotalFreshness = 0;
-        foreach (float freshness in newEggsFreshness)
-        {
-            newTotalFreshness += freshness;
-        }
-
-        // 3. 새로운 평균 신선도 계산
-        float newAverageFreshness = (oldTotalFreshness + newTotalFreshness) / (storedEggFreshness.Count + newEggsFreshness.Count);
-
-        // 4. 새로운 달걀 추가 및 전체 신선도 갱신
+        // AddRange는 이미 리스트를 추가하는 기능을 하므로,
+        // 별도의 복잡한 평균 신선도 계산 로직이 필요하지 않습니다.
+        // 이 코드가 AddEggs(int amount)로 변경되어야 TraderManager의 RemoveEggs와 연동이 됩니다.
         storedEggFreshness.AddRange(newEggsFreshness);
+    }
 
-        // 새로운 평균값으로 전체 달걀의 신선도 갱신
-        for (int i = 0; i < storedEggFreshness.Count; i++)
+    // ★★★ 추가: SaveLoadManager에서 달걀 개수를 직접 설정할 수 있도록 추가 ★★★
+    public void SetEggCount(int count)
+    {
+        // 저장된 달걀 개수에 맞춰 리스트를 재구성합니다.
+        // 신선도는 임의로 100으로 설정하거나, 다른 방법으로 복원해야 합니다.
+        // 현재는 '개수'만 저장하므로 임의의 값으로 채웁니다.
+        storedEggFreshness.Clear();
+        for (int i = 0; i < count; i++)
         {
-            storedEggFreshness[i] = newAverageFreshness;
+            storedEggFreshness.Add(100f);
         }
-
-        NotificationManager.Instance.ShowNotification($"창고에 달걀 {newEggsFreshness.Count}개를 추가했습니다. 현재 총 달걀: {storedEggFreshness.Count}개, 평균 신선도: {newAverageFreshness:F2}");
     }
 
     /// <summary>
-    /// 창고에 우유를 추가하고 신선도를 평균값으로 계산합니다.
+    /// 창고에 우유를 추가합니다.
     /// </summary>
-    /// <param name="newMilkFreshness">추가할 우유들의 신선도 리스트</param>
-    public void AddMilk(List<float> newMilkFreshness)
+    /// <param name="newMilkList">추가할 우유들의 리스트</param>
+    // ★★★ 수정: List<float>에서 List<Milk>를 매개변수로 받도록 변경 ★★★
+    public void AddMilk(List<Milk> newMilkList)
     {
-        // 1. 기존 신선도 총합 계산
-        float oldTotalFreshness = 0;
-        foreach (float freshness in storedMilkFreshness)
-        {
-            oldTotalFreshness += freshness;
-        }
+        // 새롭게 들어온 우유 리스트를 기존 창고 리스트에 추가합니다.
+        storedMilkList.AddRange(newMilkList);
 
-        // 2. 새로 들어올 우유의 신선도 총합 계산
-        float newTotalFreshness = 0;
-        foreach (float freshness in newMilkFreshness)
-        {
-            newTotalFreshness += freshness;
-        }
+        NotificationManager.Instance.ShowNotification($"창고에 우유 {newMilkList.Count}개를 추가했습니다. 현재 총 우유: {storedMilkList.Count}개");
+    }
 
-        // 3. 새로운 평균 신선도 계산
-        float newAverageFreshness = (oldTotalFreshness + newTotalFreshness) / (storedMilkFreshness.Count + newMilkFreshness.Count);
-
-        // 4. 새로운 우유 추가 및 전체 신선도 갱신
-        storedMilkFreshness.AddRange(newMilkFreshness);
-
-        // 새로운 평균값으로 전체 우유의 신선도 갱신
-        for (int i = 0; i < storedMilkFreshness.Count; i++)
-        {
-            storedMilkFreshness[i] = newAverageFreshness;
-        }
-
-        NotificationManager.Instance.ShowNotification($"창고에 우유 {newMilkFreshness.Count}개를 추가했습니다. 현재 총 우유: {storedMilkFreshness.Count}개, 평균 신선도: {newAverageFreshness:F2}");
+    // ★★★ 추가: SaveLoadManager에서 우유 리스트를 직접 설정할 수 있도록 추가 ★★★
+    public void SetMilkList(List<Milk> newMilkList)
+    {
+        storedMilkList = newMilkList;
     }
 
     /// <summary>
@@ -116,14 +91,24 @@ public class Warehouse : MonoBehaviour
     /// </summary>
     private void DecayFreshness()
     {
-        for (int i = 0; i < storedEggFreshness.Count; i++)
+        // 우유 신선도 감소
+        for (int i = storedMilkList.Count - 1; i >= 0; i--)
         {
-            storedEggFreshness[i] = Mathf.Max(0, storedEggFreshness[i] - 1);
+            storedMilkList[i].freshness = Mathf.Max(0, storedMilkList[i].freshness - 1);
+            if (storedMilkList[i].freshness <= 0)
+            {
+                storedMilkList.RemoveAt(i);
+            }
         }
 
-        for (int i = 0; i < storedMilkFreshness.Count; i++)
+        // 달걀 신선도 감소 후 제거
+        for (int i = storedEggFreshness.Count - 1; i >= 0; i--)
         {
-            storedMilkFreshness[i] = Mathf.Max(0, storedMilkFreshness[i] - 1);
+            storedEggFreshness[i] = Mathf.Max(0, storedEggFreshness[i] - 1);
+            if (storedEggFreshness[i] <= 0)
+            {
+                storedEggFreshness.RemoveAt(i);
+            }
         }
 
         NotificationManager.Instance.ShowNotification("창고에 있는 모든 아이템의 신선도가 감소했습니다.");
@@ -142,7 +127,7 @@ public class Warehouse : MonoBehaviour
     /// </summary>
     public int GetMilkCount()
     {
-        return storedMilkFreshness.Count;
+        return storedMilkList.Count;
     }
 
     /// <summary>
@@ -150,18 +135,18 @@ public class Warehouse : MonoBehaviour
     /// </summary>
     public float GetAverageMilkFreshness()
     {
-        if (storedMilkFreshness.Count == 0)
+        if (storedMilkList.Count == 0)
         {
             return 0f;
         }
 
         float totalFreshness = 0;
-        foreach (float freshness in storedMilkFreshness)
+        foreach (Milk milk in storedMilkList)
         {
-            totalFreshness += freshness;
+            totalFreshness += milk.freshness;
         }
 
-        return totalFreshness / storedMilkFreshness.Count;
+        return totalFreshness / storedMilkList.Count;
     }
 
     /// <summary>
@@ -171,16 +156,27 @@ public class Warehouse : MonoBehaviour
     /// <param name="amount">제거할 우유 개수</param>
     public void RemoveMilk(int amount)
     {
-        if (amount > storedMilkFreshness.Count)
+        if (amount > storedMilkList.Count)
         {
             Debug.LogError("창고에 판매할 우유가 부족합니다!");
             return;
         }
 
-        // 1. 우유를 신선도 순으로 정렬 (내림차순)
-        storedMilkFreshness.Sort((a, b) => b.CompareTo(a));
+        storedMilkList.Sort((a, b) => b.freshness.CompareTo(a.freshness));
+        storedMilkList.RemoveRange(0, amount);
+    }
 
-        // 2. 가장 신선한 우유부터 판매량만큼 제거
-        storedMilkFreshness.RemoveRange(0, amount);
+    /// <summary>
+    /// 창고에서 특정 개수만큼 달걀을 제거합니다.
+    /// </summary>
+    public void RemoveEggs(int amount)
+    {
+        if (amount > storedEggFreshness.Count)
+        {
+            Debug.LogError("창고에 판매할 달걀이 부족합니다!");
+            return;
+        }
+
+        storedEggFreshness.RemoveRange(0, amount);
     }
 }

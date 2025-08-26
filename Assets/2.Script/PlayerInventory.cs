@@ -1,7 +1,19 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 using System;
 using System.Linq;
+
+// Milk 클래스 위에 이 속성을 추가합니다.
+[System.Serializable]
+public class Milk
+{
+    public float freshness;
+
+    public Milk(float freshness)
+    {
+        this.freshness = freshness;
+    }
+}
 
 public class PlayerInventory : MonoBehaviour
 {
@@ -19,7 +31,8 @@ public class PlayerInventory : MonoBehaviour
 
     [Header("착유기 설정")]
     [Tooltip("현재 착유기에 담긴 우유들의 신선도 목록.")]
-    public List<float> currentMilkFreshness = new List<float>();
+    // ★★★ 수정: 리스트 타입을 Milk 클래스로 변경 ★★★
+    public List<Milk> milkList = new List<Milk>();
     public int milkerLevel = 0;
     [Tooltip("착유기 업그레이드 데이터 ScriptableObject를 연결하세요.")]
     public MilkerUpgradeData milkerUpgradeData;
@@ -31,13 +44,10 @@ public class PlayerInventory : MonoBehaviour
     [Tooltip("총기 업그레이드 데이터 ScriptableObject를 연결하세요.")]
     public GunUpgradeData gunUpgradeData;
 
-    // ★★★ 수정된 부분: 용량, 속도, 데미지를 속성으로 변경 ★★★
     public int BasketCapacity => (basketLevel > 0 && basketUpgradeData != null) ? basketUpgradeData.upgradeLevels[basketLevel - 1].capacity : 0;
     public int MilkerCapacity => (milkerLevel > 0 && milkerUpgradeData != null) ? milkerUpgradeData.upgradeLevels[milkerLevel - 1].capacity : 0;
-    // ★★★ 수정된 부분: MilkerSpeed 속성을 MilkingYield로 변경 ★★★
     public int MilkingYield => (milkerLevel > 0 && milkerUpgradeData != null) ? milkerUpgradeData.upgradeLevels[milkerLevel - 1].milkingYield : 1;
     public float GunDamage => (gunLevel > 0 && gunUpgradeData != null) ? gunUpgradeData.upgradeLevels[gunLevel - 1].damageIncrease : 10f;
-    public float GunFireRate => (gunLevel > 0 && gunUpgradeData != null) ? gunUpgradeData.upgradeLevels[gunLevel - 1].fireRateIncrease : 1.0f;
 
     private void Awake()
     {
@@ -96,41 +106,38 @@ public class PlayerInventory : MonoBehaviour
         NotificationManager.Instance.ShowNotification($"바구니에서 달걀 {amount}개를 꺼냈습니다. 현재: {currentEggs}/{BasketCapacity}");
     }
 
-    // ★★★ 수정된 부분: amount 매개변수를 추가하여 한 번에 여러 우유를 추가합니다. ★★★
-    public int AddMilk(float freshness, int amount)
+    // ★★★ 수정: AddMilk 함수에 Milk 인스턴스를 받도록 변경하고, 리스트에 추가 ★★★
+    public void AddMilk(Milk milk)
     {
         if (milkerLevel == 0)
         {
             NotificationManager.Instance.ShowNotification("착유기를 먼저 구매해야 합니다!");
-            return 0;
+            return;
         }
 
-        int spaceLeft = MilkerCapacity - currentMilkFreshness.Count;
-        int milkToAdd = Mathf.Min(amount, spaceLeft);
-
-        for (int i = 0; i < milkToAdd; i++)
+        if (milkList.Count < MilkerCapacity)
         {
-            currentMilkFreshness.Add(freshness);
+            milkList.Add(milk);
+            NotificationManager.Instance.ShowNotification($"착유기에 우유 1개를 담았습니다. 현재: {milkList.Count}/{MilkerCapacity}");
         }
-
-        if (milkToAdd > 0)
+        else
         {
-            NotificationManager.Instance.ShowNotification($"착유기에 우유 {milkToAdd}개를 담았습니다. 현재: {currentMilkFreshness.Count}/{MilkerCapacity}");
+            NotificationManager.Instance.ShowNotification("착유기가 꽉 찼습니다!");
         }
+    }
 
-        return milkToAdd;
+    public void AddMilk(float freshness)
+    {
+        AddMilk(new Milk(freshness));
     }
 
     public void TransferToWarehouse()
     {
-        NotificationManager.Instance.ShowNotification($"현재 알: {currentEggs}개, 현재 우유: {currentMilkFreshness.Count}개");
+        NotificationManager.Instance.ShowNotification($"현재 알: {currentEggs}개, 현재 우유: {milkList.Count}개");
         if (currentEggs > 0)
         {
-            List<float> eggsToTransferFreshness = new List<float>();
-            for (int i = 0; i < currentEggs; i++)
-            {
-                eggsToTransferFreshness.Add(100f);
-            }
+            // 달걀은 신선도가 100으로 고정되어 있으므로, 새로운 리스트를 만들어 전달
+            List<float> eggsToTransferFreshness = Enumerable.Repeat(100f, currentEggs).ToList();
             if (Warehouse.Instance != null)
             {
                 Warehouse.Instance.AddEggs(eggsToTransferFreshness);
@@ -139,13 +146,14 @@ public class PlayerInventory : MonoBehaviour
             NotificationManager.Instance.ShowNotification("바구니의 알을 모두 창고로 옮겼습니다!");
         }
 
-        if (currentMilkFreshness.Count > 0)
+        if (milkList.Count > 0)
         {
             if (Warehouse.Instance != null)
             {
-                Warehouse.Instance.AddMilk(currentMilkFreshness);
+                // ★★★ 수정: 우유 리스트 자체를 전달하고, 이후 초기화 ★★★
+                Warehouse.Instance.AddMilk(new List<Milk>(milkList));
             }
-            currentMilkFreshness.Clear();
+            milkList.Clear();
             NotificationManager.Instance.ShowNotification("착유기의 우유를 모두 창고로 옮겼습니다!");
         }
     }
@@ -167,7 +175,6 @@ public class PlayerInventory : MonoBehaviour
     public void AddBullets(int amount)
     {
         currentBullets += amount;
-        NotificationManager.Instance.ShowNotification($"총알 {amount}개를 획득했습니다! 현재 총알: {currentBullets}");
     }
 
     public int GetMilkCount()

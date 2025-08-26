@@ -86,7 +86,8 @@ public class PlayerUI : MonoBehaviour
     private void UpdateGauges()
     {
         // 착유기 게이지 업데이트
-        milkerGauge.value = playerInventory.currentMilkFreshness.Count;
+        // ★★★ 수정: playerInventory.currentMilkFreshness.Count 대신 playerInventory.milkList.Count를 사용 ★★★
+        milkerGauge.value = playerInventory.milkList.Count;
 
         // 바구니 게이지 업데이트
         basketGauge.value = playerInventory.currentEggs;

@@ -40,13 +40,12 @@ public class Animal : MonoBehaviour
             {
                 if (freshness != null)
                 {
-                    int milkTransferred = PlayerInventory.Instance.AddMilk(freshness.currentFreshness, PlayerInventory.Instance.MilkingYield);
+                    // ★★★ 수정된 부분: PlayerInventory의 AddMilk 함수에 맞게 인자를 하나만 전달합니다. ★★★
+                    PlayerInventory.Instance.AddMilk(freshness.currentFreshness);
 
-                    if (milkTransferred > 0)
-                    {
-                        production.currentProductionCount -= milkTransferred;
-                        NotificationManager.Instance.ShowNotification(animalData.animalName + "의 우유를 수거했습니다.");
-                    }
+                    // ★★★ 추가: 이제 AddMilk 함수가 리턴 값이 없으므로, 생산 개수 감소는 직접 처리합니다. ★★★
+                    production.currentProductionCount--;
+                    NotificationManager.Instance.ShowNotification(animalData.animalName + "의 우유를 수거했습니다.");
                 }
             }
         }

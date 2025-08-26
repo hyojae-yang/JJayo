@@ -3,11 +3,12 @@ using System.Collections.Generic;
 
 public class WolfManager : MonoBehaviour
 {
+    public static WolfManager Instance { get; private set; }
     [Header("늑대 풀링 시스템")]
     public ObjectPool wolfObjectPool;
 
     [Header("늑대 스탯 설정")]
-    public float baseHealth = 100f;
+    public float baseHealth = 30f;
     public float baseDamage = 20f;
     public float difficultyScale = 1.2f; // 매달 늑대의 체력/공격력 배율
 
@@ -166,6 +167,19 @@ public class WolfManager : MonoBehaviour
         // ★★★ 늑대 풀로 반환하기 전 초기화 ★★★
         wolfObj.GetComponent<Wolf>().isReturning = false; // 반환 상태 초기화
         wolfObj.SetActive(false);
+    }
+
+    // ★★★ 새로 추가된 부분: 모든 늑대를 풀로 돌려보내는 메서드 ★★★
+    public void ReturnAllWolvesToPool()
+    {
+        GameObject[] activeWolves = GameObject.FindGameObjectsWithTag("Wolf");
+
+        foreach (GameObject wolfObj in activeWolves)
+        {
+            ReturnWolfToPool(wolfObj);
+        }
+
+        Debug.Log("하루가 지나 모든 늑대가 풀로 돌아갔습니다.");
     }
 
     private Vector3 GetRandomSpawnPosition()

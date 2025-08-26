@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2abbf4080b335e94cae47429c7c4fc9d, type: 3}
   m_Name: BulletData
   m_EditorClassIdentifier: 
-  itemName: "\uCD1D\uC54C"
+  itemName: "\uCD1D\uC54C(30\uAC1C)"
   itemPrice: 30
   itemIcon: {fileID: -5476636203795425448, guid: b03b98d8b00894a41a6675290b2eb06f, type: 3}
   itemPrefab: {fileID: 0}

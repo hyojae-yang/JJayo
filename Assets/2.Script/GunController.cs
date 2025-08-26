@@ -1,28 +1,25 @@
+// GunController.cs
+
 using UnityEngine;
 
 public class GunController : MonoBehaviour
 {
-    private float fireRate => PlayerInventory.Instance.GunFireRate;
-    private float nextFireTime = 0f;
 
     void Update()
     {
         if (EquipmentManager.Instance.currentEquipment == EquipmentType.Gun)
         {
-            if (Input.GetMouseButton(0))
+            // GetMouseButton(0) 대신 GetMouseButtonDown(0)으로 변경하여 단발 사격으로 변경
+            if (Input.GetMouseButtonDown(0))
             {
-                if (Time.time >= nextFireTime)
+                if (PlayerInventory.Instance.currentBullets > 0)
                 {
-                    if (PlayerInventory.Instance.currentBullets > 0)
-                    {
-                        Shoot();
-                        PlayerInventory.Instance.AddBullets(-1);
-                        nextFireTime = Time.time + fireRate;
-                    }
-                    else
-                    {
-                        NotificationManager.Instance.ShowNotification("총알이 부족합니다!");
-                    }
+                    Shoot();
+                    PlayerInventory.Instance.AddBullets(-1);
+                }
+                else
+                {
+                    NotificationManager.Instance.ShowNotification("총알이 부족합니다!");
                 }
             }
         }

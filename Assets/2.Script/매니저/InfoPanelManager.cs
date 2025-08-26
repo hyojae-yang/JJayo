@@ -33,6 +33,7 @@ public class InfoPanelManager : MonoBehaviour
     public TextMeshProUGUI avgFreshnessText;
     public TextMeshProUGUI dailyMilkText;
     public TextMeshProUGUI dailyEggText;
+    public TextMeshProUGUI bulletsCountText; // ★★★ 추가된 부분 ★★★
 
     private void Awake()
     {
@@ -118,24 +119,22 @@ public class InfoPanelManager : MonoBehaviour
             {
                 int level = PlayerInventory.Instance.milkerLevel;
                 int capacity = PlayerInventory.Instance.MilkerCapacity;
-                // ★★★ 수정된 부분: 이제 착유량을 가져옵니다. ★★★
                 int milkingYield = PlayerInventory.Instance.MilkingYield;
                 milkerLevelText.text = $"레벨: {level}";
-                // ★★★ 수정된 부분: 착유량을 UI에 표시합니다. ★★★
                 milkerStatsText.text = $"용량: {capacity}L\n착유량: {milkingYield}개";
             }
 
-            // 총 정보
+            // 총기 정보
             if (gunLevelText != null && gunStatsText != null)
             {
                 int level = PlayerInventory.Instance.gunLevel;
                 float damage = PlayerInventory.Instance.GunDamage;
-                float fireRate = PlayerInventory.Instance.GunFireRate;
                 gunLevelText.text = $"레벨: {level}";
-                gunStatsText.text = $"데미지: {damage:F1}\n연사력: {fireRate:F1}s";
+                gunStatsText.text = $"데미지: {damage:F1}";
             }
         }
     }
+
     private void UpdateInventoryInfo()
     {
         if (Warehouse.Instance != null)
@@ -160,6 +159,12 @@ public class InfoPanelManager : MonoBehaviour
                 dailyMilkText.text = $"{GameManager.Instance.dailyMilkProduced}개";
             if (dailyEggText != null)
                 dailyEggText.text = $"{GameManager.Instance.dailyEggsProduced}개";
+        }
+
+        // ★★★ 추가된 부분: 총알 개수 업데이트 ★★★
+        if (bulletsCountText != null && PlayerInventory.Instance != null)
+        {
+            bulletsCountText.text = $"총알:{PlayerInventory.Instance.currentBullets}개";
         }
     }
 }

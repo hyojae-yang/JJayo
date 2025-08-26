@@ -1,13 +1,16 @@
-using System.Collections.Generic;
-using UnityEngine;
+// GunLevelStats.cs
+
 using System;
+using UnityEngine;
+using System.Collections.Generic;
 
 [Serializable]
 public class GunLevelStats : UpgradeLevelStats
 {
     public float damageIncrease;
-    public float fireRateIncrease;
 }
+
+// GunUpgradeData.cs
 
 [CreateAssetMenu(fileName = "New Gun Upgrade Data", menuName = "Tycoon Game/Upgrade Data/Gun")]
 public class GunUpgradeData : UpgradeData

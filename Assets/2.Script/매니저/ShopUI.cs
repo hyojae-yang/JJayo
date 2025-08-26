@@ -31,13 +31,14 @@ public class ShopUI : MonoBehaviour
 
     private void Awake()
     {
+        // ★★★ 변경된 부분: DontDestroyOnLoad 코드를 제거하고 씬에 종속적인 싱글톤 패턴으로 변경 ★★★
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
         else
         {
+            // 이미 존재하는 인스턴스가 있다면, 새로 생성된 자신을 파괴합니다.
             Destroy(gameObject);
         }
     }
@@ -90,6 +91,8 @@ public class ShopUI : MonoBehaviour
             Destroy(child.gameObject);
         }
 
+        if (ShopService.Instance == null) return;
+
         foreach (var data in ShopService.Instance.shopItems)
         {
             if (data == null) continue;
@@ -133,7 +136,6 @@ public class ShopUI : MonoBehaviour
                 itemUI.itemPriceText.text = (chickenSellData.animalData.animalPrice / 2).ToString("C0");
                 itemUI.itemIcon.sprite = chickenSellData.animalData.animalIcon;
 
-                // 닭 판매 버튼은 Buy/Sell 카드와 다르게 직접 리스너를 추가합니다.
                 itemUI.actionButton.onClick.RemoveAllListeners();
                 itemUI.actionButton.onClick.AddListener(() => OnClickSellChicken());
             }
@@ -182,7 +184,7 @@ public class ShopUI : MonoBehaviour
             ShopService.Instance.SellItem(animalToSell);
             PopulateSellItems();
         }
-        else // 닭 판매
+        else
         {
             ShopService.Instance.SellChicken();
             PopulateSellItems();

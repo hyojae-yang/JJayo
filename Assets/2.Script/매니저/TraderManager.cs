@@ -1,13 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Linq;
 
 public class TraderManager : MonoBehaviour
 {
     public static TraderManager Instance { get; private set; }
 
     [Header("Dependencies")]
-    public Trader traderData;           // Trader.cs 스크립트 (요구 조건 데이터)
+    public Trader traderData;        // Trader.cs 스크립트 (요구 조건 데이터)
     public GameObject traderUIPanel;    // 상인 UI 패널 (부모 오브젝트)
     public GameObject tradeResultPanel; // 거래 결과를 표시할 모달 UI 패널 (에디터에서 연결해야 합니다!)
 
@@ -31,7 +32,22 @@ public class TraderManager : MonoBehaviour
 
     public int reputationPerTrade = 10;
     public int reputationDeclinePenalty = 5;
-    public int reputationHaggleFailurePenalty = 10; // ★★★ 15에서 10으로 변경 ★★★
+    public int reputationHaggleFailurePenalty = 10;
+
+    [Header("달걀 판매 UI")]
+    public GameObject eggSellPanel; // 달걀 판매 패널
+    public TextMeshProUGUI eggPriceText; // 오늘 달걀 시세 텍스트
+    public TextMeshProUGUI availableEggCountText; // 현재 보유 달걀 개수 텍스트
+    public TextMeshProUGUI sellCountText; // 판매할 달걀 개수 텍스트
+
+    [Header("달걀 거래 설정")]
+    public float baseEggPrice = 100f;
+    [HideInInspector]
+    public float currentEggPrice; // 매일 변동될 달걀 가격
+
+    private int eggsToSell = 0;
+    private int eggsSoldToday = 0; // 오늘 판매한 달걀 개수
+    private int eggRevenueToday = 0; // 오늘 달걀 판매로 벌어들인 총 금액
 
     private void Awake()
     {
@@ -57,7 +73,10 @@ public class TraderManager : MonoBehaviour
     public void StartTrade()
     {
         Time.timeScale = 0;
+        eggsSoldToday = 0; // 하루 시작 시 초기화
+        eggRevenueToday = 0; // 하루 시작 시 초기화
         GenerateTradeDemand();
+        GenerateNewEggPrice(); // 달걀 가격 갱신
         UpdateUITexts();
         if (traderUIPanel != null)
         {
@@ -70,7 +89,7 @@ public class TraderManager : MonoBehaviour
     /// </summary>
     private void GenerateTradeDemand()
     {
-        int dailyBonus = (GameManager.Instance.gameDate.Day / 10)*5;
+        int dailyBonus = (GameManager.Instance.gameDate.Day / 10) * 5;
 
         int requiredAmount = Random.Range(minRequiredMilk + dailyBonus, maxRequiredMilk + dailyBonus);
         int requiredFreshness = Random.Range(minRequiredFreshness + dailyBonus, maxRequiredFreshness + dailyBonus);
@@ -79,6 +98,20 @@ public class TraderManager : MonoBehaviour
         traderData.requiredFreshness = requiredFreshness;
 
         traderData.offeredPrice = requiredAmount * (baseMilkPrice + (requiredFreshness / 10));
+    }
+
+    /// <summary>
+    /// 매일 달걀 시세를 갱신합니다.
+    /// </summary>
+    public void GenerateNewEggPrice()
+    {
+        float priceMultiplier = UnityEngine.Random.Range(0.5f, 2.5f);
+        currentEggPrice = Mathf.Round(baseEggPrice * priceMultiplier);
+
+        if (eggPriceText != null)
+        {
+            eggPriceText.text = $"오늘의 달걀 시세: {currentEggPrice} 골드";
+        }
     }
 
     /// <summary>
@@ -92,26 +125,26 @@ public class TraderManager : MonoBehaviour
         }
         if (requiredFreshnessText != null)
         {
-            requiredFreshnessText.text = "최소 신선도: " + traderData.requiredFreshness.ToString() + " 점";
+            requiredFreshnessText.text = traderData.requiredFreshness.ToString();
         }
         if (offeredPriceText != null)
         {
-            offeredPriceText.text = "제시 금액: " + traderData.offeredPrice.ToString() + " 골드";
+            offeredPriceText.text = traderData.offeredPrice.ToString() + " 골드";
         }
 
         if (playerMoneyText != null)
         {
-            playerMoneyText.text = $"보유 자금: {GameManager.Instance.CurrentMoney} 골드";
+            playerMoneyText.text = $"{GameManager.Instance.CurrentMoney} 골드";
         }
         if (PlayerInventory.Instance != null)
         {
             if (playerMilkCountText != null)
             {
-                playerMilkCountText.text = $"보유 우유: {PlayerInventory.Instance.GetMilkCount()} 개";
+                playerMilkCountText.text = $"{PlayerInventory.Instance.GetMilkCount()} 개";
             }
             if (playerAverageFreshnessText != null)
             {
-                playerAverageFreshnessText.text = $"평균 신선도: {PlayerInventory.Instance.GetAverageFreshness():F2} 점";
+                playerAverageFreshnessText.text = $"{PlayerInventory.Instance.GetAverageFreshness():F2} 점";
             }
         }
     }
@@ -131,7 +164,7 @@ public class TraderManager : MonoBehaviour
             // 2. 결과 알림창 띄우기
             if (TradeResultUI.Instance != null)
             {
-                TradeResultUI.Instance.DisplayResult(true, traderData.offeredPrice, reputationPerTrade, "거래를 성공적으로 완료했습니다!");
+                TradeResultUI.Instance.DisplayResult(true, traderData.offeredPrice, reputationPerTrade, "거래를 성공적으로 완료했습니다!", eggsSoldToday, eggRevenueToday);
             }
         }
         else
@@ -141,8 +174,7 @@ public class TraderManager : MonoBehaviour
 
             if (TradeResultUI.Instance != null)
             {
-                // CanSellMilk 내부에서 이미 실패 알림을 띄웠지만, 모달창을 위해 다시 전달합니다.
-                TradeResultUI.Instance.DisplayResult(false, 0, -1, "요구 개수 또는 신선도가 부족하여 거래가 무산되었습니다.");
+                TradeResultUI.Instance.DisplayResult(false, 0, -1, "요구 개수 또는 신선도가 부족하여 거래가 무산되었습니다.", eggsSoldToday, eggRevenueToday);
             }
         }
     }
@@ -156,7 +188,7 @@ public class TraderManager : MonoBehaviour
 
         if (TradeResultUI.Instance != null)
         {
-            TradeResultUI.Instance.DisplayResult(false, 0, -reputationDeclinePenalty, "상인의 거래를 거절하여 명성도가 떨어졌습니다.");
+            TradeResultUI.Instance.DisplayResult(false, 0, -reputationDeclinePenalty, "상인의 거래를 거절하여 명성도가 떨어졌습니다.", eggsSoldToday, eggRevenueToday);
         }
     }
 
@@ -165,7 +197,6 @@ public class TraderManager : MonoBehaviour
     /// </summary>
     public void OnHaggleButtonClicked()
     {
-        // ★★★ 거래 가능 전제 조건 추가 ★★★
         if (PlayerInventory.Instance != null && PlayerInventory.Instance.CanSellMilk(traderData.requiredMilkAmount, traderData.requiredFreshness))
         {
             int haggleChance = UnityEngine.Random.Range(0, 100);
@@ -173,35 +204,124 @@ public class TraderManager : MonoBehaviour
 
             if (haggleChance <= successThreshold)
             {
-                // ★★★ 보너스 금액 2배로 변경 ★★★
-                int bonusPrice = traderData.offeredPrice; // 제시 금액의 100% 보너스 = 2배
+                int bonusPrice = traderData.offeredPrice;
                 int finalPrice = traderData.offeredPrice + bonusPrice;
 
                 GameManager.Instance.AddMoney(finalPrice);
 
                 if (TradeResultUI.Instance != null)
                 {
-                    TradeResultUI.Instance.DisplayResult(true, finalPrice, 0, $"흥정에 성공하여 {bonusPrice} 골드를 추가로 받았습니다!");
+                    TradeResultUI.Instance.DisplayResult(true, finalPrice, 0, $"흥정에 성공하여 {bonusPrice} 골드를 추가로 받았습니다!", eggsSoldToday, eggRevenueToday);
                 }
             }
             else
             {
-                // ★★★ 실패 페널티 10으로 변경 ★★★
                 GameManager.Instance.ChangeReputation(-reputationHaggleFailurePenalty);
 
                 if (TradeResultUI.Instance != null)
                 {
-                    TradeResultUI.Instance.DisplayResult(false, 0, -reputationHaggleFailurePenalty, "흥정에 실패했습니다. 상인의 기분이 나빠 명성도가 크게 떨어졌습니다.");
+                    TradeResultUI.Instance.DisplayResult(false, 0, -reputationHaggleFailurePenalty, "흥정에 실패했습니다. 상인의 기분이 나빠 명성도가 크게 떨어졌습니다.", eggsSoldToday, eggRevenueToday);
                 }
             }
         }
         else
         {
-            // 전제 조건 실패 시
             if (TradeResultUI.Instance != null)
             {
-                TradeResultUI.Instance.DisplayResult(false, 0, 0, "요구 개수 또는 신선도가 부족하여 흥정을 시도할 수 없습니다.");
+                TradeResultUI.Instance.DisplayResult(false, 0, 0, "요구 개수 또는 신선도가 부족하여 흥정을 시도할 수 없습니다.", eggsSoldToday, eggRevenueToday);
             }
+        }
+    }
+
+    // --- 달걀 판매 시스템 추가 ---
+
+    /// <summary>
+    /// '달걀 판매' 버튼 클릭 시 호출됩니다.
+    /// </summary>
+    public void OnOpenEggPanelButtonClicked()
+    {
+        if (eggSellPanel != null)
+        {
+            eggSellPanel.SetActive(true);
+        }
+
+        eggsToSell = 0;
+        UpdateEggUI();
+    }
+
+    /// <summary>
+    /// 달걀 판매 개수 증가 버튼
+    /// </summary>
+    public void OnIncreaseEggCount()
+    {
+        if (eggsToSell < Warehouse.Instance.GetEggCount())
+        {
+            eggsToSell++;
+            UpdateEggUI();
+        }
+    }
+
+    /// <summary>
+    /// 달걀 판매 개수 감소 버튼
+    /// </summary>
+    public void OnDecreaseEggCount()
+    {
+        if (eggsToSell > 0)
+        {
+            eggsToSell--;
+            UpdateEggUI();
+        }
+    }
+
+    /// <summary>
+    /// UI 텍스트를 업데이트합니다.
+    /// </summary>
+    private void UpdateEggUI()
+    {
+        if (availableEggCountText != null)
+        {
+            availableEggCountText.text = $"보유 달걀: {Warehouse.Instance.GetEggCount()} 개";
+        }
+        if (sellCountText != null)
+        {
+            sellCountText.text = eggsToSell.ToString();
+        }
+    }
+
+    /// <summary>
+    /// '판매' 버튼 클릭 시 호출됩니다.
+    /// </summary>
+    public void OnSellEggsButtonClicked()
+    {
+        if (eggsToSell > 0)
+        {
+            float totalRevenue = eggsToSell * currentEggPrice;
+            GameManager.Instance.AddMoney(Mathf.RoundToInt(totalRevenue));
+
+            Warehouse.Instance.RemoveEggs(eggsToSell);
+
+            // 판매 결과 저장
+            eggsSoldToday += eggsToSell;
+            eggRevenueToday += Mathf.RoundToInt(totalRevenue);
+
+            NotificationManager.Instance.ShowNotification($"달걀 {eggsToSell}개를 {Mathf.RoundToInt(totalRevenue)} 골드에 판매했습니다!");
+
+            OnCloseEggPanelButtonClicked();
+        }
+        else
+        {
+            NotificationManager.Instance.ShowNotification("판매한 달걀이 없습니다.");
+        }
+    }
+
+    /// <summary>
+    /// '닫기' 버튼 클릭 시 호출됩니다.
+    /// </summary>
+    public void OnCloseEggPanelButtonClicked()
+    {
+        if (eggSellPanel != null)
+        {
+            eggSellPanel.SetActive(false);
         }
     }
 }

@@ -1,3 +1,5 @@
+// ShopService.cs
+
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -122,7 +124,7 @@ public class ShopService : MonoBehaviour
                 }
                 break;
             case ItemType.Consumable:
-                if (itemData.consumableData != null && itemData.itemName == "ÃÑ¾Ë" && !playerInventory.hasGun)
+                if (itemData.consumableData != null && itemData.itemName == "ÃÑ¾Ë(30°³)" && !playerInventory.hasGun)
                 {
                     return false;
                 }
@@ -169,7 +171,7 @@ public class ShopService : MonoBehaviour
                             if (ChickenCoop.Instance != null)
                             {
                                 ChickenCoop.Instance.AddChicken();
-                                NotificationManager.Instance.ShowNotification("´ßÀ» ±¸¸ÅÇß½À´Ï´Ù. ´ßÀå ¼ö°¡ ´Ã¾î³³´Ï´Ù.");
+                                NotificationManager.Instance.ShowNotification("´ßÀ» ±¸¸ÅÇß½À´Ï´Ù.");
                             }
                             else
                             {
