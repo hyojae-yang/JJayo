@@ -12,26 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adca5d2879104bb46bfd45a3903c2acd, type: 3}
   m_Name: Milker
   m_EditorClassIdentifier: 
-  level: 0
-  upgradePrice: 0
   upgradeLevels:
-  - level: 1
-    upgradePrice: 0
-    capacity: 10
-    milkingYield: 1
-  - level: 2
-    upgradePrice: 500
+  - upgradePrice: 500
     capacity: 20
     milkingYield: 2
-  - level: 3
-    upgradePrice: 1000
+  - upgradePrice: 1000
     capacity: 40
     milkingYield: 3
-  - level: 4
-    upgradePrice: 2000
+  - upgradePrice: 2000
     capacity: 70
     milkingYield: 5
-  - level: 5
-    upgradePrice: 4000
+  - upgradePrice: 4000
     capacity: 100
     milkingYield: 6

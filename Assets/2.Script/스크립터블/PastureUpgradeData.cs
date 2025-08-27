@@ -1,11 +1,11 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
 [Serializable]
-public class PastureLevelStats : UpgradeLevelStats // UpgradeLevelStats 상속은 유지
+public class PastureLevelStats
 {
-    // MilkerLevelStats처럼 고유 속성만 가집니다.
+    public int upgradePrice;
     [Tooltip("최소 신선도 값 (예: 20)")]
     [Range(0, 100)] public int minFreshness;
     [Tooltip("최대 신선도 값 (예: 30)")]
@@ -13,16 +13,24 @@ public class PastureLevelStats : UpgradeLevelStats // UpgradeLevelStats 상속은 �
 }
 
 [CreateAssetMenu(fileName = "New Pasture Upgrade Data", menuName = "Tycoon Game/Upgrade Data/Pasture")]
-public class PastureUpgradeData : UpgradeData // UpgradeData 상속 유지
+public class PastureUpgradeData : UpgradeData
 {
-    public List<PastureLevelStats> upgradeLevels = new List<PastureLevelStats>();
+    public List<PastureLevelStats> upgradeLevels;
 
-    // 핵심: GetNextUpgradePrice() 함수를 삭제하여 CS0115 에러를 해결합니다.
-    // 기존 스크립트들처럼 이 함수가 없어야 정상 작동합니다.
+    public override int GetUpgradePrice(int currentLevel)
+    {
+        if (currentLevel < 0 || currentLevel >= upgradeLevels.Count)
+        {
+            return 0;
+        }
+        return upgradeLevels[currentLevel].upgradePrice;
+    }
 
-    /// <summary>
-    /// 특정 레벨의 신선도 범위를 반환합니다.
-    /// </summary>
+    public override int GetMaxLevel()
+    {
+        return upgradeLevels.Count;
+    }
+
     public (int min, int max) GetFreshnessRange(int currentLevel)
     {
         if (currentLevel < 0 || upgradeLevels.Count == 0)

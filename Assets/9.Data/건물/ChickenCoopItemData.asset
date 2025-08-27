@@ -18,3 +18,7 @@ MonoBehaviour:
   itemPrefab: {fileID: 9221872427881102256, guid: 9d85c1896525cbd4bb977d72b445f0ac, type: 3}
   itemType: 1
   animalData: {fileID: 0}
+  buildingData: {fileID: 11400000, guid: 82c23d27d6eb3c94888e6c8cbc70dc90, type: 2}
+  equipmentData: {fileID: 0}
+  consumableData: {fileID: 0}
+  upgradeData: {fileID: 0}

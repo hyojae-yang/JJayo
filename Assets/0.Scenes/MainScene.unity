@@ -3083,20 +3083,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b7757e2716ee974a8846dd34fa98388, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cowSpawnPoints:
-  - {fileID: 2025011422}
-  - {fileID: 1958009985}
-  - {fileID: 734128354}
-  - {fileID: 1167301498}
-  - {fileID: 1497154293}
-  - {fileID: 822938681}
-  - {fileID: 452930261}
-  - {fileID: 1566387547}
-  - {fileID: 1893174810}
-  buildingSpawnPoints:
-  - {fileID: 1088799959}
-  - {fileID: 266788058}
-  cowObjectPool: {fileID: 1048482543}
+  animalHandler: {fileID: 871320273}
+  buildingHandler: {fileID: 871320274}
+  equipmentHandler: {fileID: 871320275}
+  upgradeHandler: {fileID: 871320276}
 --- !u!4 &176941852
 Transform:
   m_ObjectHideFlags: 0
@@ -6034,28 +6024,31 @@ MonoBehaviour:
   gameData:
     money: 1000
     reputation: 0
-    pastureLevel: 0
     day: 1
     month: 1
     year: 1
     dailyMilkProduced: 0
     dailyEggsProduced: 0
+    milkCount: 0
+    milkAverageFreshness: 0
+    eggCount: 0
+    pastureLevel: 0
+    hasGun: 0
+    gunLevel: 0
+    basketLevel: 1
+    milkerLevel: 1
+    bulletCount: 0
+    hasChickenCoop: 0
+    hasFactory: 0
+    hasWatchtower: 0
     traderRequiredMilkAmount: 0
     traderRequiredFreshness: 0
     traderOfferedPrice: 0
     traderCurrentEggPrice: 0
-    milkCount: 0
-    milkAverageFreshness: 0
-    eggCount: 0
-    hasGun: 0
-    gunLevel: 0
-    basketLevel: 0
-    milkerLevel: 0
-    bulletCount: 0
   reputationText: {fileID: 2147243202}
   timeText: {fileID: 999974456}
   moneyText: {fileID: 850676841}
-  dayLengthInSeconds: 10
+  dayLengthInSeconds: 60
   pastureUpgradeData: {fileID: 11400000, guid: 497b1d9b21095764dbcecac7b191a094, type: 2}
   mainCamera: {fileID: 519420031}
   pastureColors:
@@ -10277,6 +10270,104 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 862848841}
   m_CullTransparentMesh: 1
+--- !u!1 &871320272
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 871320277}
+  - component: {fileID: 871320276}
+  - component: {fileID: 871320275}
+  - component: {fileID: 871320274}
+  - component: {fileID: 871320273}
+  m_Layer: 0
+  m_Name: Handler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &871320273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 871320272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65e9c20c71549114c8a6b4ca74e928ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cowObjectPool: {fileID: 1048482543}
+  chickenCoop: {fileID: 0}
+  cowSpawnPoints:
+  - {fileID: 2025011422}
+  - {fileID: 1958009985}
+  - {fileID: 734128354}
+  - {fileID: 1167301498}
+  - {fileID: 1497154293}
+  - {fileID: 822938681}
+  - {fileID: 452930261}
+  - {fileID: 1566387547}
+  - {fileID: 1893174810}
+--- !u!114 &871320274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 871320272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b95e24f90a9b9a148a31be4f19cbfc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buildingSpawnPoints:
+  - {fileID: 1088799959}
+  - {fileID: 266788058}
+--- !u!114 &871320275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 871320272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0c6065ca4b23034da7d39604e99f752, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &871320276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 871320272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27d43c78ece01cd429d1ce66d2abc11f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &871320277
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 871320272}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 601.5, y: 1405, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &871556717
 GameObject:
   m_ObjectHideFlags: 0
@@ -17494,19 +17585,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1589111889}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 176941853}
-        m_TargetAssemblyTypeName: ShopUI, Assembly-CSharp
-        m_MethodName: OnClickCancel
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1589111889
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22188,12 +22267,11 @@ MonoBehaviour:
   allShopItems:
   - {fileID: 11400000, guid: eaba0258c60c22847a282b4b114e4dee, type: 2}
   - {fileID: 11400000, guid: 1148bb65e1b4b9b4b9bb2e08393713f7, type: 2}
-  - {fileID: 11400000, guid: f3faaa3e5d566d14ebc11bae71691ac9, type: 2}
   - {fileID: 11400000, guid: 5a0f905a7c9362f4e9602044454782d6, type: 2}
-  - {fileID: 11400000, guid: 12152aadf08b7b34994088c23dce2853, type: 2}
   - {fileID: 11400000, guid: 5cfbfa012c5c8214cbbd86e008e718af, type: 2}
   - {fileID: 11400000, guid: 434f3b6343c1eca41938713773762c78, type: 2}
   - {fileID: 11400000, guid: f6af70bf7c7db3c4e889769724b40591, type: 2}
+  - {fileID: 11400000, guid: 42222bd9feb58d041a9889197047af57, type: 2}
   - {fileID: 11400000, guid: 14748e905238630488f8854ee03448cd, type: 2}
   - {fileID: 11400000, guid: 460cac3007892594e84acc3a54db77a1, type: 2}
   - {fileID: 11400000, guid: 50f897062c2cd3a48b4cdc3bfd8bdd05, type: 2}
@@ -22279,19 +22357,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2101927175}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 176941853}
-        m_TargetAssemblyTypeName: ShopUI, Assembly-CSharp
-        m_MethodName: OnClickConfirm
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &2101927175
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22795,3 +22861,4 @@ SceneRoots:
   - {fileID: 947018506}
   - {fileID: 802994727}
   - {fileID: 176941852}
+  - {fileID: 871320277}

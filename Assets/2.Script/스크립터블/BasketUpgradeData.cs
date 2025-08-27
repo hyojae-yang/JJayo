@@ -1,10 +1,11 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
 [Serializable]
-public class BasketLevelStats : UpgradeLevelStats
+public class BasketLevelStats
 {
+    public int upgradePrice;
     public int capacity;
 }
 
@@ -12,4 +13,18 @@ public class BasketLevelStats : UpgradeLevelStats
 public class BasketUpgradeData : UpgradeData
 {
     public List<BasketLevelStats> upgradeLevels;
+
+    public override int GetUpgradePrice(int currentLevel)
+    {
+        if (currentLevel < 0 || currentLevel >= upgradeLevels.Count)
+        {
+            return 0;
+        }
+        return upgradeLevels[currentLevel].upgradePrice;
+    }
+
+    public override int GetMaxLevel()
+    {
+        return upgradeLevels.Count;
+    }
 }

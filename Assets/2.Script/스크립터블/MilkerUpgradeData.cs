@@ -1,12 +1,12 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
 [Serializable]
-public class MilkerLevelStats : UpgradeLevelStats
+public class MilkerLevelStats
 {
+    public int upgradePrice;
     public int capacity;
-    // ★★★ 수정된 부분: speed 변수명을 milkingYield로 변경합니다. ★★★
     public int milkingYield;
 }
 
@@ -14,4 +14,18 @@ public class MilkerLevelStats : UpgradeLevelStats
 public class MilkerUpgradeData : UpgradeData
 {
     public List<MilkerLevelStats> upgradeLevels;
+
+    public override int GetUpgradePrice(int currentLevel)
+    {
+        if (currentLevel < 0 || currentLevel >= upgradeLevels.Count)
+        {
+            return 0;
+        }
+        return upgradeLevels[currentLevel].upgradePrice;
+    }
+
+    public override int GetMaxLevel()
+    {
+        return upgradeLevels.Count;
+    }
 }

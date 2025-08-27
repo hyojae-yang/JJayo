@@ -1,9 +1,10 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 // 모든 업그레이드 데이터의 기본 클래스
-// 이 스크립트 자체로는 에셋을 만들 수 없습니다.
 public abstract class UpgradeData : ScriptableObject
 {
-    public int level;
-    public int upgradePrice;
+    // 각 업그레이드 데이터가 구현해야 할 공통 메서드
+    public abstract int GetUpgradePrice(int currentLevel);
+    public abstract int GetMaxLevel();
 }

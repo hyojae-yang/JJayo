@@ -1,19 +1,30 @@
-// GunLevelStats.cs
-
 using System;
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 [Serializable]
-public class GunLevelStats : UpgradeLevelStats
+public class GunLevelStats
 {
+    public int upgradePrice;
     public float damageIncrease;
 }
-
-// GunUpgradeData.cs
 
 [CreateAssetMenu(fileName = "New Gun Upgrade Data", menuName = "Tycoon Game/Upgrade Data/Gun")]
 public class GunUpgradeData : UpgradeData
 {
     public List<GunLevelStats> upgradeLevels;
+
+    public override int GetUpgradePrice(int currentLevel)
+    {
+        if (currentLevel < 0 || currentLevel >= upgradeLevels.Count)
+        {
+            return 0;
+        }
+        return upgradeLevels[currentLevel].upgradePrice;
+    }
+
+    public override int GetMaxLevel()
+    {
+        return upgradeLevels.Count;
+    }
 }

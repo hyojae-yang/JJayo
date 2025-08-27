@@ -24,6 +24,9 @@ public class PurchasableItemData : ScriptableObject
     // 동물인 경우 추가 데이터 (Animal 타입에만 사용)
     public AnimalData animalData;
 
+    // 건물인 경우 추가 데이터 (Building 타입에만 사용)
+    public BuildingData buildingData; // ★★★ 추가된 부분
+
     // 장비인 경우 추가 데이터 (Equipment 타입에만 사용)
     public EquipmentData equipmentData;
 
@@ -31,5 +34,5 @@ public class PurchasableItemData : ScriptableObject
     public ConsumableData consumableData;
 
     // 업그레이드 아이템인 경우 추가 데이터
-    public UpgradeData upgradeData; // 수정된 부분: 이제 UpgrageData 기본 클래스를 참조합니다.
+    public UpgradeData upgradeData;
 }

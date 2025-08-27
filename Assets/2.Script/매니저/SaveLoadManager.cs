@@ -6,7 +6,6 @@ public class SaveLoadManager : MonoBehaviour
 {
     public static SaveLoadManager Instance { get; private set; }
 
-    // Path for the save file. Application.persistentDataPath is a secure path for data on each OS.
     private string savePath;
 
     private void Awake()
@@ -14,7 +13,7 @@ public class SaveLoadManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Keeps the object from being destroyed when a scene changes
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -36,13 +35,9 @@ public class SaveLoadManager : MonoBehaviour
             return;
         }
 
-        // Use the centralized GameData object from GameManager.
         GameData dataToSave = GameManager.Instance.gameData;
-
-        // Convert the GameData object to a JSON string.
         string json = JsonUtility.ToJson(dataToSave, true);
 
-        // Write the JSON string to a file.
         try
         {
             File.WriteAllText(savePath, json);
@@ -59,25 +54,17 @@ public class SaveLoadManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Loads the game data from the save file.
+    /// Loads the game data from the save file. Returns the loaded GameData object.
     /// </summary>
-    public void LoadGame()
+    public GameData LoadGame()
     {
         if (File.Exists(savePath))
         {
             try
             {
-                // Read the JSON string from the file.
                 string json = File.ReadAllText(savePath);
-
-                // Convert the JSON string to a GameData object.
                 GameData loadedData = JsonUtility.FromJson<GameData>(json);
-
-                // Pass the loaded data to GameManager to handle restoration.
-                if (GameManager.Instance != null)
-                {
-                    GameManager.Instance.LoadGameData(loadedData);
-                }
+                return loadedData;
             }
             catch (System.Exception e)
             {
@@ -86,16 +73,17 @@ public class SaveLoadManager : MonoBehaviour
                 {
                     NotificationManager.Instance.ShowNotification("Save file corrupted!");
                 }
+                return null;
             }
         }
         else
         {
-            // If the file doesn't exist, show a notification.
             Debug.LogWarning("No save file found!");
             if (NotificationManager.Instance != null)
             {
                 NotificationManager.Instance.ShowNotification("No saved game found.");
             }
+            return null;
         }
     }
 
