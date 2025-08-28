@@ -5,7 +5,6 @@ using UnityEngine;
 [Serializable]
 public class PastureLevelStats
 {
-    public int level;
     public int upgradePrice;
     [Tooltip("최소 신선도 값 (예: 20)")]
     [Range(0, 100)] public int minFreshness;

@@ -5,7 +5,6 @@ using UnityEngine;
 [Serializable]
 public class MilkerLevelStats
 {
-    public int level;
     public int upgradePrice;
     public int capacity;
     public int milkingYield;

@@ -62,8 +62,8 @@ public class GameData
 
         this.hasGun = false;
         this.gunLevel = 0;
-        this.basketLevel = 1;
-        this.milkerLevel = 1;
+        this.basketLevel = 0;
+        this.milkerLevel = 0;
         this.bulletCount = 0;
 
         // ★★★ 건물 보유 리스트 초기화

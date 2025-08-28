@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+// 업그레이드 타입을 명시하기 위한 Enum
+public enum UpgradeType { Gun, Basket, Milker, Pasture }
+
 public class UpgradeHandler : MonoBehaviour
 {
     private GameData gameData;
@@ -13,6 +16,27 @@ public class UpgradeHandler : MonoBehaviour
             gameData = GameManager.Instance.gameData;
         }
         pastureManager = FindObjectOfType<PastureManager>();
+    }
+
+    // ★★★ 요청에 따라 다시 추가된 InitializeLevel 메서드 ★★★
+    public void InitializeLevel(UpgradeType type)
+    {
+        switch (type)
+        {
+            case UpgradeType.Gun:
+                gameData.gunLevel = 1;
+                break;
+            case UpgradeType.Basket:
+                gameData.basketLevel = 1;
+                break;
+            case UpgradeType.Milker:
+                gameData.milkerLevel = 1;
+                break;
+            case UpgradeType.Pasture:
+                // 목초지 레벨은 장비 구매가 아닌 업그레이드 자체로 관리되므로
+                // 이 부분은 비워두거나 다른 로직을 추가할 수 있습니다.
+                break;
+        }
     }
 
     public bool CanBuy(UpgradeData upgradeData)

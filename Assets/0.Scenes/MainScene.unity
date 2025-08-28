@@ -6040,6 +6040,7 @@ MonoBehaviour:
     bulletCount: 0
     currentEquipment: 0
     ownedBuildingIds: []
+    ownedEquipmentIds: []
     traderRequiredMilkAmount: 0
     traderRequiredFreshness: 0
     traderOfferedPrice: 0
@@ -10339,6 +10340,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0c6065ca4b23034da7d39604e99f752, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  upgradeHandler: {fileID: 0}
 --- !u!114 &871320276
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15478,7 +15480,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 1
+  m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -22259,9 +22261,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   allShopItems:
   - {fileID: 11400000, guid: eaba0258c60c22847a282b4b114e4dee, type: 2}
-  - {fileID: 11400000, guid: f3faaa3e5d566d14ebc11bae71691ac9, type: 2}
   - {fileID: 11400000, guid: 1148bb65e1b4b9b4b9bb2e08393713f7, type: 2}
-  - {fileID: 11400000, guid: 12152aadf08b7b34994088c23dce2853, type: 2}
   - {fileID: 11400000, guid: 5a0f905a7c9362f4e9602044454782d6, type: 2}
   - {fileID: 11400000, guid: f6af70bf7c7db3c4e889769724b40591, type: 2}
   - {fileID: 11400000, guid: 5cfbfa012c5c8214cbbd86e008e718af, type: 2}

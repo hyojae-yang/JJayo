@@ -5,7 +5,6 @@ using UnityEngine;
 [Serializable]
 public class GunLevelStats
 {
-    public int level;
     public int upgradePrice;
     public float damage;
 }

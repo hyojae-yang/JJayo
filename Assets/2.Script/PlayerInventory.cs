@@ -19,6 +19,9 @@ public class PlayerInventory : MonoBehaviour
     // 싱글톤 인스턴스
     public static PlayerInventory Instance { get; private set; }
 
+    // ★★★ 인벤토리 변경을 알리는 이벤트 추가 ★★★
+    public event Action OnInventoryChanged;
+
     [Header("바구니 설정")]
     [Tooltip("현재 바구니에 담긴 달걀의 개수.")]
     public int currentEggs = 0;
@@ -36,7 +39,6 @@ public class PlayerInventory : MonoBehaviour
     [Tooltip("총기 업그레이드 데이터 ScriptableObject를 연결하세요.")]
     public GunUpgradeData gunUpgradeData;
 
-    // GameManager의 gameData를 직접 참조하여 레벨을 가져옵니다.
     public int BasketCapacity
     {
         get
@@ -98,11 +100,14 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
-    // UpgradeXXX 메서드는 UpgradeHandler에서 처리하므로 삭제합니다.
+    // ★★★ 이벤트 호출을 위한 공용 메서드 추가 ★★★
+    public void NotifyInventoryChanged()
+    {
+        OnInventoryChanged?.Invoke();
+    }
 
     public int AddEggs(int amount)
     {
-        // gameData의 레벨로 바구니 소유 여부를 확인합니다.
         if (GameManager.Instance.gameData.basketLevel == 0)
         {
             NotificationManager.Instance.ShowNotification("바구니를 먼저 구매해야 합니다!");
@@ -112,6 +117,10 @@ public class PlayerInventory : MonoBehaviour
         int spaceLeft = BasketCapacity - currentEggs;
         int eggsToAdd = Mathf.Min(amount, spaceLeft);
         currentEggs += eggsToAdd;
+
+        // ★★★ 달걀 추가 후 이벤트 호출 ★★★
+        NotifyInventoryChanged();
+
         NotificationManager.Instance.ShowNotification($"바구니에 달걀 {eggsToAdd}개를 담았습니다. 현재: {currentEggs}/{BasketCapacity}");
         return eggsToAdd;
     }
@@ -124,12 +133,15 @@ public class PlayerInventory : MonoBehaviour
     public void RemoveEggs(int amount)
     {
         currentEggs = Mathf.Max(0, currentEggs - amount);
+
+        // ★★★ 달걀 제거 후 이벤트 호출 ★★★
+        NotifyInventoryChanged();
+
         NotificationManager.Instance.ShowNotification($"바구니에서 달걀 {amount}개를 꺼냈습니다. 현재: {currentEggs}/{BasketCapacity}");
     }
 
     public void AddMilk(Milk milk)
     {
-        // gameData의 레벨로 착유기 소유 여부를 확인합니다.
         if (GameManager.Instance.gameData.milkerLevel == 0)
         {
             NotificationManager.Instance.ShowNotification("착유기를 먼저 구매해야 합니다!");
@@ -139,6 +151,10 @@ public class PlayerInventory : MonoBehaviour
         if (milkList.Count < MilkerCapacity)
         {
             milkList.Add(milk);
+
+            // ★★★ 우유 추가 후 이벤트 호출 ★★★
+            NotifyInventoryChanged();
+
             NotificationManager.Instance.ShowNotification($"착유기에 우유 1개를 담았습니다. 현재: {milkList.Count}/{MilkerCapacity}");
         }
         else
@@ -163,7 +179,6 @@ public class PlayerInventory : MonoBehaviour
                 Warehouse.Instance.AddEggs(currentEggs);
             }
             currentEggs = 0;
-            NotificationManager.Instance.ShowNotification("바구니의 알을 모두 창고로 옮겼습니다!");
         }
 
         if (milkList.Count > 0)
@@ -173,15 +188,15 @@ public class PlayerInventory : MonoBehaviour
                 Warehouse.Instance.AddMilk(new List<Milk>(milkList));
             }
             milkList.Clear();
-            NotificationManager.Instance.ShowNotification("착유기의 우유를 모두 창고로 옮겼습니다!");
         }
-    }
 
-    // AddGun 메서드는 EquipmentHandler가 담당하므로 삭제합니다.
+        // ★★★ 창고로 옮긴 후 이벤트 호출 ★★★
+        NotifyInventoryChanged();
+        NotificationManager.Instance.ShowNotification("아이템을 모두 창고로 옮겼습니다!");
+    }
 
     public void AddBullets(int amount)
     {
-        // 총알은 PlayerInventory에 직접 추가하는 것이 타당합니다.
         currentBullets += amount;
         GameManager.Instance.gameData.bulletCount = currentBullets;
     }

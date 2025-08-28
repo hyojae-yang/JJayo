@@ -31,7 +31,7 @@ public class PlayerUI : MonoBehaviour
             Destroy(gameObject);
         }
 
-        // Awake에서 모든 매니저 인스턴스를 먼저 가져옵니다.
+        // 싱글톤 인스턴스 참조는 Awake에서 하는 것이 좋습니다.
         playerInventory = PlayerInventory.Instance;
         moneyManager = MoneyManager.Instance;
         timeManager = TimeManager.Instance;
@@ -49,6 +49,11 @@ public class PlayerUI : MonoBehaviour
         {
             timeManager.OnTimeChanged += UpdateDayGauge;
         }
+        // ★★★ PlayerInventory 이벤트 구독 추가 ★★★
+        if (playerInventory != null)
+        {
+            playerInventory.OnInventoryChanged += UpdateAllGauges;
+        }
     }
 
     private void OnDisable()
@@ -61,6 +66,11 @@ public class PlayerUI : MonoBehaviour
         if (timeManager != null)
         {
             timeManager.OnTimeChanged -= UpdateDayGauge;
+        }
+        // ★★★ PlayerInventory 이벤트 구독 해제 추가 ★★★
+        if (playerInventory != null)
+        {
+            playerInventory.OnInventoryChanged -= UpdateAllGauges;
         }
     }
 
@@ -75,16 +85,26 @@ public class PlayerUI : MonoBehaviour
         {
             UpdateMoney(gameManager.gameData.money);
         }
-        UpdateMaxCapacities();
+        // ★★★ 게임 시작 시 게이지 값 초기화 ★★★
+        UpdateAllGauges();
     }
 
     void Update()
     {
-        UpdateGauges();
+        // 이제 Update()에서는 이 로직만 남겨두어도 충분합니다.
         if (dayText != null && gameManager != null && gameManager.gameData != null)
         {
             dayText.text = $"{gameManager.gameData.year}년 {gameManager.gameData.month}월 {gameManager.gameData.day}일";
         }
+    }
+
+    // ★★★ 모든 게이지를 한 번에 업데이트하는 새로운 메서드 ★★★
+    public void UpdateAllGauges()
+    {
+        // 최대 용량 업데이트
+        UpdateMaxCapacities();
+        // 현재 값 업데이트
+        UpdateGauges();
     }
 
     private void UpdateDayGauge(float timeProgress)
