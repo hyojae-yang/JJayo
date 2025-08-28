@@ -5,8 +5,9 @@ using UnityEngine;
 [Serializable]
 public class GunLevelStats
 {
+    public int level;
     public int upgradePrice;
-    public float damageIncrease;
+    public float damage;
 }
 
 [CreateAssetMenu(fileName = "New Gun Upgrade Data", menuName = "Tycoon Game/Upgrade Data/Gun")]
@@ -21,6 +22,15 @@ public class GunUpgradeData : UpgradeData
             return 0;
         }
         return upgradeLevels[currentLevel].upgradePrice;
+    }
+
+    public float GetDamage(int level)
+    {
+        if (level < 0 || level >= upgradeLevels.Count)
+        {
+            return 0;
+        }
+        return upgradeLevels[level].damage;
     }
 
     public override int GetMaxLevel()

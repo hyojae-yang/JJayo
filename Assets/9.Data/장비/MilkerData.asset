@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24a13f6d0eeef0b4387902abf7d4a4b2, type: 3}
   m_Name: MilkerData
   m_EditorClassIdentifier: 
+  id: Milker
   equipmentType: 2

@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using System;
+using System.Linq; // LINQ를 사용하기 위해 추가
 
 public class InfoPanelManager : MonoBehaviour
 {
@@ -52,7 +53,6 @@ public class InfoPanelManager : MonoBehaviour
 
     void Start()
     {
-        // Start에서 각 매니저 인스턴스를 가져옵니다.
         gameManager = GameManager.Instance;
         playerInventory = PlayerInventory.Instance;
         warehouse = Warehouse.Instance;
@@ -99,11 +99,13 @@ public class InfoPanelManager : MonoBehaviour
 
     private void UpdateUpgradeInfo()
     {
+        var allShopItems = ShopService.Instance.GetShopItems();
+
+        // 목장 정보
         if (pastureManager != null && pastureManager.pastureUpgradeData != null)
         {
-            int level = pastureManager.CurrentPastureLevel;
+            int level = gameManager.gameData.pastureLevel;
             pastureLevelText.text = $"레벨: {level}";
-
             var freshnessRange = pastureManager.pastureUpgradeData.GetFreshnessRange(level);
             pastureStatsText.text = $"신선도 범위: {freshnessRange.min}% ~ {freshnessRange.max}%";
         }
@@ -113,35 +115,37 @@ public class InfoPanelManager : MonoBehaviour
             if (pastureStatsText != null) pastureStatsText.text = "능력치 정보 없음";
         }
 
-        if (playerInventory != null)
+        // ★★★ 이제 UpgradeData에서 직접 능력치 정보를 가져옵니다.
+
+        // 바구니 정보
+        var basketUpgradeData = allShopItems.FirstOrDefault(i => i.upgradeData is BasketUpgradeData)?.upgradeData as BasketUpgradeData;
+        if (basketLevelText != null && basketStatsText != null && basketUpgradeData != null)
         {
-            // 바구니 정보
-            if (basketLevelText != null && basketStatsText != null)
-            {
-                int level = playerInventory.basketLevel;
-                int capacity = playerInventory.BasketCapacity;
-                basketLevelText.text = $"레벨: {level}";
-                basketStatsText.text = $"용량: {capacity}개";
-            }
+            int level = gameManager.gameData.basketLevel;
+            int capacity = basketUpgradeData.GetCapacity(level);
+            basketLevelText.text = $"레벨: {level}";
+            basketStatsText.text = $"용량: {capacity}개";
+        }
 
-            // 착유기 정보
-            if (milkerLevelText != null && milkerStatsText != null)
-            {
-                int level = playerInventory.milkerLevel;
-                int capacity = playerInventory.MilkerCapacity;
-                int milkingYield = playerInventory.MilkingYield;
-                milkerLevelText.text = $"레벨: {level}";
-                milkerStatsText.text = $"용량: {capacity}L\n착유량: {milkingYield}개";
-            }
+        // 착유기 정보
+        var milkerUpgradeData = allShopItems.FirstOrDefault(i => i.upgradeData is MilkerUpgradeData)?.upgradeData as MilkerUpgradeData;
+        if (milkerLevelText != null && milkerStatsText != null && milkerUpgradeData != null)
+        {
+            int level = gameManager.gameData.milkerLevel;
+            int capacity = milkerUpgradeData.GetCapacity(level);
+            int milkingYield = milkerUpgradeData.GetMilkingYield(level);
+            milkerLevelText.text = $"레벨: {level}";
+            milkerStatsText.text = $"용량: {capacity}L\n착유량: {milkingYield}개";
+        }
 
-            // 총기 정보
-            if (gunLevelText != null && gunStatsText != null)
-            {
-                int level = playerInventory.gunLevel;
-                float damage = playerInventory.GunDamage;
-                gunLevelText.text = $"레벨: {level}";
-                gunStatsText.text = $"데미지: {damage:F1}";
-            }
+        // 총기 정보
+        var gunUpgradeData = allShopItems.FirstOrDefault(i => i.upgradeData is GunUpgradeData)?.upgradeData as GunUpgradeData;
+        if (gunLevelText != null && gunStatsText != null && gunUpgradeData != null)
+        {
+            int level = gameManager.gameData.gunLevel;
+            float damage = gunUpgradeData.GetDamage(level);
+            gunLevelText.text = $"레벨: {level}";
+            gunStatsText.text = $"데미지: {damage:F1}";
         }
     }
 
@@ -169,11 +173,11 @@ public class InfoPanelManager : MonoBehaviour
                 dailyMilkText.text = $"{gameManager.gameData.dailyMilkProduced}개";
             if (dailyEggText != null)
                 dailyEggText.text = $"{gameManager.gameData.dailyEggsProduced}개";
-        }
 
-        if (bulletsCountText != null && playerInventory != null)
-        {
-            bulletsCountText.text = $"총알:{playerInventory.currentBullets}개";
+            if (bulletsCountText != null)
+            {
+                bulletsCountText.text = $"총알:{gameManager.gameData.bulletCount}개";
+            }
         }
     }
 }

@@ -34,7 +34,7 @@ public class Animal : MonoBehaviour
 
     void OnMouseDown()
     {
-        if (EquipmentManager.Instance.currentEquipment == EquipmentType.Milker)
+        if (EquipmentManager.Instance.GetCurrentEquipment() == EquipmentType.Milker)
         {
             if (production.currentProductionCount > 0)
             {

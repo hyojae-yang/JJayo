@@ -6,9 +6,6 @@ public class BuildingHandler : MonoBehaviour
     // BuildingHandler가 직접 스폰 포인트를 관리합니다.
     [SerializeField] public List<Transform> buildingSpawnPoints;
 
-    // 이 클래스는 이제 특정 건물 변수를 가질 필요가 없습니다.
-    // private ChickenCoop chickenCoop;
-    // ...
 
     private void Awake()
     {

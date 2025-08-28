@@ -5,7 +5,6 @@ using System;
 
 public class PlayerUI : MonoBehaviour
 {
-    // 싱글톤 패턴
     public static PlayerUI Instance { get; private set; }
 
     [Header("UI 요소 연결")]
@@ -31,44 +30,49 @@ public class PlayerUI : MonoBehaviour
         {
             Destroy(gameObject);
         }
-    }
 
-    void Start()
-    {
-        // 각 매니저의 인스턴스를 가져옵니다.
+        // Awake에서 모든 매니저 인스턴스를 먼저 가져옵니다.
         playerInventory = PlayerInventory.Instance;
         moneyManager = MoneyManager.Instance;
         timeManager = TimeManager.Instance;
         gameManager = GameManager.Instance;
+    }
 
-        // 이벤트 구독 로직을 각 매니저에 맞게 수정합니다.
+    private void OnEnable()
+    {
+        // 오브젝트가 활성화될 때 이벤트 구독
         if (moneyManager != null)
         {
             moneyManager.OnMoneyChanged += UpdateMoney;
         }
-
         if (timeManager != null)
         {
-            // TimeManager의 OnTimeChanged 이벤트는 이제 timeProgress를 전달합니다.
-            // PlayerUI의 UpdateDayGauge 함수와 매개변수가 일치하여 바로 연결할 수 있습니다.
             timeManager.OnTimeChanged += UpdateDayGauge;
         }
+    }
 
-        if (playerInventory != null)
+    private void OnDisable()
+    {
+        // 오브젝트가 비활성화될 때 이벤트 구독 해제
+        if (moneyManager != null)
         {
-            playerInventory.OnCapacityChanged += UpdateMaxCapacities;
+            moneyManager.OnMoneyChanged -= UpdateMoney;
         }
+        if (timeManager != null)
+        {
+            timeManager.OnTimeChanged -= UpdateDayGauge;
+        }
+    }
 
-        // 초기 게이지 최대값 설정
+    void Start()
+    {
         if (dayGauge != null)
         {
             dayGauge.maxValue = 1f;
         }
 
-        // 게임 시작 시 초기값 설정
-        if (moneyManager != null)
+        if (gameManager != null && gameManager.gameData != null)
         {
-            // UI 초기화는 각 매니저에서 하는 것이 더 좋지만, 일단 여기서 호출합니다.
             UpdateMoney(gameManager.gameData.money);
         }
         UpdateMaxCapacities();
@@ -77,9 +81,9 @@ public class PlayerUI : MonoBehaviour
     void Update()
     {
         UpdateGauges();
-        if (dayText != null && gameManager != null)
+        if (dayText != null && gameManager != null && gameManager.gameData != null)
         {
-            dayText.text = gameManager.CurrentDate;
+            dayText.text = $"{gameManager.gameData.year}년 {gameManager.gameData.month}월 {gameManager.gameData.day}일";
         }
     }
 
@@ -113,7 +117,7 @@ public class PlayerUI : MonoBehaviour
     {
         if (moneyText != null)
         {
-            moneyText.text = newMoney.ToString("C0");
+            moneyText.text = newMoney.ToString("N0") + "원";
         }
     }
 }

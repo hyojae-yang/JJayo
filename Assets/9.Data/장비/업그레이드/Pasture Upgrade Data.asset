@@ -12,11 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3536bb2f59bb8aa4e83e81dc0dda17c2, type: 3}
   m_Name: Pasture Upgrade Data
   m_EditorClassIdentifier: 
-  level: 0
-  upgradePrice: 0
   upgradeLevels:
   - level: 0
-    upgradePrice: 0
+    upgradePrice: 1000
     minFreshness: 20
     maxFreshness: 30
   - level: 1

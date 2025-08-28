@@ -84,6 +84,7 @@ public class ShopUI : MonoBehaviour
 
     private void PopulateBuyItems()
     {
+        // UI 패널을 초기화합니다.
         foreach (Transform child in buyContentPanel)
         {
             Destroy(child.gameObject);
@@ -91,6 +92,8 @@ public class ShopUI : MonoBehaviour
 
         if (ShopService.Instance == null) return;
 
+        // ShopService에서 이미 구매한 장비 아이템을 제외한 리스트를 가져와서 반복문을 돌립니다.
+        // 장비 아이템은 이 리스트에 포함되지 않으므로, 카드가 생성되지 않습니다.
         foreach (var data in ShopService.Instance.GetShopItems())
         {
             GameObject itemCard = Instantiate(uiItemCardPrefab, buyContentPanel);
@@ -144,21 +147,21 @@ public class ShopUI : MonoBehaviour
             if (itemToPurchase.itemType == ItemType.Upgrade)
             {
                 int currentLevel = GetCurrentUpgradeLevelForConfirmation(itemToPurchase.upgradeData);
-                finalPrice = itemToPurchase.upgradeData.GetUpgradePrice(currentLevel + 1);
+                finalPrice = itemToPurchase.upgradeData.GetUpgradePrice(currentLevel);
             }
             else
             {
                 finalPrice = itemToPurchase.itemPrice;
             }
 
-            if (GameManager.Instance.gameData.money >= finalPrice)
+            if (ShopService.Instance.CanBuy(itemToPurchase) && GameManager.Instance.gameData.money >= finalPrice)
             {
                 ShopService.Instance.PurchaseItem(itemToPurchase);
-                GameManager.Instance.UpdateUI();
+                NotificationManager.Instance.ShowNotification(itemToPurchase.itemName + "을(를) 구매했습니다!");
             }
             else
             {
-                NotificationManager.Instance.ShowNotification("돈이 부족합니다!");
+                NotificationManager.Instance.ShowNotification("돈이 부족하거나 이미 소유한 아이템입니다!");
             }
         }
         else if (isSellingChicken)
@@ -203,7 +206,7 @@ public class ShopUI : MonoBehaviour
         if (itemData.itemType == ItemType.Upgrade)
         {
             int currentLevel = GetCurrentUpgradeLevelForConfirmation(itemData.upgradeData);
-            priceForConfirmation = itemData.upgradeData.GetUpgradePrice(currentLevel + 1);
+            priceForConfirmation = itemData.upgradeData.GetUpgradePrice(currentLevel);
         }
         else
         {
@@ -232,7 +235,6 @@ public class ShopUI : MonoBehaviour
         confirmText.text = $"닭 1마리를 {price}원에 판매하시겠습니까?";
     }
 
-    // *** 새로 추가된 메서드 ***
     public void RefreshShopItems()
     {
         if (buyPanel.activeSelf)

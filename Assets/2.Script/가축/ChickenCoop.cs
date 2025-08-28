@@ -53,7 +53,7 @@ public class ChickenCoop : MonoBehaviour
     void OnMouseDown()
     {
         // 바구니를 착용했는지 확인하고 알을 수거합니다.
-        if (EquipmentManager.Instance.currentEquipment == EquipmentType.Basket)
+        if (EquipmentManager.Instance.GetCurrentEquipment() == EquipmentType.Basket)
         {
             if (currentEggCount > 0)
             {

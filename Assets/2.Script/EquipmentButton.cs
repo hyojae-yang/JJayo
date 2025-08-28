@@ -1,10 +1,10 @@
 using UnityEngine;
 using TMPro;
+using System.Linq;
 
 public class EquipmentButton : MonoBehaviour
 {
     public TextMeshProUGUI buttonText;
-    public PlayerInventory playerInventory; // PlayerInventory를 참조할 변수
 
     // 장비 순서를 정의합니다.
     private EquipmentType[] equipmentOrder = { EquipmentType.Basket, EquipmentType.Milker, EquipmentType.Gun };
@@ -20,9 +20,12 @@ public class EquipmentButton : MonoBehaviour
     // 장비 매니저의 현재 장비를 기준으로 인덱스를 설정합니다.
     private void UpdateCurrentIndex()
     {
+        // GameManager.Instance.gameData.currentEquipment 대신
+        // EquipmentManager.Instance.GetCurrentEquipment()를 사용합니다.
+        EquipmentType current = EquipmentManager.Instance.GetCurrentEquipment();
         for (int i = 0; i < equipmentOrder.Length; i++)
         {
-            if (equipmentOrder[i] == EquipmentManager.Instance.currentEquipment)
+            if (equipmentOrder[i] == current)
             {
                 currentIndex = i;
                 return;
@@ -33,29 +36,26 @@ public class EquipmentButton : MonoBehaviour
 
     public void OnClickChangeEquipment()
     {
+        // 현재 레벨 데이터를 가져옵니다.
+        var gameData = GameManager.Instance.gameData;
+        int initialIndex = currentIndex; // 무한 루프 방지용
+
         do
         {
             // 다음 장비로 인덱스 이동
             currentIndex = (currentIndex + 1) % equipmentOrder.Length;
 
             EquipmentType nextEquipment = equipmentOrder[currentIndex];
-
-            // 바구니인데 플레이어가 바구니를 소유하고 있지 않다면 건너뜁니다.
-            if (nextEquipment == EquipmentType.Basket && playerInventory.basketLevel == 0)
+            if (nextEquipment == EquipmentType.Gun && gameData.gunLevel == 0)
             {
                 continue;
             }
 
-            // 착유기인데 플레이어가 착유기를 소유하고 있지 않다면 건너뜁니다.
-            if (nextEquipment == EquipmentType.Milker && playerInventory.milkerLevel == 0)
+            // 모든 장비를 다 돌아도 유효한 장비가 없으면 종료
+            if (currentIndex == initialIndex)
             {
-                continue;
-            }
-
-            // 총 장비인데 플레이어가 아직 총이 없다면 건너뜁니다.
-            if (nextEquipment == EquipmentType.Gun && !playerInventory.hasGun)
-            {
-                continue;
+                Debug.LogWarning("장착할 수 있는 장비가 없습니다. 튜토리얼을 진행하거나 상점을 확인하세요.");
+                return;
             }
 
             // 유효한 장비를 찾았으면 장착합니다.
@@ -73,8 +73,6 @@ public class EquipmentButton : MonoBehaviour
             Debug.LogWarning("Button text (TextMeshProUGUI) is not assigned!");
             return;
         }
-
-        // 현재 장비의 이름을 한글로 가져와 버튼 텍스트를 변경
-        buttonText.text = EquipmentManager.Instance.GetEquipmentName(EquipmentManager.Instance.currentEquipment);
+        buttonText.text = EquipmentManager.Instance.GetEquipmentName(EquipmentManager.Instance.GetCurrentEquipment());
     }
 }

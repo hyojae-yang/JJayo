@@ -1,5 +1,3 @@
-// GunController.cs
-
 using UnityEngine;
 
 public class GunController : MonoBehaviour
@@ -7,7 +5,9 @@ public class GunController : MonoBehaviour
 
     void Update()
     {
-        if (EquipmentManager.Instance.currentEquipment == EquipmentType.Gun)
+        // EquipmentManager.Instance.currentEquipment 대신
+        // EquipmentManager.Instance.GetCurrentEquipment()를 사용합니다.
+        if (EquipmentManager.Instance.GetCurrentEquipment() == EquipmentType.Gun)
         {
             // GetMouseButton(0) 대신 GetMouseButtonDown(0)으로 변경하여 단발 사격으로 변경
             if (Input.GetMouseButtonDown(0))

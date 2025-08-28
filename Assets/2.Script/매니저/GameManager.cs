@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
     public Camera mainCamera;
     public Color[] pastureColors;
 
-    // Properties
+    // Properties (기존대로 유지)
     public int CurrentPastureLevel => gameData.pastureLevel;
     public string CurrentDate => $"{gameData.year}년 {gameData.month}월 {gameData.day}일";
 
@@ -88,6 +88,16 @@ public class GameManager : MonoBehaviour
         gameData = new GameData();
     }
 
+    // ★★★ 이 메서드를 추가해야 합니다. ★★★
+    public void SaveGame()
+    {
+        if (SaveLoadManager.Instance != null && gameData != null)
+        {
+            SaveLoadManager.Instance.SaveGame(gameData);
+            Debug.Log("게임 저장 완료!");
+        }
+    }
+
     public void UpdateUI()
     {
         if (moneyText != null)
@@ -108,9 +118,9 @@ public class GameManager : MonoBehaviour
         Debug.Log($"명성도 변경: {amount}. 현재 명성도: {gameData.reputation}");
     }
 
-    // ★★★ 씬 이동만 담당하도록 수정
     public void GoToTitleScene()
     {
+        // 씬 이동만 담당하도록 수정 (SaveGame() 호출은 해당 씬에서 적절히 수행)
         SceneManager.LoadScene("TitleScene");
     }
 }

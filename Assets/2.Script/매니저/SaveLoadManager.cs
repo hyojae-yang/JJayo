@@ -27,15 +27,8 @@ public class SaveLoadManager : MonoBehaviour
     /// <summary>
     /// Saves the current game data to a file.
     /// </summary>
-    public void SaveGame()
+    public void SaveGame(GameData dataToSave)
     {
-        if (GameManager.Instance == null)
-        {
-            Debug.LogError("GameManager instance not found. Cannot save game.");
-            return;
-        }
-
-        GameData dataToSave = GameManager.Instance.gameData;
         string json = JsonUtility.ToJson(dataToSave, true);
 
         try
@@ -44,7 +37,7 @@ public class SaveLoadManager : MonoBehaviour
             Debug.Log("Game saved successfully!");
             if (NotificationManager.Instance != null)
             {
-                NotificationManager.Instance.ShowNotification("Game saved!");
+                NotificationManager.Instance.ShowNotification("게임 저장 완료!");
             }
         }
         catch (System.Exception e)
@@ -71,7 +64,7 @@ public class SaveLoadManager : MonoBehaviour
                 Debug.LogError($"Failed to load game: {e.Message}");
                 if (NotificationManager.Instance != null)
                 {
-                    NotificationManager.Instance.ShowNotification("Save file corrupted!");
+                    NotificationManager.Instance.ShowNotification("저장 파일이 손상되었습니다!");
                 }
                 return null;
             }
@@ -81,7 +74,7 @@ public class SaveLoadManager : MonoBehaviour
             Debug.LogWarning("No save file found!");
             if (NotificationManager.Instance != null)
             {
-                NotificationManager.Instance.ShowNotification("No saved game found.");
+                NotificationManager.Instance.ShowNotification("저장된 게임이 없습니다.");
             }
             return null;
         }

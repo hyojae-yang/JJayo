@@ -28,12 +28,38 @@ public class ShopService : MonoBehaviour
         if (upgradeHandler == null) Debug.LogError("UpgradeHandler가 할당되지 않았습니다.");
     }
 
+    // 상점에서 표시할 아이템 목록을 가져옵니다.
+    // 이제 구매한 장비 아이템을 제외합니다.
     public List<PurchasableItemData> GetShopItems()
     {
         if (ShopManager.Instance != null)
         {
-            return ShopManager.Instance.GetShopItems();
+            // ShopManager에서 모든 아이템을 가져옵니다.
+            var allItems = ShopManager.Instance.GetShopItems();
+
+            // GameManager가 로드되지 않았을 경우, 전체 아이템 목록을 반환합니다.
+            if (GameManager.Instance == null || GameManager.Instance.gameData == null)
+            {
+                return allItems;
+            }
+
+            // 구매한 장비 아이템을 제외한 새로운 리스트를 생성하여 반환합니다.
+            var availableItems = allItems.Where(item =>
+            {
+                // 아이템 타입이 장비일 경우,
+                if (item.itemType == ItemType.Equipment)
+                {
+                    // 해당 장비의 ID가 이미 구매한 리스트에 포함되어 있는지 확인합니다.
+                    // 포함되어 있지 않은 경우에만 true를 반환하여 목록에 남깁니다.
+                    return !GameManager.Instance.gameData.ownedEquipmentIds.Contains(item.equipmentData.id);
+                }
+                // 다른 아이템 타입은 그대로 유지합니다.
+                return true;
+            }).ToList();
+
+            return availableItems;
         }
+
         Debug.LogError("ShopManager를 찾을 수 없어 빈 리스트를 반환합니다.");
         return new List<PurchasableItemData>();
     }
@@ -45,7 +71,6 @@ public class ShopService : MonoBehaviour
 
         switch (itemData.itemType)
         {
-            // ★★★ BuildingHandler.CanBuy는 이제 인자를 받지 않습니다.
             case ItemType.Building: return buildingHandler.CanBuy();
             case ItemType.Animal: return animalHandler.CanBuy(itemData.animalData);
             case ItemType.Equipment: return equipmentHandler.CanBuy(itemData.equipmentData);
@@ -53,7 +78,8 @@ public class ShopService : MonoBehaviour
             case ItemType.Consumable:
                 if (itemData.consumableData != null && itemData.itemName == "총알(30개)")
                 {
-                    return gameData.hasGun;
+                    // 총알은 이제 GameData의 hasGun 변수 대신 ownedEquipmentIds 리스트를 확인합니다.
+                    return gameData.ownedEquipmentIds.Contains("Gun");
                 }
                 break;
         }
@@ -69,13 +95,13 @@ public class ShopService : MonoBehaviour
         if (itemToPurchase.itemType == ItemType.Upgrade)
         {
             int currentLevel = GetCurrentUpgradeLevel(itemToPurchase.upgradeData);
-            finalPrice = itemToPurchase.upgradeData.GetUpgradePrice(currentLevel); // 수정: GetUpgradePrice가 다음 레벨 가격을 반환하도록 수정했기 때문에 currentLevel만 넘겨줍니다.
+            finalPrice = itemToPurchase.upgradeData.GetUpgradePrice(currentLevel);
         }
-        else if (itemToPurchase.itemType == ItemType.Building) // 건물 가격을 buildingData에서 가져옵니다.
+        else if (itemToPurchase.itemType == ItemType.Building)
         {
             finalPrice = itemToPurchase.buildingData.buildingPrice;
         }
-        else // 기타 아이템 가격
+        else
         {
             finalPrice = itemToPurchase.itemPrice;
         }
@@ -88,7 +114,6 @@ public class ShopService : MonoBehaviour
                 animalHandler.Purchase(itemToPurchase.animalData);
                 NotificationManager.Instance.ShowNotification(itemToPurchase.itemName + "을(를) 구매했습니다!");
                 break;
-            // ★★★ BuildingHandler.Purchase에 BuildingData를 넘겨줍니다.
             case ItemType.Building:
                 buildingHandler.Purchase(itemToPurchase.buildingData);
                 break;
@@ -112,7 +137,6 @@ public class ShopService : MonoBehaviour
             GameManager.Instance.UpdateUI();
         }
 
-        // 업그레이드 아이템 구매 후 UI를 갱신합니다.
         if (itemToPurchase.itemType == ItemType.Upgrade || itemToPurchase.itemType == ItemType.Building)
         {
             ShopUI.Instance.RefreshShopItems();

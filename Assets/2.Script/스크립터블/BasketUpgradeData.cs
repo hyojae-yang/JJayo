@@ -5,6 +5,7 @@ using UnityEngine;
 [Serializable]
 public class BasketLevelStats
 {
+    public int level;
     public int upgradePrice;
     public int capacity;
 }
@@ -21,6 +22,15 @@ public class BasketUpgradeData : UpgradeData
             return 0;
         }
         return upgradeLevels[currentLevel].upgradePrice;
+    }
+
+    public int GetCapacity(int level)
+    {
+        if (level < 0 || level >= upgradeLevels.Count)
+        {
+            return 0;
+        }
+        return upgradeLevels[level].capacity;
     }
 
     public override int GetMaxLevel()

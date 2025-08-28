@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingId: ChickenCoop
   buildingName: "\uB2ED\uC7A5"
-  buildingPrice: 3000
+  buildingPrice: 5000
   buildingIcon: {fileID: -96963659532576680, guid: 9d339680a0e74b64aa28211038c8e6bb, type: 3}
   buildingPrefab: {fileID: 9221872427881102256, guid: 9d85c1896525cbd4bb977d72b445f0ac, type: 3}

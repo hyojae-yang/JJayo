@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ChickenCoopItemData
   m_EditorClassIdentifier: 
   itemName: "\uB2ED\uC7A5"
-  itemPrice: 3000
+  itemPrice: 5000
   itemIcon: {fileID: -96963659532576680, guid: 9d339680a0e74b64aa28211038c8e6bb, type: 3}
   itemPrefab: {fileID: 9221872427881102256, guid: 9d85c1896525cbd4bb977d72b445f0ac, type: 3}
   itemType: 1

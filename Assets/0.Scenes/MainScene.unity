@@ -6038,9 +6038,8 @@ MonoBehaviour:
     basketLevel: 1
     milkerLevel: 1
     bulletCount: 0
-    hasChickenCoop: 0
-    hasFactory: 0
-    hasWatchtower: 0
+    currentEquipment: 0
+    ownedBuildingIds: []
     traderRequiredMilkAmount: 0
     traderRequiredFreshness: 0
     traderOfferedPrice: 0
@@ -9125,7 +9124,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buttonText: {fileID: 1075972484}
-  playerInventory: {fileID: 1565120730}
 --- !u!1 &779501972
 GameObject:
   m_ObjectHideFlags: 0
@@ -17136,14 +17134,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentEggs: 0
-  basketLevel: 1
   basketUpgradeData: {fileID: 11400000, guid: 071b76adb43ee7d4181739dfb6a8d77a, type: 2}
   milkList: []
-  milkerLevel: 1
   milkerUpgradeData: {fileID: 11400000, guid: 5b2c97bb91b470f479ff874889d0c1ab, type: 2}
-  hasGun: 0
   currentBullets: 0
-  gunLevel: 0
   gunUpgradeData: {fileID: 11400000, guid: 40e8d99ade6b09140989656e58cfead5, type: 2}
 --- !u!4 &1565120731
 Transform:
@@ -17187,7 +17181,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1790c1eadc2d5b74a93e5f5747ea2e77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentEquipment: 0
 --- !u!114 &1565120734
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22266,12 +22259,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   allShopItems:
   - {fileID: 11400000, guid: eaba0258c60c22847a282b4b114e4dee, type: 2}
+  - {fileID: 11400000, guid: f3faaa3e5d566d14ebc11bae71691ac9, type: 2}
   - {fileID: 11400000, guid: 1148bb65e1b4b9b4b9bb2e08393713f7, type: 2}
+  - {fileID: 11400000, guid: 12152aadf08b7b34994088c23dce2853, type: 2}
   - {fileID: 11400000, guid: 5a0f905a7c9362f4e9602044454782d6, type: 2}
-  - {fileID: 11400000, guid: 5cfbfa012c5c8214cbbd86e008e718af, type: 2}
-  - {fileID: 11400000, guid: 434f3b6343c1eca41938713773762c78, type: 2}
   - {fileID: 11400000, guid: f6af70bf7c7db3c4e889769724b40591, type: 2}
+  - {fileID: 11400000, guid: 5cfbfa012c5c8214cbbd86e008e718af, type: 2}
   - {fileID: 11400000, guid: 42222bd9feb58d041a9889197047af57, type: 2}
+  - {fileID: 11400000, guid: 434f3b6343c1eca41938713773762c78, type: 2}
   - {fileID: 11400000, guid: 14748e905238630488f8854ee03448cd, type: 2}
   - {fileID: 11400000, guid: 460cac3007892594e84acc3a54db77a1, type: 2}
   - {fileID: 11400000, guid: 50f897062c2cd3a48b4cdc3bfd8bdd05, type: 2}

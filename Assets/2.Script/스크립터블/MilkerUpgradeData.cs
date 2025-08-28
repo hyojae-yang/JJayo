@@ -5,6 +5,7 @@ using UnityEngine;
 [Serializable]
 public class MilkerLevelStats
 {
+    public int level;
     public int upgradePrice;
     public int capacity;
     public int milkingYield;
@@ -22,6 +23,24 @@ public class MilkerUpgradeData : UpgradeData
             return 0;
         }
         return upgradeLevels[currentLevel].upgradePrice;
+    }
+
+    public int GetCapacity(int level)
+    {
+        if (level < 0 || level >= upgradeLevels.Count)
+        {
+            return 0;
+        }
+        return upgradeLevels[level].capacity;
+    }
+
+    public int GetMilkingYield(int level)
+    {
+        if (level < 0 || level >= upgradeLevels.Count)
+        {
+            return 0;
+        }
+        return upgradeLevels[level].milkingYield;
     }
 
     public override int GetMaxLevel()

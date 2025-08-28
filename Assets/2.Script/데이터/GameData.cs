@@ -28,8 +28,13 @@ public class GameData
     public int milkerLevel;
     public int bulletCount;
 
+    public EquipmentType currentEquipment;
+
     // ★★★ 건물 보유 여부 (List로 변경)
     public List<string> ownedBuildingIds;
+
+    // ★★★ 장비 보유 여부 (List 추가) ★★★
+    public List<string> ownedEquipmentIds;
 
     // NPC(상인) 관련 데이터
     public int traderRequiredMilkAmount;
@@ -57,12 +62,15 @@ public class GameData
 
         this.hasGun = false;
         this.gunLevel = 0;
-        this.basketLevel = 0;
-        this.milkerLevel = 0;
+        this.basketLevel = 1;
+        this.milkerLevel = 1;
         this.bulletCount = 0;
 
         // ★★★ 건물 보유 리스트 초기화
         this.ownedBuildingIds = new List<string>();
+
+        // ★★★ 장비 보유 리스트 초기화 ★★★
+        this.ownedEquipmentIds = new List<string>();
 
         this.traderRequiredMilkAmount = 0;
         this.traderRequiredFreshness = 0;

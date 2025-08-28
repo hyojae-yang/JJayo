@@ -58,7 +58,7 @@ public class ShopItemUI : MonoBehaviour
                 actionButton.interactable = true;
             }
         }
-        // 그 외 일반 아이템일 경우
+        // 그 외 일반 아이템일 경우 (장비 아이템은 이제 이 로직에 포함됩니다.)
         else
         {
             itemPriceText.text = itemData.itemPrice.ToString("C0");
