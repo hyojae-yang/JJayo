@@ -13,8 +13,6 @@ public class GameManager : MonoBehaviour
 
     [Header("Player UI")]
     public TextMeshProUGUI reputationText;
-    public TextMeshProUGUI timeText;
-    public TextMeshProUGUI moneyText;
 
     [Header("Time and Date")]
     public float dayLengthInSeconds = 120f;
@@ -24,7 +22,10 @@ public class GameManager : MonoBehaviour
     public Camera mainCamera;
     public Color[] pastureColors;
 
-    // Properties (기존대로 유지)
+    public TimeManager timeManager;
+    public PlayerUI playerUI;
+    public MoneyManager moneyManager;
+
     public int CurrentPastureLevel => gameData.pastureLevel;
     public string CurrentDate => $"{gameData.year}년 {gameData.month}월 {gameData.day}일";
 
@@ -47,21 +48,39 @@ public class GameManager : MonoBehaviour
             if (loadedData != null)
             {
                 gameData = loadedData;
-                Debug.Log("게임을 성공적으로 불러왔습니다!");
             }
             else
             {
                 InitializeGame();
-                Debug.Log("새로운 게임을 시작합니다!");
             }
         }
         else
         {
-            Debug.LogWarning("SaveLoadManager 인스턴스를 찾을 수 없습니다. 새로운 게임을 시작합니다.");
             InitializeGame();
         }
 
+        if (timeManager == null) timeManager = TimeManager.Instance;
+        if (moneyManager == null) moneyManager = MoneyManager.Instance;
+        if (playerUI == null) playerUI = PlayerUI.Instance;
+
+        if (timeManager != null)
+        {
+            timeManager.gameManager = this;
+        }
+        if (moneyManager != null)
+        {
+            moneyManager.gameManager = this;
+        }
+
         UpdateUI();
+    }
+
+    void Start()
+    {
+        if (playerUI != null)
+        {
+            playerUI.InitializeManagers(this, timeManager, moneyManager);
+        }
     }
 
     private void OnEnable()
@@ -88,39 +107,30 @@ public class GameManager : MonoBehaviour
         gameData = new GameData();
     }
 
-    // ★★★ 이 메서드를 추가해야 합니다. ★★★
     public void SaveGame()
     {
         if (SaveLoadManager.Instance != null && gameData != null)
         {
             SaveLoadManager.Instance.SaveGame(gameData);
-            Debug.Log("게임 저장 완료!");
         }
     }
 
     public void UpdateUI()
     {
-        if (moneyText != null)
-        {
-            moneyText.text = gameData.money.ToString("N0") + "원";
-        }
         if (reputationText != null)
         {
             reputationText.text = $"명성도: {gameData.reputation}";
         }
-        // timeText는 TimeManager가 업데이트하도록 역할 분담
     }
 
     public void ChangeReputation(int amount)
     {
         gameData.reputation += amount;
         UpdateUI();
-        Debug.Log($"명성도 변경: {amount}. 현재 명성도: {gameData.reputation}");
     }
 
     public void GoToTitleScene()
     {
-        // 씬 이동만 담당하도록 수정 (SaveGame() 호출은 해당 씬에서 적절히 수행)
         SceneManager.LoadScene("TitleScene");
     }
 }

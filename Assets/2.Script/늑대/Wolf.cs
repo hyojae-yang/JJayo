@@ -73,7 +73,6 @@ public class Wolf : MonoBehaviour
             }
             else
             {
-                // ★★★ 수정: 타겟이 사라졌으므로 새로운 타겟을 찾음 ★★★
                 FindNewTarget();
                 if (targetCow == null)
                 {
@@ -91,22 +90,23 @@ public class Wolf : MonoBehaviour
 
     private void FindNewTarget()
     {
-        GameObject[] cows = GameObject.FindGameObjectsWithTag("Cow");
-        GameObject closestCow = null;
+        Animal closestCow = null;
         float closestDistance = Mathf.Infinity;
         Vector3 wolfPosition = transform.position;
 
-        // ★★★ 수정된 부분: 풀로 돌아가 비활성화된 젖소는 타겟으로 잡지 않음 ★★★
-        foreach (GameObject cow in cows)
+        foreach (Animal cow in AnimalManager.Instance.activeAnimals)
         {
-            if (cow.activeInHierarchy)
+            // ★★★ 수정된 부분: 리스트에 null 값이 있으면 스킵하고 다음 항목으로 넘어갑니다. ★★★
+            if (cow == null)
             {
-                float distance = Vector3.Distance(wolfPosition, cow.transform.position);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestCow = cow;
-                }
+                continue;
+            }
+
+            float distance = Vector3.Distance(wolfPosition, cow.transform.position);
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestCow = cow;
             }
         }
 
@@ -116,7 +116,6 @@ public class Wolf : MonoBehaviour
         }
         else
         {
-            // 더 이상 공격할 젖소가 없으면 타겟을 null로 설정
             targetCow = null;
         }
     }
@@ -126,7 +125,6 @@ public class Wolf : MonoBehaviour
         Animal animal = targetCow.GetComponent<Animal>();
         if (animal != null)
         {
-            // ★★★ 수정: 젖소에게 피해를 줄 때 공격한 늑대 자신을 전달합니다. ★★★
             animal.TakeDamage(damage, this.gameObject);
         }
     }
@@ -134,7 +132,6 @@ public class Wolf : MonoBehaviour
     public void TakeDamage(float amount)
     {
         health -= amount;
-        Debug.Log($"Wolf took {amount} damage. Current health: {health}");
 
         if (healthBarSlider != null)
         {

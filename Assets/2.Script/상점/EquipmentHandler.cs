@@ -13,7 +13,20 @@ public class EquipmentHandler : MonoBehaviour
             gameData = GameManager.Instance.gameData;
         }
         // UpgradeHandler를 찾아 연결
-        upgradeHandler = FindObjectOfType<UpgradeHandler>();
+        upgradeHandler = FindFirstObjectByType<UpgradeHandler>();
+
+        // ★★★ 추가된 부분: 게임 시작 시 바구니와 착유기를 소유한 상태로 설정합니다. ★★★
+        if (gameData != null)
+        {
+            if (!gameData.ownedEquipmentIds.Contains("Basket"))
+            {
+                gameData.ownedEquipmentIds.Add("Basket");
+            }
+            if (!gameData.ownedEquipmentIds.Contains("Milker"))
+            {
+                gameData.ownedEquipmentIds.Add("Milker");
+            }
+        }
     }
 
     // 장비 아이템 구매 가능 여부를 확인합니다.
@@ -39,7 +52,6 @@ public class EquipmentHandler : MonoBehaviour
 
         gameData.ownedEquipmentIds.Add(equipmentData.id);
 
-        // ★★★ 구매한 장비에 따라 업그레이드 레벨을 초기화하는 로직 ★★★
         if (equipmentData.id == "Gun")
         {
             upgradeHandler.InitializeLevel(UpgradeType.Gun);

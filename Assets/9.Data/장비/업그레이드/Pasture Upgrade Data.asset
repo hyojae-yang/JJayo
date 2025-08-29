@@ -13,21 +13,24 @@ MonoBehaviour:
   m_Name: Pasture Upgrade Data
   m_EditorClassIdentifier: 
   upgradeLevels:
-  - upgradePrice: 5000
+  - upgradePrice: 10000
+    minFreshness: 0
+    maxFreshness: 20
+  - upgradePrice: 30000
     minFreshness: 20
     maxFreshness: 30
-  - upgradePrice: 10000
+  - upgradePrice: 50000
     minFreshness: 30
     maxFreshness: 40
-  - upgradePrice: 30000
+  - upgradePrice: 100000
     minFreshness: 40
     maxFreshness: 50
-  - upgradePrice: 50000
+  - upgradePrice: 300000
     minFreshness: 50
     maxFreshness: 60
-  - upgradePrice: 100000
+  - upgradePrice: 500000
     minFreshness: 60
     maxFreshness: 70
-  - upgradePrice: 200000
+  - upgradePrice: 1000000
     minFreshness: 70
     maxFreshness: 90

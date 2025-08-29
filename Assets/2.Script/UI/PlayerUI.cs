@@ -30,30 +30,12 @@ public class PlayerUI : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-        // 싱글톤 인스턴스 참조는 Awake에서 하는 것이 좋습니다.
-        playerInventory = PlayerInventory.Instance;
-        moneyManager = MoneyManager.Instance;
-        timeManager = TimeManager.Instance;
-        gameManager = GameManager.Instance;
     }
 
     private void OnEnable()
     {
-        // 오브젝트가 활성화될 때 이벤트 구독
-        if (moneyManager != null)
-        {
-            moneyManager.OnMoneyChanged += UpdateMoney;
-        }
-        if (timeManager != null)
-        {
-            timeManager.OnTimeChanged += UpdateDayGauge;
-        }
-        // ★★★ PlayerInventory 이벤트 구독 추가 ★★★
-        if (playerInventory != null)
-        {
-            playerInventory.OnInventoryChanged += UpdateAllGauges;
-        }
+        // OnEnable에서는 이벤트 구독을 하지 않습니다.
+        // GameManager가 호출하는 InitializeManagers()에서 처리합니다.
     }
 
     private void OnDisable()
@@ -66,16 +48,47 @@ public class PlayerUI : MonoBehaviour
         if (timeManager != null)
         {
             timeManager.OnTimeChanged -= UpdateDayGauge;
+            timeManager.OnDayChanged -= (day) => UpdateDayText();
+            timeManager.OnMonthChanged -= UpdateDayText;
+            timeManager.OnYearChanged -= UpdateDayText;
         }
-        // ★★★ PlayerInventory 이벤트 구독 해제 추가 ★★★
         if (playerInventory != null)
         {
             playerInventory.OnInventoryChanged -= UpdateAllGauges;
         }
     }
 
-    void Start()
+    public void InitializeManagers(GameManager gm, TimeManager tm, MoneyManager mm)
     {
+        // GameManager에서 전달받은 인스턴스를 사용하거나,
+        // 만약 null이라면 직접 인스턴스를 찾습니다.
+        gameManager = gm ?? GameManager.Instance;
+        timeManager = tm ?? TimeManager.Instance;
+        moneyManager = mm ?? MoneyManager.Instance;
+
+        if (playerInventory == null)
+        {
+            playerInventory = PlayerInventory.Instance;
+        }
+
+        // 이벤트 구독 시작
+        if (moneyManager != null)
+        {
+            moneyManager.OnMoneyChanged += UpdateMoney;
+        }
+        if (timeManager != null)
+        {
+            timeManager.OnTimeChanged += UpdateDayGauge;
+            timeManager.OnDayChanged += (day) => UpdateDayText();
+            timeManager.OnMonthChanged += UpdateDayText;
+            timeManager.OnYearChanged += UpdateDayText;
+        }
+        if (playerInventory != null)
+        {
+            playerInventory.OnInventoryChanged += UpdateAllGauges;
+        }
+
+        // 초기값 설정
         if (dayGauge != null)
         {
             dayGauge.maxValue = 1f;
@@ -85,25 +98,14 @@ public class PlayerUI : MonoBehaviour
         {
             UpdateMoney(gameManager.gameData.money);
         }
-        // ★★★ 게임 시작 시 게이지 값 초기화 ★★★
+
+        UpdateDayText();
         UpdateAllGauges();
     }
 
-    void Update()
-    {
-        // 이제 Update()에서는 이 로직만 남겨두어도 충분합니다.
-        if (dayText != null && gameManager != null && gameManager.gameData != null)
-        {
-            dayText.text = $"{gameManager.gameData.year}년 {gameManager.gameData.month}월 {gameManager.gameData.day}일";
-        }
-    }
-
-    // ★★★ 모든 게이지를 한 번에 업데이트하는 새로운 메서드 ★★★
     public void UpdateAllGauges()
     {
-        // 최대 용량 업데이트
         UpdateMaxCapacities();
-        // 현재 값 업데이트
         UpdateGauges();
     }
 
@@ -138,6 +140,14 @@ public class PlayerUI : MonoBehaviour
         if (moneyText != null)
         {
             moneyText.text = newMoney.ToString("N0") + "원";
+        }
+    }
+
+    private void UpdateDayText()
+    {
+        if (dayText != null && gameManager != null && gameManager.gameData != null)
+        {
+            dayText.text = $"{gameManager.gameData.year}년 {gameManager.gameData.month}월 {gameManager.gameData.day}일";
         }
     }
 }

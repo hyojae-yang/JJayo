@@ -120,7 +120,7 @@ public class ShopUI : MonoBehaviour
             }
         }
 
-        ChickenCoop chickenCoop = FindObjectOfType<ChickenCoop>();
+        ChickenCoop chickenCoop = FindFirstObjectByType<ChickenCoop>();
         if (chickenCoop != null && chickenCoop.numberOfChickens > 0)
         {
             int sellPrice = ShopService.Instance.GetChickenSellPrice();

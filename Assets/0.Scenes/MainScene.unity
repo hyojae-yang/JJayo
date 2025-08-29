@@ -978,7 +978,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1329320259}
         m_TargetAssemblyTypeName: TraderManager, Assembly-CSharp
         m_MethodName: OnHaggleButtonClicked
         m_Mode: 1
@@ -1335,8 +1335,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: TraderManager, Assembly-CSharp
+      - m_Target: {fileID: 1329320260}
+        m_TargetAssemblyTypeName: TraderUI, Assembly-CSharp
         m_MethodName: OnCloseEggPanelButtonClicked
         m_Mode: 1
         m_Arguments:
@@ -3087,6 +3087,7 @@ MonoBehaviour:
   buildingHandler: {fileID: 871320274}
   equipmentHandler: {fileID: 871320275}
   upgradeHandler: {fileID: 871320276}
+  moneyManager: {fileID: 0}
 --- !u!4 &176941852
 Transform:
   m_ObjectHideFlags: 0
@@ -3982,7 +3983,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1329320259}
         m_TargetAssemblyTypeName: TraderManager, Assembly-CSharp
         m_MethodName: OnDeclineButtonClicked
         m_Mode: 1
@@ -5029,8 +5030,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: TraderManager, Assembly-CSharp
+      - m_Target: {fileID: 1329320260}
+        m_TargetAssemblyTypeName: TraderUI, Assembly-CSharp
         m_MethodName: OnOpenEggPanelButtonClicked
         m_Mode: 1
         m_Arguments:
@@ -6046,9 +6047,7 @@ MonoBehaviour:
     traderOfferedPrice: 0
     traderCurrentEggPrice: 0
   reputationText: {fileID: 2147243202}
-  timeText: {fileID: 999974456}
-  moneyText: {fileID: 850676841}
-  dayLengthInSeconds: 60
+  dayLengthInSeconds: 90
   pastureUpgradeData: {fileID: 11400000, guid: 497b1d9b21095764dbcecac7b191a094, type: 2}
   mainCamera: {fileID: 519420031}
   pastureColors:
@@ -6058,6 +6057,9 @@ MonoBehaviour:
   - {r: 0, g: 0, b: 0.21176472, a: 0}
   - {r: 0.23137257, g: 0.20000002, b: 0.19215688, a: 0}
   - {r: 0.15294118, g: 0.41176474, b: 0.16470589, a: 0}
+  timeManager: {fileID: 1748757656}
+  playerUI: {fileID: 840183928}
+  moneyManager: {fileID: 802994726}
 --- !u!4 &436732522
 Transform:
   m_ObjectHideFlags: 0
@@ -9369,7 +9371,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameManager: {fileID: 436732521}
-  moneyText: {fileID: 850676841}
 --- !u!4 &802994727
 Transform:
   m_ObjectHideFlags: 0
@@ -9947,8 +9948,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: TraderManager, Assembly-CSharp
+      - m_Target: {fileID: 1329320260}
+        m_TargetAssemblyTypeName: TraderUI, Assembly-CSharp
         m_MethodName: OnDecreaseEggCount
         m_Mode: 1
         m_Arguments:
@@ -10302,7 +10303,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cowObjectPool: {fileID: 1048482543}
-  chickenCoop: {fileID: 0}
   cowSpawnPoints:
   - {fileID: 2025011422}
   - {fileID: 1958009985}
@@ -11114,6 +11114,61 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 967167475}
   m_CullTransparentMesh: 1
+--- !u!1 &968991365
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 968991366}
+  - component: {fileID: 968991367}
+  m_Layer: 0
+  m_Name: AnimalManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &968991366
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 968991365}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 645, y: 25, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &968991367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 968991365}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65e9c20c71549114c8a6b4ca74e928ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cowObjectPool: {fileID: 1048482543}
+  cowSpawnPoints:
+  - {fileID: 2025011422}
+  - {fileID: 1958009985}
+  - {fileID: 734128354}
+  - {fileID: 1167301498}
+  - {fileID: 1497154293}
+  - {fileID: 822938681}
+  - {fileID: 452930261}
+  - {fileID: 1566387547}
+  - {fileID: 1893174810}
 --- !u!1 &995250646
 GameObject:
   m_ObjectHideFlags: 0
@@ -14092,8 +14147,8 @@ MonoBehaviour:
     eggRevenueToday: 0
   minRequiredMilk: 10
   maxRequiredMilk: 20
-  minRequiredFreshness: 20
-  maxRequiredFreshness: 25
+  minRequiredFreshness: 0
+  maxRequiredFreshness: 20
   baseMilkPrice: 30
   reputationPerTrade: 1
   reputationDeclinePenalty: 5
@@ -14488,7 +14543,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1329320259}
         m_TargetAssemblyTypeName: TraderManager, Assembly-CSharp
         m_MethodName: OnAcceptButtonClicked
         m_Mode: 1
@@ -16702,8 +16757,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: TradeResultUI, Assembly-CSharp
+      - m_Target: {fileID: 1329320260}
+        m_TargetAssemblyTypeName: TraderUI, Assembly-CSharp
         m_MethodName: OnConfirmButtonClicked
         m_Mode: 1
         m_Arguments:
@@ -19141,7 +19196,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameManager: {fileID: 436732521}
-  timeText: {fileID: 999974456}
+  timeText: {fileID: 0}
 --- !u!4 &1748757657
 Transform:
   m_ObjectHideFlags: 0
@@ -19240,8 +19295,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: TraderManager, Assembly-CSharp
+      - m_Target: {fileID: 1329320260}
+        m_TargetAssemblyTypeName: TraderUI, Assembly-CSharp
         m_MethodName: OnSellEggsButtonClicked
         m_Mode: 1
         m_Arguments:
@@ -20746,8 +20801,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: TraderManager, Assembly-CSharp
+      - m_Target: {fileID: 1329320260}
+        m_TargetAssemblyTypeName: TraderUI, Assembly-CSharp
         m_MethodName: OnIncreaseEggCount
         m_Mode: 1
         m_Arguments:
@@ -22261,7 +22316,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   allShopItems:
   - {fileID: 11400000, guid: eaba0258c60c22847a282b4b114e4dee, type: 2}
+  - {fileID: 11400000, guid: f3faaa3e5d566d14ebc11bae71691ac9, type: 2}
   - {fileID: 11400000, guid: 1148bb65e1b4b9b4b9bb2e08393713f7, type: 2}
+  - {fileID: 11400000, guid: 12152aadf08b7b34994088c23dce2853, type: 2}
   - {fileID: 11400000, guid: 5a0f905a7c9362f4e9602044454782d6, type: 2}
   - {fileID: 11400000, guid: f6af70bf7c7db3c4e889769724b40591, type: 2}
   - {fileID: 11400000, guid: 5cfbfa012c5c8214cbbd86e008e718af, type: 2}
@@ -22857,3 +22914,4 @@ SceneRoots:
   - {fileID: 802994727}
   - {fileID: 176941852}
   - {fileID: 871320277}
+  - {fileID: 968991366}

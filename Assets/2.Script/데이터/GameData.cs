@@ -28,12 +28,15 @@ public class GameData
     public int milkerLevel;
     public int bulletCount;
 
+    // ★★★ 추가된 부분: 총기 데미지 변수 ★★★
+    public float gunDamage;
+
     public EquipmentType currentEquipment;
 
-    // ★★★ 건물 보유 여부 (List로 변경)
+    // 건물 보유 여부
     public List<string> ownedBuildingIds;
 
-    // ★★★ 장비 보유 여부 (List 추가) ★★★
+    // 장비 보유 여부
     public List<string> ownedEquipmentIds;
 
     // NPC(상인) 관련 데이터
@@ -46,7 +49,7 @@ public class GameData
     {
         // 모든 변수의 초기값을 명확히 설정합니다.
         this.money = 50000;
-        this.reputation = 0;
+        this.reputation = 50;
 
         this.pastureLevel = 0;
 
@@ -62,14 +65,14 @@ public class GameData
 
         this.hasGun = false;
         this.gunLevel = 0;
-        this.basketLevel = 0;
-        this.milkerLevel = 0;
+        this.basketLevel = 1;
+        this.milkerLevel = 1;
         this.bulletCount = 0;
 
-        // ★★★ 건물 보유 리스트 초기화
-        this.ownedBuildingIds = new List<string>();
+        // ★★★ 추가된 부분: 총기 데미지 초기화 ★★★
+        this.gunDamage = 10f; // 초기 데미지 값 설정
 
-        // ★★★ 장비 보유 리스트 초기화 ★★★
+        this.ownedBuildingIds = new List<string>();
         this.ownedEquipmentIds = new List<string>();
 
         this.traderRequiredMilkAmount = 0;

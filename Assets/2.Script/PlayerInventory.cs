@@ -100,7 +100,6 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
-    // ★★★ 이벤트 호출을 위한 공용 메서드 추가 ★★★
     public void NotifyInventoryChanged()
     {
         OnInventoryChanged?.Invoke();
@@ -108,17 +107,10 @@ public class PlayerInventory : MonoBehaviour
 
     public int AddEggs(int amount)
     {
-        if (GameManager.Instance.gameData.basketLevel == 0)
-        {
-            NotificationManager.Instance.ShowNotification("바구니를 먼저 구매해야 합니다!");
-            return 0;
-        }
-
         int spaceLeft = BasketCapacity - currentEggs;
         int eggsToAdd = Mathf.Min(amount, spaceLeft);
         currentEggs += eggsToAdd;
 
-        // ★★★ 달걀 추가 후 이벤트 호출 ★★★
         NotifyInventoryChanged();
 
         NotificationManager.Instance.ShowNotification($"바구니에 달걀 {eggsToAdd}개를 담았습니다. 현재: {currentEggs}/{BasketCapacity}");
@@ -134,38 +126,35 @@ public class PlayerInventory : MonoBehaviour
     {
         currentEggs = Mathf.Max(0, currentEggs - amount);
 
-        // ★★★ 달걀 제거 후 이벤트 호출 ★★★
         NotifyInventoryChanged();
 
         NotificationManager.Instance.ShowNotification($"바구니에서 달걀 {amount}개를 꺼냈습니다. 현재: {currentEggs}/{BasketCapacity}");
     }
 
-    public void AddMilk(Milk milk)
+    public int AddMilk(int amount, float freshness)
     {
-        if (GameManager.Instance.gameData.milkerLevel == 0)
+        int addedCount = 0;
+        for (int i = 0; i < amount; i++)
         {
-            NotificationManager.Instance.ShowNotification("착유기를 먼저 구매해야 합니다!");
-            return;
+            if (milkList.Count < MilkerCapacity)
+            {
+                milkList.Add(new Milk(freshness));
+                addedCount++;
+            }
+            else
+            {
+                NotificationManager.Instance.ShowNotification("착유기가 꽉 찼습니다!");
+                break;
+            }
         }
 
-        if (milkList.Count < MilkerCapacity)
+        if (addedCount > 0)
         {
-            milkList.Add(milk);
-
-            // ★★★ 우유 추가 후 이벤트 호출 ★★★
             NotifyInventoryChanged();
-
-            NotificationManager.Instance.ShowNotification($"착유기에 우유 1개를 담았습니다. 현재: {milkList.Count}/{MilkerCapacity}");
+            NotificationManager.Instance.ShowNotification($"착유기에 우유 {addedCount}개를 담았습니다. 현재: {milkList.Count}/{MilkerCapacity}");
         }
-        else
-        {
-            NotificationManager.Instance.ShowNotification("착유기가 꽉 찼습니다!");
-        }
-    }
 
-    public void AddMilk(float freshness)
-    {
-        AddMilk(new Milk(freshness));
+        return addedCount;
     }
 
     public void TransferToWarehouse()
@@ -190,7 +179,6 @@ public class PlayerInventory : MonoBehaviour
             milkList.Clear();
         }
 
-        // ★★★ 창고로 옮긴 후 이벤트 호출 ★★★
         NotifyInventoryChanged();
         NotificationManager.Instance.ShowNotification("아이템을 모두 창고로 옮겼습니다!");
     }

@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Linq;
 using UnityEditor;
 
@@ -7,7 +7,7 @@ public class TraderManager : MonoBehaviour
     public static TraderManager Instance { get; private set; }
 
     [Header("Dependencies")]
-    private GameData gameData; // GameData °´Ã¼¸¦ Á÷Á¢ ÂüÁ¶
+    private GameData gameData;
     public TraderData traderData = new TraderData();
 
     [Header("Trade Settings")]
@@ -21,8 +21,8 @@ public class TraderManager : MonoBehaviour
     public int reputationDeclinePenalty = 5;
     public int reputationHaggleFailurePenalty = 10;
 
-    [Header("´Ş°¿ °Å·¡ ¼³Á¤")]
-    public float baseEggPrice = 10f;
+    [Header("ë‹¬ê±€ ê±°ë˜ ì„¤ì •")]
+    public int baseEggPrice = 10;
 
     private void Awake()
     {
@@ -40,7 +40,29 @@ public class TraderManager : MonoBehaviour
     void Start()
     {
         gameData = GameManager.Instance.gameData;
-        if (gameData == null) Debug.LogError("GameData¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+        if (gameData == null) Debug.LogError("GameDataë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
+
+        if (TimeManager.Instance != null)
+        {
+            TimeManager.Instance.OnDayChanged += OnDayEnd;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (TimeManager.Instance != null)
+        {
+            TimeManager.Instance.OnDayChanged -= OnDayEnd;
+        }
+    }
+
+    private void OnDayEnd(int day)
+    {
+        StartTrade();
+        if (TraderUI.Instance != null)
+        {
+            TraderUI.Instance.ShowTraderUI();
+        }
     }
 
     public void StartTrade()
@@ -56,74 +78,76 @@ public class TraderManager : MonoBehaviour
         int dailyBonus = (gameData.day / 10) * 5;
         traderData.requiredMilkAmount = Random.Range(minRequiredMilk + dailyBonus, maxRequiredMilk + dailyBonus);
         traderData.requiredFreshness = Random.Range(minRequiredFreshness + dailyBonus, maxRequiredFreshness + dailyBonus);
-        traderData.offeredPrice = traderData.requiredMilkAmount * (baseMilkPrice + (traderData.requiredFreshness / 10));
+
+        traderData.offeredPrice = traderData.requiredMilkAmount * (baseMilkPrice + (int)(traderData.requiredFreshness / 10f));
     }
 
     public void GenerateNewEggPrice()
     {
-        float priceMultiplier = UnityEngine.Random.Range(0.5f, 2.5f);
-        traderData.currentEggPrice = Mathf.Round(baseEggPrice * priceMultiplier);
+        int currentBasePrice = (gameData.day == 1) ? baseEggPrice : traderData.currentEggPrice;
+
+        float priceMultiplier = UnityEngine.Random.Range(0.1f, 3.0f);
+
+        float newPrice = currentBasePrice * priceMultiplier;
+
+        // â˜…â˜…â˜… ìˆ˜ì •ëœ ë¶€ë¶„: ê°€ê²©ì„ ì˜¬ë¦¼(Ceiling)í•˜ê³  ìµœì†Œê°’ì„ 1ë¡œ ë³´ì¥ â˜…â˜…â˜…
+        traderData.currentEggPrice = Mathf.Max(1, Mathf.CeilToInt(newPrice));
     }
 
     public void OnAcceptButtonClicked()
     {
-        // ¡Ú¡Ú¡Ú ¼öÁ¤: PlayerInventory ´ë½Å WarehouseÀÇ CanSellMilk È£Ãâ ¡Ú¡Ú¡Ú
         if (Warehouse.Instance != null && Warehouse.Instance.CanSellMilk(traderData.requiredMilkAmount, traderData.requiredFreshness))
         {
-            // ¡Ú¡Ú¡Ú ¼öÁ¤: PlayerInventory ´ë½Å WarehouseÀÇ SellMilk È£Ãâ ¡Ú¡Ú¡Ú
             Warehouse.Instance.SellMilk(traderData.requiredMilkAmount);
-            gameData.money += traderData.offeredPrice;
-            gameData.reputation += reputationPerTrade;
+            MoneyManager.Instance.AddMoney(traderData.offeredPrice);
+            GameManager.Instance.ChangeReputation(reputationPerTrade);
             if (TraderUI.Instance != null)
             {
-                TraderUI.Instance.DisplayResult(true, traderData.offeredPrice, reputationPerTrade, "°Å·¡¸¦ ¼º°øÀûÀ¸·Î ¿Ï·áÇß½À´Ï´Ù!", traderData.eggsSoldToday, traderData.eggRevenueToday);
+                TraderUI.Instance.DisplayResult(true, traderData.offeredPrice, reputationPerTrade, "ê±°ë˜ë¥¼ ì„±ê³µì ìœ¼ë¡œ ì™„ë£Œí–ˆìŠµë‹ˆë‹¤!", traderData.eggsSoldToday, traderData.eggRevenueToday);
             }
         }
         else
         {
-            gameData.reputation -= 1;
+            GameManager.Instance.ChangeReputation(-1);
             if (TraderUI.Instance != null)
             {
-                TraderUI.Instance.DisplayResult(false, 0, -1, "¿ä±¸ °³¼ö ¶Ç´Â ½Å¼±µµ°¡ ºÎÁ·ÇÏ¿© °Å·¡°¡ ¹«»êµÇ¾ú½À´Ï´Ù.", traderData.eggsSoldToday, traderData.eggRevenueToday);
+                TraderUI.Instance.DisplayResult(false, 0, -1, "ìš”êµ¬ ê°œìˆ˜ ë˜ëŠ” ì‹ ì„ ë„ê°€ ë¶€ì¡±í•˜ì—¬ ê±°ë˜ê°€ ë¬´ì‚°ë˜ì—ˆìŠµë‹ˆë‹¤.", traderData.eggsSoldToday, traderData.eggRevenueToday);
             }
         }
     }
 
     public void OnDeclineButtonClicked()
     {
-        gameData.reputation -= reputationDeclinePenalty;
+        GameManager.Instance.ChangeReputation(-reputationDeclinePenalty);
         if (TraderUI.Instance != null)
         {
-            TraderUI.Instance.DisplayResult(false, 0, -reputationDeclinePenalty, "»óÀÎÀÇ °Å·¡¸¦ °ÅÀıÇÏ¿© ¸í¼ºµµ°¡ ¶³¾îÁ³½À´Ï´Ù.", traderData.eggsSoldToday, traderData.eggRevenueToday);
+            TraderUI.Instance.DisplayResult(false, 0, -reputationDeclinePenalty, "ìƒì¸ì˜ ê±°ë˜ë¥¼ ê±°ì ˆí•˜ì—¬ ëª…ì„±ë„ê°€ ë–¨ì–´ì¡ŒìŠµë‹ˆë‹¤.", traderData.eggsSoldToday, traderData.eggRevenueToday);
         }
     }
 
     public void OnHaggleButtonClicked()
     {
-        // ¡Ú¡Ú¡Ú ¼öÁ¤: PlayerInventory ´ë½Å WarehouseÀÇ CanSellMilk È£Ãâ ¡Ú¡Ú¡Ú
         if (Warehouse.Instance != null && Warehouse.Instance.CanSellMilk(traderData.requiredMilkAmount, traderData.requiredFreshness))
         {
             int haggleChance = UnityEngine.Random.Range(0, 100);
             int successThreshold = 50;
-
             if (haggleChance <= successThreshold)
             {
                 int bonusPrice = traderData.offeredPrice;
                 int finalPrice = traderData.offeredPrice + bonusPrice;
-                gameData.money += finalPrice;
-                // ÈïÁ¤ ¼º°ø ½Ã ¸í¼ºµµ º¯È­°¡ ¾øÀ¸¹Ç·Î 0À¸·Î ¼³Á¤
-                gameData.reputation += 0;
+                MoneyManager.Instance.AddMoney(finalPrice);
+                GameManager.Instance.ChangeReputation(0);
                 if (TraderUI.Instance != null)
                 {
-                    TraderUI.Instance.DisplayResult(true, finalPrice, 0, $"ÈïÁ¤¿¡ ¼º°øÇÏ¿© {bonusPrice} °ñµå¸¦ Ãß°¡·Î ¹Ş¾Ò½À´Ï´Ù!", traderData.eggsSoldToday, traderData.eggRevenueToday);
+                    TraderUI.Instance.DisplayResult(true, finalPrice, 0, $"í¥ì •ì— ì„±ê³µí•˜ì—¬ {bonusPrice} ê³¨ë“œë¥¼ ì¶”ê°€ë¡œ ë°›ì•˜ìŠµë‹ˆë‹¤!", traderData.eggsSoldToday, traderData.eggRevenueToday);
                 }
             }
             else
             {
-                gameData.reputation -= reputationHaggleFailurePenalty;
+                GameManager.Instance.ChangeReputation(-reputationHaggleFailurePenalty);
                 if (TraderUI.Instance != null)
                 {
-                    TraderUI.Instance.DisplayResult(false, 0, -reputationHaggleFailurePenalty, "ÈïÁ¤¿¡ ½ÇÆĞÇß½À´Ï´Ù. »óÀÎÀÇ ±âºĞÀÌ ³ªºü ¸í¼ºµµ°¡ Å©°Ô ¶³¾îÁ³½À´Ï´Ù.", traderData.eggsSoldToday, traderData.eggRevenueToday);
+                    TraderUI.Instance.DisplayResult(false, 0, -reputationHaggleFailurePenalty, "í¥ì •ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤. ìƒì¸ì˜ ê¸°ë¶„ì´ ë‚˜ë¹  ëª…ì„±ë„ê°€ í¬ê²Œ ë–¨ì–´ì¡ŒìŠµë‹ˆë‹¤.", traderData.eggsSoldToday, traderData.eggRevenueToday);
                 }
             }
         }
@@ -131,34 +155,28 @@ public class TraderManager : MonoBehaviour
         {
             if (TraderUI.Instance != null)
             {
-                TraderUI.Instance.DisplayResult(false, 0, 0, "¿ä±¸ °³¼ö ¶Ç´Â ½Å¼±µµ°¡ ºÎÁ·ÇÏ¿© ÈïÁ¤À» ½ÃµµÇÒ ¼ö ¾ø½À´Ï´Ù.", traderData.eggsSoldToday, traderData.eggRevenueToday);
+                TraderUI.Instance.DisplayResult(false, 0, 0, "ìš”êµ¬ ê°œìˆ˜ ë˜ëŠ” ì‹ ì„ ë„ê°€ ë¶€ì¡±í•˜ì—¬ í¥ì •ì„ ì‹œë„í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.", traderData.eggsSoldToday, traderData.eggRevenueToday);
             }
         }
     }
 
-    /// <summary>
-    /// ´Ş°¿ ÆÇ¸Å¸¦ Ã³¸®ÇÕ´Ï´Ù.
-    /// </summary>
     public void SellEggs(int count)
     {
-        float totalRevenue = count * traderData.currentEggPrice;
-        gameData.money += Mathf.RoundToInt(totalRevenue);
-        // ¡Ú¡Ú¡Ú ¼öÁ¤: PlayerInventory ´ë½Å WarehouseÀÇ RemoveEggs È£Ãâ ¡Ú¡Ú¡Ú
+        int totalRevenue = count * traderData.currentEggPrice;
+        MoneyManager.Instance.AddMoney(totalRevenue);
         Warehouse.Instance.RemoveEggs(count);
-
         traderData.eggsSoldToday += count;
-        traderData.eggRevenueToday += Mathf.RoundToInt(totalRevenue);
+        traderData.eggRevenueToday += totalRevenue;
     }
 }
 
-// TraderData Å¬·¡½º Á¤ÀÇ¸¦ ¿©±â¿¡ ´Ù½Ã Ãß°¡ÇÕ´Ï´Ù.
 [System.Serializable]
 public class TraderData
 {
     public int requiredMilkAmount;
     public int requiredFreshness;
     public int offeredPrice;
-    public float currentEggPrice;
+    public int currentEggPrice;
     public int eggsSoldToday = 0;
     public int eggRevenueToday = 0;
 }

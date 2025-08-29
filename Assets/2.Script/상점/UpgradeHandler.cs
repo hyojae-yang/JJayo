@@ -15,7 +15,7 @@ public class UpgradeHandler : MonoBehaviour
         {
             gameData = GameManager.Instance.gameData;
         }
-        pastureManager = FindObjectOfType<PastureManager>();
+        pastureManager = FindFirstObjectByType<PastureManager>();
     }
 
     // ★★★ 요청에 따라 다시 추가된 InitializeLevel 메서드 ★★★

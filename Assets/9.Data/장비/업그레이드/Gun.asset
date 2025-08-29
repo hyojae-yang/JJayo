@@ -14,12 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeLevels:
   - upgradePrice: 1000
+    damage: 0
+  - upgradePrice: 2000
     damage: 10
-  - upgradePrice: 1500
+  - upgradePrice: 4000
     damage: 20
-  - upgradePrice: 3000
+  - upgradePrice: 8000
     damage: 30
-  - upgradePrice: 5000
+  - upgradePrice: 16000
     damage: 40
-  - upgradePrice: 10000
+  - upgradePrice: 32000
     damage: 50

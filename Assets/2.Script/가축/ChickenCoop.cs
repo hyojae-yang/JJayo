@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class ChickenCoop : MonoBehaviour
 {
-    // 싱글턴 인스턴스 (게임 내에서 유일한 닭장 오브젝트를 참조)
     public static ChickenCoop Instance { get; private set; }
 
     [Header("닭장 고유 데이터")]
@@ -12,7 +11,6 @@ public class ChickenCoop : MonoBehaviour
     public int currentEggCount = 0;
     public int numberOfChickens;
 
-    // 알 생산을 위한 타이머
     private float productionTimer = 0f;
 
     void Awake()
@@ -20,6 +18,11 @@ public class ChickenCoop : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            AnimalHandler handler = FindFirstObjectByType<AnimalHandler>();
+            if (handler != null)
+            {
+                handler.RegisterChickenCoop(this);
+            }
         }
         else
         {
@@ -29,7 +32,6 @@ public class ChickenCoop : MonoBehaviour
 
     void Start()
     {
-        // Start에서는 닭의 수를 0으로 초기화하지 않도록 수정했습니다.
         // numberOfChickens = 0;
     }
 
@@ -46,13 +48,16 @@ public class ChickenCoop : MonoBehaviour
         {
             currentEggCount++;
             productionTimer = 0f;
+            // ★★★ 추가된 부분: 달걀 생산량 기록 ★★★
+            if (GameManager.Instance != null && GameManager.Instance.gameData != null)
+            {
+                GameManager.Instance.gameData.dailyEggsProduced++;
+            }
         }
     }
 
-    // 마우스를 클릭하면 호출되는 함수 (알 수거)
     void OnMouseDown()
     {
-        // 바구니를 착용했는지 확인하고 알을 수거합니다.
         if (EquipmentManager.Instance.GetCurrentEquipment() == EquipmentType.Basket)
         {
             if (currentEggCount > 0)
@@ -65,18 +70,12 @@ public class ChickenCoop : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 닭을 추가하고 수를 증가시킵니다.
-    /// </summary>
     public void AddChicken()
     {
         numberOfChickens++;
         NotificationManager.Instance.ShowNotification("새로운 닭이 닭장에 추가되었습니다. 현재 닭의 수: " + numberOfChickens);
     }
 
-    /// <summary>
-    /// 닭을 제거하고 수를 감소시킵니다.
-    /// </summary>
     public void RemoveChicken()
     {
         if (numberOfChickens > 0)

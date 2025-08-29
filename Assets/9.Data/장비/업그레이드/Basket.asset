@@ -13,13 +13,15 @@ MonoBehaviour:
   m_Name: Basket
   m_EditorClassIdentifier: 
   upgradeLevels:
-  - upgradePrice: 1000
-    capacity: 10
+  - upgradePrice: 0
+    capacity: 0
   - upgradePrice: 3000
-    capacity: 20
+    capacity: 10
   - upgradePrice: 5000
-    capacity: 40
+    capacity: 20
   - upgradePrice: 10000
+    capacity: 40
+  - upgradePrice: 30000
     capacity: 60
-  - upgradePrice: 20000
+  - upgradePrice: 50000
     capacity: 100

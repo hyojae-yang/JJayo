@@ -2,20 +2,18 @@ using UnityEngine;
 
 public class GunController : MonoBehaviour
 {
-
     void Update()
     {
-        // EquipmentManager.Instance.currentEquipment 대신
-        // EquipmentManager.Instance.GetCurrentEquipment()를 사용합니다.
         if (EquipmentManager.Instance.GetCurrentEquipment() == EquipmentType.Gun)
         {
-            // GetMouseButton(0) 대신 GetMouseButtonDown(0)으로 변경하여 단발 사격으로 변경
             if (Input.GetMouseButtonDown(0))
             {
-                if (PlayerInventory.Instance.currentBullets > 0)
+                // ★★★ 수정된 부분: GameData에서 총알 개수를 직접 확인합니다. ★★★
+                if (GameManager.Instance.gameData.bulletCount > 0)
                 {
                     Shoot();
-                    PlayerInventory.Instance.AddBullets(-1);
+                    // ★★★ 수정된 부분: GameData에서 총알을 직접 소모시킵니다. ★★★
+                    GameManager.Instance.gameData.bulletCount -= 1;
                 }
                 else
                 {
@@ -27,37 +25,31 @@ public class GunController : MonoBehaviour
 
     void Shoot()
     {
-        // 마우스의 스크린 좌표를 2D 월드 좌표로 변환합니다.
         Vector2 mousePosition2D = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-        // ★★★ Physics2D.Raycast 대신 Physics2D.OverlapPoint를 사용합니다. ★★★
         Collider2D hitCollider = Physics2D.OverlapPoint(mousePosition2D);
 
-        // 무언가 충돌했는지 확인합니다.
         if (hitCollider != null)
         {
             Wolf wolfTarget = hitCollider.GetComponent<Wolf>();
             Animal animalTarget = hitCollider.GetComponent<Animal>();
 
-            // ★★★ 수정된 부분: 늑대에게 피해를 줍니다. ★★★
             if (wolfTarget != null)
             {
-                wolfTarget.TakeDamage(PlayerInventory.Instance.GunDamage);
+                // 총기 데미지 값도 GameData에서 가져와야 합니다.
+                // PlayerInventory는 현재 스크립트에서 더 이상 총알을 관리하지 않습니다.
+                wolfTarget.TakeDamage(GameManager.Instance.gameData.gunDamage);
                 NotificationManager.Instance.ShowNotification("늑대를 맞췄습니다!");
-                return; // 늑대를 맞췄으니 더 이상 검사할 필요가 없습니다.
+                return;
             }
 
-            // ★★★ 수정된 부분: 젖소에게 피해를 줍니다. ★★★
             if (animalTarget != null && animalTarget.animalData != null)
             {
-                // ★★★ Animal.TakeDamage() 메서드가 수정되었으므로 매개변수를 추가합니다. ★★★
-                animalTarget.TakeDamage(PlayerInventory.Instance.GunDamage, gameObject);
+                animalTarget.TakeDamage(GameManager.Instance.gameData.gunDamage, gameObject);
                 NotificationManager.Instance.ShowNotification("불쌍한 젖소를 쏘다니!");
             }
         }
         else
         {
-            // 아무것도 맞추지 않았을 때의 피드백
             NotificationManager.Instance.ShowNotification("허공에 총을 쐈습니다!");
         }
     }

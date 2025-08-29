@@ -13,18 +13,21 @@ MonoBehaviour:
   m_Name: Milker
   m_EditorClassIdentifier: 
   upgradeLevels:
-  - upgradePrice: 500
+  - upgradePrice: 0
+    capacity: 0
+    milkingYield: 0
+  - upgradePrice: 2000
     capacity: 10
     milkingYield: 1
-  - upgradePrice: 2000
+  - upgradePrice: 5000
     capacity: 20
     milkingYield: 2
-  - upgradePrice: 5000
+  - upgradePrice: 10000
     capacity: 40
     milkingYield: 3
-  - upgradePrice: 10000
+  - upgradePrice: 30000
     capacity: 70
     milkingYield: 5
-  - upgradePrice: 20000
+  - upgradePrice: 50000
     capacity: 100
     milkingYield: 6

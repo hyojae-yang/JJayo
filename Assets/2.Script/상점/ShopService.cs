@@ -9,6 +9,7 @@ public class ShopService : MonoBehaviour
     public BuildingHandler buildingHandler;
     public EquipmentHandler equipmentHandler;
     public UpgradeHandler upgradeHandler;
+    public MoneyManager moneyManager; // ★★★ MoneyManager 변수 추가 ★★★
 
     private void Awake()
     {
@@ -26,6 +27,8 @@ public class ShopService : MonoBehaviour
         if (buildingHandler == null) Debug.LogError("BuildingHandler가 할당되지 않았습니다.");
         if (equipmentHandler == null) Debug.LogError("EquipmentHandler가 할당되지 않았습니다.");
         if (upgradeHandler == null) Debug.LogError("UpgradeHandler가 할당되지 않았습니다.");
+        // Awake에서 MoneyManager 인스턴스를 찾아 할당
+        if (moneyManager == null) moneyManager = MoneyManager.Instance; // ★★★ MoneyManager 인스턴스 할당 ★★★
     }
 
     // 상점에서 표시할 아이템 목록을 가져옵니다.
@@ -69,6 +72,21 @@ public class ShopService : MonoBehaviour
         GameData gameData = GameManager.Instance.gameData;
         if (gameData == null) return false;
 
+        // 아이템 가격 확인
+        int itemPrice = itemData.itemPrice;
+        if (itemData.itemType == ItemType.Upgrade)
+        {
+            int currentLevel = GetCurrentUpgradeLevel(itemData.upgradeData);
+            itemPrice = itemData.upgradeData.GetUpgradePrice(currentLevel);
+        }
+        else if (itemData.itemType == ItemType.Building)
+        {
+            itemPrice = itemData.buildingData.buildingPrice;
+        }
+
+        // 먼저 돈이 충분한지 확인
+        if (MoneyManager.Instance.CurrentMoney < itemPrice) return false;
+
         switch (itemData.itemType)
         {
             case ItemType.Building: return buildingHandler.CanBuy();
@@ -78,7 +96,6 @@ public class ShopService : MonoBehaviour
             case ItemType.Consumable:
                 if (itemData.consumableData != null && itemData.itemName == "총알(30개)")
                 {
-                    // 총알은 이제 GameData의 hasGun 변수 대신 ownedEquipmentIds 리스트를 확인합니다.
                     return gameData.ownedEquipmentIds.Contains("Gun");
                 }
                 break;
@@ -106,7 +123,17 @@ public class ShopService : MonoBehaviour
             finalPrice = itemToPurchase.itemPrice;
         }
 
-        gameData.money -= finalPrice;
+        // ★★★ 변경된 부분: MoneyManager를 통해 돈을 지출 ★★★
+        if (moneyManager == null)
+        {
+            moneyManager = MoneyManager.Instance;
+        }
+
+        if (moneyManager != null && !moneyManager.SpendMoney(finalPrice))
+        {
+            NotificationManager.Instance.ShowNotification("돈이 부족합니다.");
+            return;
+        }
 
         switch (itemToPurchase.itemType)
         {
@@ -132,10 +159,8 @@ public class ShopService : MonoBehaviour
                 break;
         }
 
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.UpdateUI();
-        }
+        // ★★★ 더 이상 GameManager.Instance.UpdateUI()는 필요 없습니다.
+        // MoneyManager.SpendMoney()에서 이미 이벤트를 발생시켜 UI를 업데이트합니다.
 
         if (itemToPurchase.itemType == ItemType.Upgrade || itemToPurchase.itemType == ItemType.Building)
         {
@@ -164,7 +189,7 @@ public class ShopService : MonoBehaviour
     {
         if (animalHandler != null && animalHandler.CanSellChicken())
         {
-            GameManager.Instance.gameData.money += GetChickenSellPrice();
+            GameManager.Instance.gameData.money += GetChickenSellPrice(); // 이 부분도 MoneyManager.AddMoney로 바꿔야 합니다.
             animalHandler.RemoveChicken();
         }
         else
