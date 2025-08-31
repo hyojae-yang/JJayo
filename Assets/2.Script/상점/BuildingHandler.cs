@@ -43,7 +43,7 @@ public class BuildingHandler : MonoBehaviour
         }
 
         // 이제 안전하게 인스턴스화 로직을 실행합니다.
-        Instantiate(buildingData.buildingPrefab, buildingSpawnPoints[0].position, Quaternion.identity);
+        GameObject newBuilding = Instantiate(buildingData.buildingPrefab, buildingSpawnPoints[0].position, Quaternion.identity);
         buildingSpawnPoints.RemoveAt(0);
 
         // 건물 구매 후 GameData에 보유 정보를 추가합니다.
@@ -52,6 +52,16 @@ public class BuildingHandler : MonoBehaviour
         {
             // GameData의 List에 건물의 ID를 추가합니다.
             gameData.ownedBuildingIds.Add(buildingData.buildingId);
+        }
+
+        // ★★★ 추가된 부분: 새로 생성된 건물을 BuildingManager에 등록합니다. ★★★
+        if (BuildingManager.Instance != null)
+        {
+            BuildingManager.Instance.AddBuilding(newBuilding);
+        }
+        else
+        {
+            Debug.LogError("BuildingManager 인스턴스를 찾을 수 없습니다.");
         }
 
         NotificationManager.Instance.ShowNotification(buildingData.buildingName + "을(를) 구매했습니다. 목장에 설치되었습니다!");

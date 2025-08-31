@@ -8,6 +8,7 @@ TagManager:
   - Cow
   - Wolf
   - ShopPanel
+  - ReputationText
   layers:
   - Default
   - TransparentFX

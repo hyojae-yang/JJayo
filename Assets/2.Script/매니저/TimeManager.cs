@@ -7,11 +7,10 @@ public class TimeManager : MonoBehaviour
     public static TimeManager Instance { get; private set; }
 
     [Header("Dependencies")]
-    public GameManager gameManager;
-    public TextMeshProUGUI timeText;
-
     private float dayLengthInSeconds;
     private float timeElapsed = 0f;
+
+    public float timeProgress;
 
     public event Action<float> OnTimeChanged;
     public event Action<int> OnDayChanged;
@@ -23,6 +22,7 @@ public class TimeManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -30,29 +30,17 @@ public class TimeManager : MonoBehaviour
         }
     }
 
-    void Start()
-    {
-        if (gameManager == null)
-        {
-            gameManager = GameManager.Instance;
-        }
-
-        if (gameManager != null)
-        {
-            dayLengthInSeconds = gameManager.dayLengthInSeconds;
-        }
-    }
-
     void Update()
     {
-        if (gameManager == null || gameManager.gameData == null)
+        if (GameManager.Instance == null || GameManager.Instance.gameData == null)
         {
             return;
         }
 
         timeElapsed += Time.deltaTime;
 
-        float timeProgress = 1f - (timeElapsed / dayLengthInSeconds);
+        timeProgress = 1f - (timeElapsed / dayLengthInSeconds);
+        
         OnTimeChanged?.Invoke(timeProgress);
 
         if (timeElapsed >= dayLengthInSeconds)
@@ -62,29 +50,40 @@ public class TimeManager : MonoBehaviour
         }
     }
 
+    public void Initialize(float dayLength, int year, int month, int day, int reputation)
+    {
+        dayLengthInSeconds = dayLength;
+        if (GameManager.Instance != null && GameManager.Instance.gameData != null)
+        {
+            GameManager.Instance.gameData.year = year;
+            GameManager.Instance.gameData.month = month;
+            GameManager.Instance.gameData.day = day;
+            GameManager.Instance.gameData.reputation = reputation;
+        }
+    }
+
     private void PassOneDay()
     {
-        if (gameManager != null && gameManager.gameData != null)
+        if (GameManager.Instance != null && GameManager.Instance.gameData != null)
         {
-            gameManager.gameData.dailyMilkProduced = 0;
-            gameManager.gameData.dailyEggsProduced = 0;
-        }
+            GameManager.Instance.gameData.dailyMilkProduced = 0;
+            GameManager.Instance.gameData.dailyEggsProduced = 0;
+            GameManager.Instance.gameData.day++;
+            OnDayChanged?.Invoke(GameManager.Instance.gameData.day);
 
-        gameManager.gameData.day++;
-        OnDayChanged?.Invoke(gameManager.gameData.day);
+            if (GameManager.Instance.gameData.day > 30)
+            {
+                GameManager.Instance.gameData.day = 1;
+                GameManager.Instance.gameData.month++;
+                OnMonthChanged?.Invoke();
+            }
 
-        if (gameManager.gameData.day > 30)
-        {
-            gameManager.gameData.day = 1;
-            gameManager.gameData.month++;
-            OnMonthChanged?.Invoke();
-        }
-
-        if (gameManager.gameData.month > 12)
-        {
-            gameManager.gameData.month = 1;
-            gameManager.gameData.year++;
-            OnYearChanged?.Invoke();
+            if (GameManager.Instance.gameData.month > 12)
+            {
+                GameManager.Instance.gameData.month = 1;
+                GameManager.Instance.gameData.year++;
+                OnYearChanged?.Invoke();
+            }
         }
     }
 }

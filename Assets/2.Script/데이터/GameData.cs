@@ -1,6 +1,23 @@
 using System;
 using System.Collections.Generic;
 
+// 각 젖소의 위치 정보를 저장하는 클래스
+[Serializable]
+public class SavedAnimalData
+{
+    public float posX, posY;
+    // 추가적인 데이터 (예: 체력, 성장 단계 등)도 여기에 포함될 수 있습니다.
+}
+
+// 각 건물의 위치 정보를 저장하는 클래스
+[Serializable]
+public class SavedBuildingData
+{
+    public string buildingId;
+    public float posX, posY;
+    // 추가적인 데이터 (예: 건물 체력, 소유 여부 등)도 여기에 포함될 수 있습니다.
+}
+
 [Serializable]
 public class GameData
 {
@@ -28,16 +45,17 @@ public class GameData
     public int milkerLevel;
     public int bulletCount;
 
-    // ★★★ 추가된 부분: 총기 데미지 변수 ★★★
     public float gunDamage;
 
     public EquipmentType currentEquipment;
 
-    // 건물 보유 여부
+    // 건물 및 장비 보유 여부
     public List<string> ownedBuildingIds;
-
-    // 장비 보유 여부
     public List<string> ownedEquipmentIds;
+
+    // ★★★ 추가된 부분: 젖소와 건물의 위치 데이터를 담을 리스트 ★★★
+    public List<SavedAnimalData> savedAnimals;
+    public List<SavedBuildingData> savedBuildings;
 
     // NPC(상인) 관련 데이터
     public int traderRequiredMilkAmount;
@@ -47,7 +65,6 @@ public class GameData
 
     public GameData()
     {
-        // 모든 변수의 초기값을 명확히 설정합니다.
         this.money = 50000;
         this.reputation = 50;
 
@@ -69,11 +86,14 @@ public class GameData
         this.milkerLevel = 1;
         this.bulletCount = 0;
 
-        // ★★★ 추가된 부분: 총기 데미지 초기화 ★★★
-        this.gunDamage = 10f; // 초기 데미지 값 설정
+        this.gunDamage = 10f;
 
         this.ownedBuildingIds = new List<string>();
         this.ownedEquipmentIds = new List<string>();
+
+        // ★★★ 추가된 부분: 새로운 리스트 초기화 ★★★
+        this.savedAnimals = new List<SavedAnimalData>();
+        this.savedBuildings = new List<SavedBuildingData>();
 
         this.traderRequiredMilkAmount = 0;
         this.traderRequiredFreshness = 0;

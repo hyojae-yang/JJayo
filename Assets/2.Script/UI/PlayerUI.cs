@@ -32,46 +32,40 @@ public class PlayerUI : MonoBehaviour
         }
     }
 
+    // 매니저를 찾고 이벤트에 구독하는 로직을 Start()로 옮겼습니다.
     private void OnEnable()
     {
-        // OnEnable에서는 이벤트 구독을 하지 않습니다.
-        // GameManager가 호출하는 InitializeManagers()에서 처리합니다.
+        // 오브젝트가 비활성화된 후 다시 활성화될 때 구독을 해제하지 않도록 수정했습니다.
     }
 
+    // 오브젝트가 비활성화될 때 이벤트 구독을 해제합니다.
     private void OnDisable()
     {
-        // 오브젝트가 비활성화될 때 이벤트 구독 해제
-        if (moneyManager != null)
+        UnsubscribeFromEvents();
+    }
+
+    // Start()에서 매니저들을 찾아 구독을 시작하고 UI를 초기화합니다.
+    private void Start()
+    {
+        gameManager = GameManager.Instance;
+        timeManager = TimeManager.Instance;
+        moneyManager = MoneyManager.Instance;
+        playerInventory = PlayerInventory.Instance;
+
+        // 모든 매니저가 정상적으로 연결되었는지 확인
+        if (gameManager != null && timeManager != null && moneyManager != null && playerInventory != null)
         {
-            moneyManager.OnMoneyChanged -= UpdateMoney;
+            SubscribeToEvents();
+            InitializeUI();
         }
-        if (timeManager != null)
+        else
         {
-            timeManager.OnTimeChanged -= UpdateDayGauge;
-            timeManager.OnDayChanged -= (day) => UpdateDayText();
-            timeManager.OnMonthChanged -= UpdateDayText;
-            timeManager.OnYearChanged -= UpdateDayText;
-        }
-        if (playerInventory != null)
-        {
-            playerInventory.OnInventoryChanged -= UpdateAllGauges;
+            Debug.LogError("매니저 인스턴스를 찾지 못했습니다. PlayerUI 초기화 실패.");
         }
     }
 
-    public void InitializeManagers(GameManager gm, TimeManager tm, MoneyManager mm)
+    private void SubscribeToEvents()
     {
-        // GameManager에서 전달받은 인스턴스를 사용하거나,
-        // 만약 null이라면 직접 인스턴스를 찾습니다.
-        gameManager = gm ?? GameManager.Instance;
-        timeManager = tm ?? TimeManager.Instance;
-        moneyManager = mm ?? MoneyManager.Instance;
-
-        if (playerInventory == null)
-        {
-            playerInventory = PlayerInventory.Instance;
-        }
-
-        // 이벤트 구독 시작
         if (moneyManager != null)
         {
             moneyManager.OnMoneyChanged += UpdateMoney;
@@ -79,28 +73,53 @@ public class PlayerUI : MonoBehaviour
         if (timeManager != null)
         {
             timeManager.OnTimeChanged += UpdateDayGauge;
-            timeManager.OnDayChanged += (day) => UpdateDayText();
-            timeManager.OnMonthChanged += UpdateDayText;
-            timeManager.OnYearChanged += UpdateDayText;
+            timeManager.OnDayChanged += UpdateDayText;
+            timeManager.OnMonthChanged += UpdateMonthText;
+            timeManager.OnYearChanged += UpdateYearText;
         }
         if (playerInventory != null)
         {
             playerInventory.OnInventoryChanged += UpdateAllGauges;
         }
+    }
 
-        // 초기값 설정
+    private void UnsubscribeFromEvents()
+    {
+        if (moneyManager != null)
+        {
+            moneyManager.OnMoneyChanged -= UpdateMoney;
+        }
+        if (timeManager != null)
+        {
+            timeManager.OnTimeChanged -= UpdateDayGauge;
+            timeManager.OnDayChanged -= UpdateDayText;
+            timeManager.OnMonthChanged -= UpdateMonthText;
+            timeManager.OnYearChanged -= UpdateYearText;
+        }
+        if (playerInventory != null)
+        {
+            playerInventory.OnInventoryChanged -= UpdateAllGauges;
+        }
+    }
+
+    private void InitializeUI()
+    {
         if (dayGauge != null)
         {
             dayGauge.maxValue = 1f;
         }
 
+        if (dayGauge != null && timeManager != null)
+        {
+            dayGauge.value = timeManager.timeProgress;
+        }
+
+        UpdateAllGauges();
         if (gameManager != null && gameManager.gameData != null)
         {
             UpdateMoney(gameManager.gameData.money);
         }
-
-        UpdateDayText();
-        UpdateAllGauges();
+        UpdateDayText(gameManager.gameData.day);
     }
 
     public void UpdateAllGauges()
@@ -135,7 +154,7 @@ public class PlayerUI : MonoBehaviour
         }
     }
 
-    private void UpdateMoney(int newMoney)
+    public void UpdateMoney(int newMoney)
     {
         if (moneyText != null)
         {
@@ -143,7 +162,23 @@ public class PlayerUI : MonoBehaviour
         }
     }
 
-    private void UpdateDayText()
+    public void UpdateDayText(int day)
+    {
+        if (dayText != null && gameManager != null && gameManager.gameData != null)
+        {
+            dayText.text = $"{gameManager.gameData.year}년 {gameManager.gameData.month}월 {day}일";
+        }
+    }
+
+    public void UpdateMonthText()
+    {
+        if (dayText != null && gameManager != null && gameManager.gameData != null)
+        {
+            dayText.text = $"{gameManager.gameData.year}년 {gameManager.gameData.month}월 {gameManager.gameData.day}일";
+        }
+    }
+
+    public void UpdateYearText()
     {
         if (dayText != null && gameManager != null && gameManager.gameData != null)
         {

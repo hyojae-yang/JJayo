@@ -17,7 +17,6 @@ public class AnimalHandler : MonoBehaviour
     public void RegisterChickenCoop(ChickenCoop coop)
     {
         _chickenCoop = coop;
-        Debug.Log("닭장 인스턴스가 AnimalHandler에 성공적으로 등록되었습니다.");
     }
 
     public bool CanBuy(AnimalData animalData)

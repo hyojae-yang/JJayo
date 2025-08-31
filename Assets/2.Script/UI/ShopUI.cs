@@ -6,7 +6,9 @@ using UnityEngine.UI;
 
 public class ShopUI : MonoBehaviour
 {
-    public static ShopUI Instance { get; private set; }
+    [Header("Dependencies - 인스펙터로 연결")]
+    // DontDestroyOnLoad인 ShopService를 여기에 연결합니다.
+    public ShopService shopService;
 
     [Header("패널 UI")]
     public GameObject shopPanel;
@@ -32,13 +34,9 @@ public class ShopUI : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
+        if (shopService == null)
         {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
+            shopService = ShopService.Instance;
         }
     }
 
@@ -84,21 +82,23 @@ public class ShopUI : MonoBehaviour
 
     private void PopulateBuyItems()
     {
-        // UI 패널을 초기화합니다.
         foreach (Transform child in buyContentPanel)
         {
             Destroy(child.gameObject);
         }
 
-        if (ShopService.Instance == null) return;
+        if (shopService == null)
+        {
+            Debug.LogError("ShopService가 할당되지 않았습니다. 인스펙터에서 연결해주세요.");
+            return;
+        }
 
-        // ShopService에서 이미 구매한 장비 아이템을 제외한 리스트를 가져와서 반복문을 돌립니다.
-        // 장비 아이템은 이 리스트에 포함되지 않으므로, 카드가 생성되지 않습니다.
-        foreach (var data in ShopService.Instance.GetShopItems())
+        foreach (var data in shopService.GetShopItems())
         {
             GameObject itemCard = Instantiate(uiItemCardPrefab, buyContentPanel);
             ShopItemUI itemUI = itemCard.GetComponent<ShopItemUI>();
-            itemUI.SetupBuyItem(data);
+            // ShopUI의 인스턴스(this)를 ShopItemUI에 전달
+            itemUI.SetupBuyItem(this, data);
         }
     }
 
@@ -116,26 +116,28 @@ public class ShopUI : MonoBehaviour
             {
                 GameObject itemCard = Instantiate(uiItemCardPrefab, sellContentPanel);
                 ShopItemUI itemUI = itemCard.GetComponent<ShopItemUI>();
-                itemUI.SetupSellItem(animal);
+                // ShopUI의 인스턴스(this)를 ShopItemUI에 전달
+                itemUI.SetupSellItem(this, animal);
             }
         }
 
         ChickenCoop chickenCoop = FindFirstObjectByType<ChickenCoop>();
         if (chickenCoop != null && chickenCoop.numberOfChickens > 0)
         {
-            int sellPrice = ShopService.Instance.GetChickenSellPrice();
+            int sellPrice = shopService.GetChickenSellPrice();
 
             GameObject itemCard = Instantiate(uiItemCardPrefab, sellContentPanel);
             ShopItemUI itemUI = itemCard.GetComponent<ShopItemUI>();
 
-            var chickenData = ShopService.Instance.GetShopItems().FirstOrDefault(item => item.animalData != null && item.animalData.animalType == AnimalType.Chicken);
+            var chickenData = shopService.GetShopItems().FirstOrDefault(item => item.animalData != null && item.animalData.animalType == AnimalType.Chicken);
             if (chickenData != null)
             {
                 itemUI.itemNameText.text = chickenData.animalData.animalName + $" (현재 {chickenCoop.numberOfChickens}마리)";
                 itemUI.itemPriceText.text = sellPrice.ToString("C0");
                 itemUI.itemIcon.sprite = chickenData.animalData.animalIcon;
             }
-            itemUI.SetupSellChicken(sellPrice);
+            // ShopUI의 인스턴스(this)를 ShopItemUI에 전달
+            itemUI.SetupSellChicken(this, sellPrice);
         }
     }
 
@@ -154,10 +156,9 @@ public class ShopUI : MonoBehaviour
                 finalPrice = itemToPurchase.itemPrice;
             }
 
-            if (ShopService.Instance.CanBuy(itemToPurchase) && GameManager.Instance.gameData.money >= finalPrice)
+            if (shopService.CanBuy(itemToPurchase))
             {
-                ShopService.Instance.PurchaseItem(itemToPurchase);
-                NotificationManager.Instance.ShowNotification(itemToPurchase.itemName + "을(를) 구매했습니다!");
+                shopService.PurchaseItem(itemToPurchase);
             }
             else
             {
@@ -166,15 +167,14 @@ public class ShopUI : MonoBehaviour
         }
         else if (isSellingChicken)
         {
-            ShopService.Instance.SellChicken();
-            GameManager.Instance.UpdateUI();
+            shopService.SellChicken();
         }
         else if (animalToSell != null)
         {
-            ShopService.Instance.SellItem(animalToSell);
-            GameManager.Instance.UpdateUI();
+            shopService.SellItem(animalToSell);
         }
 
+        RefreshShopItems();
         confirmationPanel.SetActive(false);
     }
 
@@ -188,10 +188,11 @@ public class ShopUI : MonoBehaviour
 
     private int GetCurrentUpgradeLevelForConfirmation(UpgradeData upgradeData)
     {
-        if (upgradeData is BasketUpgradeData) return GameManager.Instance.gameData.basketLevel;
-        if (upgradeData is MilkerUpgradeData) return GameManager.Instance.gameData.milkerLevel;
-        if (upgradeData is GunUpgradeData) return GameManager.Instance.gameData.gunLevel;
-        if (upgradeData is PastureUpgradeData) return GameManager.Instance.gameData.pastureLevel;
+        if (shopService.gameManager.gameData == null) return 0;
+        if (upgradeData is BasketUpgradeData) return shopService.gameManager.gameData.basketLevel;
+        if (upgradeData is MilkerUpgradeData) return shopService.gameManager.gameData.milkerLevel;
+        if (upgradeData is GunUpgradeData) return shopService.gameManager.gameData.gunLevel;
+        if (upgradeData is PastureUpgradeData) return shopService.gameManager.gameData.pastureLevel;
         return 0;
     }
 

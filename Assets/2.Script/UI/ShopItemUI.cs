@@ -10,19 +10,21 @@ public class ShopItemUI : MonoBehaviour
     public Image itemIcon;
     public Button actionButton;
 
-    private ShopUI shopUI;
+    // 더 이상 private가 아닌 public 또는 protected로 변경
+    private ShopUI _shopUI;
     private PurchasableItemData _currentItemData;
     private Animal _animalToSell;
 
-    public void SetupBuyItem(PurchasableItemData itemData)
+    // ShopUI 인스턴스를 직접 받도록 수정
+    public void SetupBuyItem(ShopUI shopUI, PurchasableItemData itemData)
     {
-        shopUI = ShopUI.Instance;
+        // 인자로 받은 shopUI를 사용합니다.
+        this._shopUI = shopUI;
         _currentItemData = itemData;
 
         itemNameText.text = itemData.itemName;
         itemIcon.sprite = itemData.itemIcon;
 
-        // 아이템이 업그레이드 아이템일 경우
         if (itemData.itemType == ItemType.Upgrade)
         {
             int currentLevel = GetCurrentUpgradeLevel();
@@ -40,11 +42,9 @@ public class ShopItemUI : MonoBehaviour
                 actionButton.interactable = true;
             }
         }
-        // 아이템이 건물일 경우
         else if (itemData.itemType == ItemType.Building)
         {
-            // GameManager를 통해 건물의 보유 여부를 확인합니다.
-            bool isOwned = GameManager.Instance.gameData.IsBuildingOwned(itemData.buildingData.buildingId);
+            bool isOwned = _shopUI.shopService.gameManager.gameData.IsBuildingOwned(itemData.buildingData.buildingId);
 
             if (isOwned)
             {
@@ -53,12 +53,10 @@ public class ShopItemUI : MonoBehaviour
             }
             else
             {
-                // 가격 정보를 이제 buildingData에서 가져옵니다.
                 itemPriceText.text = itemData.buildingData.buildingPrice.ToString("C0");
                 actionButton.interactable = true;
             }
         }
-        // 그 외 일반 아이템일 경우 (장비 아이템은 이제 이 로직에 포함됩니다.)
         else
         {
             itemPriceText.text = itemData.itemPrice.ToString("C0");
@@ -66,12 +64,14 @@ public class ShopItemUI : MonoBehaviour
         }
 
         actionButton.onClick.RemoveAllListeners();
-        actionButton.onClick.AddListener(() => shopUI.ShowConfirmationPanelForBuy(_currentItemData));
+        actionButton.onClick.AddListener(() => _shopUI.ShowConfirmationPanelForBuy(_currentItemData));
     }
 
-    public void SetupSellItem(Animal animalToSell)
+    // ShopUI 인스턴스를 직접 받도록 수정
+    public void SetupSellItem(ShopUI shopUI, Animal animalToSell)
     {
-        shopUI = ShopUI.Instance;
+        // 인자로 받은 shopUI를 사용합니다.
+        this._shopUI = shopUI;
         _animalToSell = animalToSell;
 
         itemNameText.text = animalToSell.animalData.animalName;
@@ -79,23 +79,25 @@ public class ShopItemUI : MonoBehaviour
         itemIcon.sprite = animalToSell.animalData.animalIcon;
 
         actionButton.onClick.RemoveAllListeners();
-        actionButton.onClick.AddListener(() => shopUI.ShowConfirmationPanelForSell(_animalToSell));
+        actionButton.onClick.AddListener(() => _shopUI.ShowConfirmationPanelForSell(_animalToSell));
     }
 
-    public void SetupSellChicken(int price)
+    // ShopUI 인스턴스를 직접 받도록 수정
+    public void SetupSellChicken(ShopUI shopUI, int price)
     {
-        shopUI = ShopUI.Instance;
+        // 인자로 받은 shopUI를 사용합니다.
+        this._shopUI = shopUI;
 
         actionButton.onClick.RemoveAllListeners();
-        actionButton.onClick.AddListener(() => shopUI.ShowConfirmationPanelForSellChicken(price));
+        actionButton.onClick.AddListener(() => _shopUI.ShowConfirmationPanelForSellChicken(price));
     }
 
     private int GetCurrentUpgradeLevel()
     {
-        if (_currentItemData.upgradeData is BasketUpgradeData) return GameManager.Instance.gameData.basketLevel;
-        if (_currentItemData.upgradeData is MilkerUpgradeData) return GameManager.Instance.gameData.milkerLevel;
-        if (_currentItemData.upgradeData is GunUpgradeData) return GameManager.Instance.gameData.gunLevel;
-        if (_currentItemData.upgradeData is PastureUpgradeData) return GameManager.Instance.gameData.pastureLevel;
+        if (_currentItemData.upgradeData is BasketUpgradeData) return _shopUI.shopService.gameManager.gameData.basketLevel;
+        if (_currentItemData.upgradeData is MilkerUpgradeData) return _shopUI.shopService.gameManager.gameData.milkerLevel;
+        if (_currentItemData.upgradeData is GunUpgradeData) return _shopUI.shopService.gameManager.gameData.gunLevel;
+        if (_currentItemData.upgradeData is PastureUpgradeData) return _shopUI.shopService.gameManager.gameData.pastureLevel;
         return 0;
     }
 }

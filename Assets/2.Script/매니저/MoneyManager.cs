@@ -5,10 +5,11 @@ public class MoneyManager : MonoBehaviour
 {
     public static MoneyManager Instance { get; private set; }
 
-    [Header("Dependencies")]
-    public GameManager gameManager;
+    // gameManager 변수 제거
+    // private GameManager gameManager;
 
-    public int CurrentMoney => gameManager.gameData.money;
+    // GameManager.Instance를 직접 참조하도록 변경
+    public int CurrentMoney => GameManager.Instance.gameData.money;
 
     public event Action<int> OnMoneyChanged;
 
@@ -17,6 +18,8 @@ public class MoneyManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            // TimeManager와 동일하게 DontDestroyOnLoad를 추가하여 씬 전환 시 파괴 방지
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -24,19 +27,22 @@ public class MoneyManager : MonoBehaviour
         }
     }
 
+    // InitializeMoney 메서드 제거. GameManager가 직접 게임 데이터를 초기화합니다.
+
     public void AddMoney(int amount)
     {
-        gameManager.gameData.money += amount;
-        // OnMoneyChanged 이벤트를 호출하여 PlayerUI에게 업데이트를 요청합니다.
-        OnMoneyChanged?.Invoke(gameManager.gameData.money);
+        // GameManager.Instance를 직접 참조하도록 변경
+        GameManager.Instance.gameData.money += amount;
+        OnMoneyChanged?.Invoke(GameManager.Instance.gameData.money);
     }
 
     public bool SpendMoney(int amount)
     {
-        if (gameManager.gameData.money >= amount)
+        // GameManager.Instance를 직접 참조하도록 변경
+        if (GameManager.Instance.gameData.money >= amount)
         {
-            gameManager.gameData.money -= amount;
-            OnMoneyChanged?.Invoke(gameManager.gameData.money);
+            GameManager.Instance.gameData.money -= amount;
+            OnMoneyChanged?.Invoke(GameManager.Instance.gameData.money);
             return true;
         }
         return false;
