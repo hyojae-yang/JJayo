@@ -16,6 +16,8 @@ public class EquipmentHandler : MonoBehaviour
         }
     }
 
+    private GameData gameData;
+
     private void Awake()
     {
         if (m_instance == null)
@@ -26,7 +28,10 @@ public class EquipmentHandler : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
 
+    public void Initialize()
+    {
         if (GameManager.Instance != null)
         {
             gameData = GameManager.Instance.CurrentGameData;
@@ -44,8 +49,6 @@ public class EquipmentHandler : MonoBehaviour
             }
         }
     }
-
-    private GameData gameData;
 
     public bool CanBuy(EquipmentData equipmentData)
     {

@@ -18,7 +18,6 @@ public class ShopItemUI : MonoBehaviour
     // ShopUI 인스턴스를 직접 받도록 수정
     public void SetupBuyItem(ShopUI shopUI, PurchasableItemData itemData)
     {
-        // 인자로 받은 shopUI를 사용합니다.
         this._shopUI = shopUI;
         _currentItemData = itemData;
 
@@ -44,7 +43,17 @@ public class ShopItemUI : MonoBehaviour
         }
         else if (itemData.itemType == ItemType.Building)
         {
-            bool isOwned = _shopUI.shopService.gameManager.CurrentGameData.IsBuildingOwned(itemData.buildingData.buildingId);
+            // === ★★★ 수정된 부분: Building 타입에도 Null 체크 추가 ★★★ ===
+            bool isOwned = false;
+            if (_shopUI.shopService != null && _shopUI.shopService.gameManager != null && _shopUI.shopService.gameManager.CurrentGameData != null)
+            {
+                isOwned = _shopUI.shopService.gameManager.CurrentGameData.IsBuildingOwned(itemData.buildingData.buildingId);
+            }
+            else
+            {
+                // 데이터 로드 전이므로 일단 보유하지 않은 것으로 간주
+                isOwned = false;
+            }
 
             if (isOwned)
             {
@@ -67,10 +76,8 @@ public class ShopItemUI : MonoBehaviour
         actionButton.onClick.AddListener(() => _shopUI.ShowConfirmationPanelForBuy(_currentItemData));
     }
 
-    // ShopUI 인스턴스를 직접 받도록 수정
     public void SetupSellItem(ShopUI shopUI, Animal animalToSell)
     {
-        // 인자로 받은 shopUI를 사용합니다.
         this._shopUI = shopUI;
         _animalToSell = animalToSell;
 
@@ -82,10 +89,8 @@ public class ShopItemUI : MonoBehaviour
         actionButton.onClick.AddListener(() => _shopUI.ShowConfirmationPanelForSell(_animalToSell));
     }
 
-    // ShopUI 인스턴스를 직접 받도록 수정
     public void SetupSellChicken(ShopUI shopUI, int price)
     {
-        // 인자로 받은 shopUI를 사용합니다.
         this._shopUI = shopUI;
 
         actionButton.onClick.RemoveAllListeners();
@@ -94,6 +99,12 @@ public class ShopItemUI : MonoBehaviour
 
     private int GetCurrentUpgradeLevel()
     {
+        // === ★★★ 수정된 부분: Null 체크 추가 ★★★ ===
+        if (_shopUI == null || _shopUI.shopService == null || _shopUI.shopService.gameManager == null || _shopUI.shopService.gameManager.CurrentGameData == null)
+        {
+            return 0; // 데이터가 아직 로드되지 않았으므로 0을 반환합니다.
+        }
+
         if (_currentItemData.upgradeData is BasketUpgradeData) return _shopUI.shopService.gameManager.CurrentGameData.basketLevel;
         if (_currentItemData.upgradeData is MilkerUpgradeData) return _shopUI.shopService.gameManager.CurrentGameData.milkerLevel;
         if (_currentItemData.upgradeData is GunUpgradeData) return _shopUI.shopService.gameManager.CurrentGameData.gunLevel;

@@ -37,9 +37,13 @@ public class TraderManager : MonoBehaviour
         }
     }
 
-    void Start()
+    // ★★★ GameManager가 호출할 초기화 함수 추가 ★★★
+    public void Initialize()
     {
-        gameData = GameManager.Instance.CurrentGameData;
+        if (GameManager.Instance != null)
+        {
+            gameData = GameManager.Instance.CurrentGameData;
+        }
         if (gameData == null) Debug.LogError("GameData를 찾을 수 없습니다.");
 
         if (TimeManager.Instance != null)
@@ -76,8 +80,8 @@ public class TraderManager : MonoBehaviour
     private void GenerateTradeDemand()
     {
         int dailyBonus = (gameData.day / 10) * 5;
-        traderData.requiredMilkAmount = Random.Range(minRequiredMilk + dailyBonus, maxRequiredMilk + dailyBonus);
-        traderData.requiredFreshness = Random.Range(minRequiredFreshness + dailyBonus, maxRequiredFreshness + dailyBonus);
+        traderData.requiredMilkAmount = UnityEngine.Random.Range(minRequiredMilk + dailyBonus, maxRequiredMilk + dailyBonus);
+        traderData.requiredFreshness = UnityEngine.Random.Range(minRequiredFreshness + dailyBonus, maxRequiredFreshness + dailyBonus);
 
         traderData.offeredPrice = traderData.requiredMilkAmount * (baseMilkPrice + (int)(traderData.requiredFreshness / 10f));
     }
@@ -89,8 +93,6 @@ public class TraderManager : MonoBehaviour
         float priceMultiplier = UnityEngine.Random.Range(0.1f, 3.0f);
 
         float newPrice = currentBasePrice * priceMultiplier;
-
-        // ★★★ 수정된 부분: 가격을 올림(Ceiling)하고 최소값을 1로 보장 ★★★
         traderData.currentEggPrice = Mathf.Max(1, Mathf.CeilToInt(newPrice));
     }
 

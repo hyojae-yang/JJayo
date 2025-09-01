@@ -32,15 +32,17 @@ public class UpgradeHandler : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
 
+    public void Initialize()
+    {
         if (GameManager.Instance != null)
         {
             gameData = GameManager.Instance.CurrentGameData;
         }
-        pastureManager = FindFirstObjectByType<PastureManager>();
+        pastureManager = PastureManager.Instance;
     }
 
-    // ★★★ 요청에 따라 다시 추가된 InitializeLevel 메서드 ★★★
     public void InitializeLevel(UpgradeType type)
     {
         if (gameData == null) return;

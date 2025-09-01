@@ -50,19 +50,7 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
         SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    // 주석 처리된 부분: 자동 저장을 비활성화합니다.
-    // private void OnApplicationQuit()
-    // {
-    //     SaveGame();
-    // }
-
-    void Start()
-    {
-        InitializeReferences();
     }
 
     private void OnDisable()
@@ -75,24 +63,49 @@ public class GameManager : MonoBehaviour
         InitializeReferences();
         InitializeGameData();
 
+        if (PastureManager.Instance != null)
+        {
+            PastureManager.Instance.Initialize();
+        }
+
+        if (ShopUI.Instance != null)
+        {
+            ShopUI.Instance.Initialize();
+        }
+
+        if (UpgradeHandler.Instance != null)
+        {
+            UpgradeHandler.Instance.Initialize();
+        }
+
+        if (EquipmentHandler.Instance != null)
+        {
+            EquipmentHandler.Instance.Initialize();
+        }
+
+        // ★★★ TraderManager와 TraderUI 초기화 순서 보장 ★★★
+        if (TraderManager.Instance != null)
+        {
+            TraderManager.Instance.Initialize();
+        }
+        if (TraderUI.Instance != null)
+        {
+            TraderUI.Instance.Initialize();
+        }
+        // ------------------------------------------
+
         if (timeManager != null)
         {
             timeManager.Initialize(dayLengthInSeconds, runtimeGameData.year, runtimeGameData.month, runtimeGameData.day, runtimeGameData.reputation);
         }
 
         UpdateUI();
-
-        if (PastureManager.Instance != null)
-        {
-            PastureManager.Instance.UpdateVisuals();
-        }
     }
 
     private void InitializeGameData()
     {
         string saveFileName = "default_save.json";
 
-        // 단계 1: defaultGameData가 연결되어 있는지 확인합니다.
         if (defaultGameData == null)
         {
             Debug.LogError("Error: 'Default Game Data' 에셋이 GameManager에 연결되지 않았습니다. 게임 초기값이 모두 0으로 설정됩니다.");
@@ -100,29 +113,23 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // 단계 2: 저장 파일이 있는지 확인하여 로직을 분기합니다.
         if (SaveLoadManager.Instance != null && SaveLoadManager.Instance.HasSaveFile(saveFileName))
         {
             string loadedJson = SaveLoadManager.Instance.LoadJsonData(saveFileName);
             if (!string.IsNullOrEmpty(loadedJson))
             {
-                // 저장 파일이 정상일 경우:
-                // 1) 초기값을 먼저 복제
                 runtimeGameData = Instantiate(defaultGameData);
-                // 2) 로드된 데이터로 덮어쓰기
                 JsonUtility.FromJsonOverwrite(loadedJson, runtimeGameData);
                 Debug.Log($"불러오기 성공! {saveFileName} 파일의 데이터로 게임이 시작됩니다.");
             }
             else
             {
-                // 저장 파일이 손상된 경우: 초기값으로 시작
                 Debug.LogWarning("저장 파일이 손상되어 초기값으로 시작합니다.");
                 runtimeGameData = Instantiate(defaultGameData);
             }
         }
         else
         {
-            // 저장 파일이 없는 경우: 초기값으로 시작
             Debug.Log("저장 파일이 없어 새 게임 시작.");
             runtimeGameData = Instantiate(defaultGameData);
         }

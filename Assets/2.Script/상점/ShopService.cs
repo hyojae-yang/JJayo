@@ -7,15 +7,11 @@ public class ShopService : MonoBehaviour
     public static ShopService Instance { get; private set; }
 
     [Header("Dependencies - 인스펙터로 연결")]
-    // 씬 전환 시 파괴되지 않는 매니저들은 여기에 인스펙터로 연결합니다.
     public MoneyManager moneyManager;
-    public ShopManager shopManager; // ShopManager도 DontDestroyOnLoad일 경우 여기에 연결합니다.
-    public GameManager gameManager; // GameManager도 DontDestroyOnLoad이므로 여기에 연결합니다.
-    //public NotificationManager notificationManager; // 이제 Instance로 접근합니다.
-    //public AnimalHandler animalHandler; // 이제 Instance로 접근합니다.
-    //public BuildingHandler buildingHandler; // 이제 Instance로 접근합니다.
-    //public EquipmentHandler equipmentHandler; // 이제 Instance로 접근합니다.
-    //public UpgradeHandler upgradeHandler; // 이제 Instance로 접근합니다.
+    public ShopManager shopManager;
+
+    // 이 변수는 인스펙터로 연결하지 않고, 스크립트에서 직접 찾습니다.
+    public GameManager gameManager;
 
     private void Awake()
     {
@@ -27,10 +23,15 @@ public class ShopService : MonoBehaviour
         else
         {
             Destroy(gameObject);
+            return;
         }
     }
 
-    // 상점에서 표시할 아이템 목록을 가져옵니다.
+    private void Start()
+    {
+        gameManager = GameManager.Instance;
+    }
+
     public List<PurchasableItemData> GetShopItems()
     {
         if (shopManager == null)

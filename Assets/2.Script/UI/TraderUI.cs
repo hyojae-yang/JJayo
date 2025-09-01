@@ -37,7 +37,7 @@ public class TraderUI : MonoBehaviour
     public Button confirmResultButton;
 
     [Header("Dependencies")]
-    public TraderManager traderManager;
+    private TraderManager traderManager;
     private GameData gameData;
 
     private int eggsToSell = 0;
@@ -54,14 +54,15 @@ public class TraderUI : MonoBehaviour
         }
     }
 
-    private void Start()
+    // ★★★ 새로운 초기화 함수를 추가하고 기존 Start()의 코드를 이동 ★★★
+    public void Initialize()
     {
         // GameManager 인스턴스에서 GameData를 직접 가져옵니다.
         gameData = GameManager.Instance.CurrentGameData;
-        if (gameData == null)
-        {
-            Debug.LogError("GameData를 찾을 수 없습니다.");
-        }
+        traderManager = TraderManager.Instance;
+
+        if (gameData == null) Debug.LogError("GameData를 찾을 수 없습니다.");
+        if (traderManager == null) Debug.LogError("TraderManager를 찾을 수 없습니다.");
 
         // 버튼에 이벤트 리스너를 한 번만 추가합니다.
         if (confirmResultButton != null) confirmResultButton.onClick.AddListener(OnConfirmButtonClicked);
@@ -113,9 +114,12 @@ public class TraderUI : MonoBehaviour
         playerMoneyText.text = $"{gameData.money} 원";
 
         // ★★★ 수정: PlayerInventory가 아닌 Warehouse에서 우유 정보를 가져오도록 변경 ★★★
-        playerMilkCountText.text = $"{Warehouse.Instance.GetMilkCount()} 개";
-        playerAverageFreshnessText.text = $"{Warehouse.Instance.GetAverageMilkFreshness():F2}";
-        eggPriceText.text = $"오늘의 달걀 시세: {traderManager.traderData.currentEggPrice} 원";
+        if (Warehouse.Instance != null)
+        {
+            playerMilkCountText.text = $"{Warehouse.Instance.GetMilkCount()} 개";
+            playerAverageFreshnessText.text = $"{Warehouse.Instance.GetAverageMilkFreshness():F2}";
+            eggPriceText.text = $"오늘의 달걀 시세: {traderManager.traderData.currentEggPrice} 원";
+        }
     }
 
     /// <summary>
@@ -165,7 +169,7 @@ public class TraderUI : MonoBehaviour
     public void OnIncreaseEggCount()
     {
         // ★★★ 수정: PlayerInventory가 아닌 Warehouse에서 달걀 개수를 가져오도록 변경 ★★★
-        if (eggsToSell < Warehouse.Instance.GetEggCount())
+        if (Warehouse.Instance != null && eggsToSell < Warehouse.Instance.GetEggCount())
         {
             eggsToSell++;
             UpdateEggUI();

@@ -1,13 +1,14 @@
 using UnityEngine;
-using TMPro;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using TMPro;
+using System.Linq;
 
 public class ShopUI : MonoBehaviour
 {
+    public static ShopUI Instance { get; private set; }
+
     [Header("Dependencies - 인스펙터로 연결")]
-    // DontDestroyOnLoad인 ShopService를 여기에 연결합니다.
     public ShopService shopService;
 
     [Header("패널 UI")]
@@ -32,6 +33,18 @@ public class ShopUI : MonoBehaviour
     private Animal animalToSell;
     private bool isSellingChicken = false;
 
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     private void OnEnable()
     {
         if (shopService == null)
@@ -40,7 +53,7 @@ public class ShopUI : MonoBehaviour
         }
     }
 
-    void Start()
+    public void Initialize()
     {
         shopPanel.SetActive(false);
         buyPanel.SetActive(true);
@@ -101,7 +114,6 @@ public class ShopUI : MonoBehaviour
         {
             GameObject itemCard = Instantiate(uiItemCardPrefab, buyContentPanel);
             ShopItemUI itemUI = itemCard.GetComponent<ShopItemUI>();
-            // ShopUI의 인스턴스(this)를 ShopItemUI에 전달
             itemUI.SetupBuyItem(this, data);
         }
     }
@@ -120,7 +132,6 @@ public class ShopUI : MonoBehaviour
             {
                 GameObject itemCard = Instantiate(uiItemCardPrefab, sellContentPanel);
                 ShopItemUI itemUI = itemCard.GetComponent<ShopItemUI>();
-                // ShopUI의 인스턴스(this)를 ShopItemUI에 전달
                 itemUI.SetupSellItem(this, animal);
             }
         }
@@ -140,7 +151,6 @@ public class ShopUI : MonoBehaviour
                 itemUI.itemPriceText.text = sellPrice.ToString("C0");
                 itemUI.itemIcon.sprite = chickenData.animalData.animalIcon;
             }
-            // ShopUI의 인스턴스(this)를 ShopItemUI에 전달
             itemUI.SetupSellChicken(this, sellPrice);
         }
     }
