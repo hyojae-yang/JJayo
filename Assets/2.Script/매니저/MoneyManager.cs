@@ -9,7 +9,7 @@ public class MoneyManager : MonoBehaviour
     // private GameManager gameManager;
 
     // GameManager.Instance를 직접 참조하도록 변경
-    public int CurrentMoney => GameManager.Instance.gameData.money;
+    public int CurrentMoney => GameManager.Instance.CurrentGameData.money;
 
     public event Action<int> OnMoneyChanged;
 
@@ -32,17 +32,17 @@ public class MoneyManager : MonoBehaviour
     public void AddMoney(int amount)
     {
         // GameManager.Instance를 직접 참조하도록 변경
-        GameManager.Instance.gameData.money += amount;
-        OnMoneyChanged?.Invoke(GameManager.Instance.gameData.money);
+        GameManager.Instance.CurrentGameData.money += amount;
+        OnMoneyChanged?.Invoke(GameManager.Instance.CurrentGameData.money);
     }
 
     public bool SpendMoney(int amount)
     {
         // GameManager.Instance를 직접 참조하도록 변경
-        if (GameManager.Instance.gameData.money >= amount)
+        if (GameManager.Instance.CurrentGameData.money >= amount)
         {
-            GameManager.Instance.gameData.money -= amount;
-            OnMoneyChanged?.Invoke(GameManager.Instance.gameData.money);
+            GameManager.Instance.CurrentGameData.money -= amount;
+            OnMoneyChanged?.Invoke(GameManager.Instance.CurrentGameData.money);
             return true;
         }
         return false;

@@ -1,7 +1,7 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement; // For scene loading
-using System.IO; // For file system operations
+using UnityEngine.SceneManagement;
+using System.IO;
 
 public class TitleScreenManager : MonoBehaviour
 {
@@ -13,40 +13,40 @@ public class TitleScreenManager : MonoBehaviour
     [Tooltip("Connect the 'Continue' button here.")]
     public Button continueButton;
 
+    // 저장 파일 이름은 GameManager와 동일하게 사용합니다.
+    private const string saveFileName = "default_save.json";
+
     private void Start()
     {
-        // Check if a save file exists and enable/disable the continue button accordingly.
-        // This check is crucial for a good user experience.
         if (SaveLoadManager.Instance != null && continueButton != null)
         {
-            continueButton.interactable = SaveLoadManager.Instance.HasSaveFile();
+            // 수정: HasSaveFile() 메서드에 파일 이름 인자를 전달합니다.
+            continueButton.interactable = SaveLoadManager.Instance.HasSaveFile(saveFileName);
         }
     }
 
     // "Start New Game" button function
     public void StartNewGame()
     {
-        // Load the "MainScene" scene.
+        if (SaveLoadManager.Instance != null)
+        {
+            SaveLoadManager.Instance.DeleteSaveFile(saveFileName);
+        }
         SceneManager.LoadScene("MainScene");
     }
 
     // "Continue" button function
     public void OnContinueClicked()
     {
-        // Load the saved game from the SaveLoadManager
-        if (SaveLoadManager.Instance != null && SaveLoadManager.Instance.HasSaveFile())
-        {
-            SaveLoadManager.Instance.LoadGame();
-
-            // Once the game is loaded, switch to the main scene.
-            SceneManager.LoadScene("MainScene");
-        }
+        // 수정: 데이터를 직접 로드하는 로직을 제거합니다.
+        // 이제 MainScene으로 전환하는 역할만 담당합니다.
+        // GameManager가 OnSceneLoaded에서 데이터를 로드하게 됩니다.
+        SceneManager.LoadScene("MainScene");
     }
 
     // "How to Play" button function
     public void ShowHowToPlay()
     {
-        // Activate the "How to Play" panel.
         if (howToPlayPanel != null)
         {
             howToPlayPanel.SetActive(true);
@@ -56,7 +56,6 @@ public class TitleScreenManager : MonoBehaviour
     // "Close Panel" button function
     public void CloseHowToPlay()
     {
-        // Deactivate the "How to Play" panel.
         if (howToPlayPanel != null)
         {
             howToPlayPanel.SetActive(false);
@@ -66,11 +65,8 @@ public class TitleScreenManager : MonoBehaviour
     // "Quit Game" button function
     public void QuitGame()
     {
-        // Quit the application.
         Application.Quit();
-
 #if UNITY_EDITOR
-        // Code for testing in the Unity Editor.
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
     }

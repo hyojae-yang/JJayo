@@ -1,25 +1,10 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine; // ScriptableObject 사용을 위해 UnityEngine 네임스페이스 추가
 
-// 각 젖소의 위치 정보를 저장하는 클래스
-[Serializable]
-public class SavedAnimalData
-{
-    public float posX, posY;
-    // 추가적인 데이터 (예: 체력, 성장 단계 등)도 여기에 포함될 수 있습니다.
-}
-
-// 각 건물의 위치 정보를 저장하는 클래스
-[Serializable]
-public class SavedBuildingData
-{
-    public string buildingId;
-    public float posX, posY;
-    // 추가적인 데이터 (예: 건물 체력, 소유 여부 등)도 여기에 포함될 수 있습니다.
-}
-
-[Serializable]
-public class GameData
+// 유니티 에디터 메뉴에 'Create/Game Data' 항목을 추가합니다.
+[CreateAssetMenu(fileName = "New Game Data", menuName = "Game Data")]
+public class GameData : ScriptableObject
 {
     // 게임의 재화 및 명성
     public int money;
@@ -63,49 +48,37 @@ public class GameData
     public int traderOfferedPrice;
     public float traderCurrentEggPrice;
 
-    public GameData()
-    {
-        this.money = 50000;
-        this.reputation = 50;
-
-        this.pastureLevel = 0;
-
-        this.day = 1;
-        this.month = 1;
-        this.year = 1;
-
-        this.dailyMilkProduced = 0;
-        this.dailyEggsProduced = 0;
-        this.milkCount = 0;
-        this.milkAverageFreshness = 0f;
-        this.eggCount = 0;
-
-        this.hasGun = false;
-        this.gunLevel = 0;
-        this.basketLevel = 1;
-        this.milkerLevel = 1;
-        this.bulletCount = 0;
-
-        this.gunDamage = 10f;
-
-        this.ownedBuildingIds = new List<string>();
-        this.ownedEquipmentIds = new List<string>();
-
-        // ★★★ 추가된 부분: 새로운 리스트 초기화 ★★★
-        this.savedAnimals = new List<SavedAnimalData>();
-        this.savedBuildings = new List<SavedBuildingData>();
-
-        this.traderRequiredMilkAmount = 0;
-        this.traderRequiredFreshness = 0;
-        this.traderOfferedPrice = 0;
-        this.traderCurrentEggPrice = 0;
-    }
-
-    /// <summary>
-    /// 특정 건물을 보유하고 있는지 확인합니다.
-    /// </summary>
+    // IsBuildingOwned() 메서드는 그대로 유지됩니다.
     public bool IsBuildingOwned(string buildingId)
     {
         return ownedBuildingIds.Contains(buildingId);
     }
+
+    // ★★★ GameData() 생성자는 ScriptableObject에서 직접 사용되지 않으므로 제거합니다. ★★★
+    // 초기값 설정은 다음 단계에서 GameManager가 담당하게 됩니다.
+}
+
+// 각 젖소의 위치 정보를 저장하는 클래스 (변경 없음)
+[Serializable]
+public class SavedAnimalData
+{
+    public float posX, posY;
+}
+
+// 각 건물의 위치 정보를 저장하는 클래스 (변경 없음)
+[Serializable]
+public class SavedBuildingData
+{
+    public string buildingId;
+    public float posX, posY;
+}
+
+// 기존에 GameData 스크립트가 사용하던 열거형이 필요할 경우를 대비하여 추가
+// 이 부분은 기존 스크립트의 의존성에 따라 달라질 수 있습니다.
+public enum EquipmentType
+{
+    None,
+    Basket,
+    Milker,
+    Gun
 }

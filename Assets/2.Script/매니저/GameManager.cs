@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 using TMPro;
 using UnityEngine.SceneManagement;
@@ -10,7 +10,11 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     [Header("Game Data")]
-    public GameData gameData;
+    public GameData defaultGameData;
+
+    private GameData runtimeGameData;
+
+    public GameData CurrentGameData => runtimeGameData;
 
     [Header("Player UI")]
     [SerializeField] private TextMeshProUGUI reputationText;
@@ -31,8 +35,8 @@ public class GameManager : MonoBehaviour
     public GameObject cowPrefab;
     public List<GameObject> buildingPrefabs;
 
-    public int CurrentPastureLevel => gameData.pastureLevel;
-    public string CurrentDate => $"{gameData.year}³â {gameData.month}¿ù {gameData.day}ÀÏ";
+    public int CurrentPastureLevel => runtimeGameData.pastureLevel;
+    public string CurrentDate => $"{runtimeGameData.year}ë…„ {runtimeGameData.month}ì›” {runtimeGameData.day}ì¼";
 
     void Awake()
     {
@@ -47,53 +51,18 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (SaveLoadManager.Instance != null && SaveLoadManager.Instance.HasSaveFile())
-        {
-            GameData loadedData = SaveLoadManager.Instance.LoadGame();
-            if (loadedData != null)
-            {
-                gameData = loadedData;
-                Debug.Log("ºÒ·¯¿À±â ¼º°ø! GameData °´Ã¼°¡ ±³Ã¼µÇ¾ú½À´Ï´Ù.");
-            }
-            else
-            {
-                InitializeGame();
-                Debug.Log("ÀúÀå ÆÄÀÏÀÌ ¼Õ»óµÇ¾î »õ °ÔÀÓ ½ÃÀÛ.");
-            }
-        }
-        else
-        {
-            InitializeGame();
-            Debug.Log("ÀúÀå ÆÄÀÏÀÌ ¾ø¾î »õ °ÔÀÓ ½ÃÀÛ.");
-        }
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    private void OnApplicationQuit()
-    {
-        SaveGame();
-    }
+    // ì£¼ì„ ì²˜ë¦¬ëœ ë¶€ë¶„: ìë™ ì €ì¥ì„ ë¹„í™œì„±í™”í•©ë‹ˆë‹¤.
+    // private void OnApplicationQuit()
+    // {
+    //     SaveGame();
+    // }
 
     void Start()
     {
         InitializeReferences();
-
-        if (timeManager != null)
-        {
-            timeManager.Initialize(dayLengthInSeconds, gameData.year, gameData.month, gameData.day, gameData.reputation);
-        }
-
-        // MoneyManager´Â ÀÌÁ¦ InitializeMoney¸¦ È£ÃâÇÒ ÇÊ¿ä°¡ ¾ø½À´Ï´Ù.
-        // if (moneyManager != null)
-        // {
-        //     moneyManager.InitializeMoney(gameData.money);
-        // }
-
-        UpdateUI();
-    }
-
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
@@ -104,15 +73,59 @@ public class GameManager : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         InitializeReferences();
+        InitializeGameData();
+
+        if (timeManager != null)
+        {
+            timeManager.Initialize(dayLengthInSeconds, runtimeGameData.year, runtimeGameData.month, runtimeGameData.day, runtimeGameData.reputation);
+        }
+
         UpdateUI();
 
         if (PastureManager.Instance != null)
         {
             PastureManager.Instance.UpdateVisuals();
         }
+    }
 
-        // PlayerUI´Â OnEnable¿¡¼­ ÀÚµ¿À¸·Î ¸Å´ÏÀú¸¦ Ã£°í UI¸¦ ¾÷µ¥ÀÌÆ®ÇÏ¹Ç·Î
-        // GameManager¿¡¼­´Â UpdateUI¸¸ È£ÃâÇÏ¸é ÃæºĞÇÕ´Ï´Ù.
+    private void InitializeGameData()
+    {
+        string saveFileName = "default_save.json";
+
+        // ë‹¨ê³„ 1: defaultGameDataê°€ ì—°ê²°ë˜ì–´ ìˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
+        if (defaultGameData == null)
+        {
+            Debug.LogError("Error: 'Default Game Data' ì—ì…‹ì´ GameManagerì— ì—°ê²°ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. ê²Œì„ ì´ˆê¸°ê°’ì´ ëª¨ë‘ 0ìœ¼ë¡œ ì„¤ì •ë©ë‹ˆë‹¤.");
+            runtimeGameData = ScriptableObject.CreateInstance<GameData>();
+            return;
+        }
+
+        // ë‹¨ê³„ 2: ì €ì¥ íŒŒì¼ì´ ìˆëŠ”ì§€ í™•ì¸í•˜ì—¬ ë¡œì§ì„ ë¶„ê¸°í•©ë‹ˆë‹¤.
+        if (SaveLoadManager.Instance != null && SaveLoadManager.Instance.HasSaveFile(saveFileName))
+        {
+            string loadedJson = SaveLoadManager.Instance.LoadJsonData(saveFileName);
+            if (!string.IsNullOrEmpty(loadedJson))
+            {
+                // ì €ì¥ íŒŒì¼ì´ ì •ìƒì¼ ê²½ìš°:
+                // 1) ì´ˆê¸°ê°’ì„ ë¨¼ì € ë³µì œ
+                runtimeGameData = Instantiate(defaultGameData);
+                // 2) ë¡œë“œëœ ë°ì´í„°ë¡œ ë®ì–´ì“°ê¸°
+                JsonUtility.FromJsonOverwrite(loadedJson, runtimeGameData);
+                Debug.Log($"ë¶ˆëŸ¬ì˜¤ê¸° ì„±ê³µ! {saveFileName} íŒŒì¼ì˜ ë°ì´í„°ë¡œ ê²Œì„ì´ ì‹œì‘ë©ë‹ˆë‹¤.");
+            }
+            else
+            {
+                // ì €ì¥ íŒŒì¼ì´ ì†ìƒëœ ê²½ìš°: ì´ˆê¸°ê°’ìœ¼ë¡œ ì‹œì‘
+                Debug.LogWarning("ì €ì¥ íŒŒì¼ì´ ì†ìƒë˜ì–´ ì´ˆê¸°ê°’ìœ¼ë¡œ ì‹œì‘í•©ë‹ˆë‹¤.");
+                runtimeGameData = Instantiate(defaultGameData);
+            }
+        }
+        else
+        {
+            // ì €ì¥ íŒŒì¼ì´ ì—†ëŠ” ê²½ìš°: ì´ˆê¸°ê°’ìœ¼ë¡œ ì‹œì‘
+            Debug.Log("ì €ì¥ íŒŒì¼ì´ ì—†ì–´ ìƒˆ ê²Œì„ ì‹œì‘.");
+            runtimeGameData = Instantiate(defaultGameData);
+        }
     }
 
     private void InitializeReferences()
@@ -133,110 +146,11 @@ public class GameManager : MonoBehaviour
         if (mainCamera == null) mainCamera = Camera.main;
     }
 
-    private void InitializeGame()
-    {
-        gameData = new GameData();
-    }
-
     public void SaveGame()
     {
-        if (SaveLoadManager.Instance != null && gameData != null)
+        if (SaveLoadManager.Instance != null && runtimeGameData != null)
         {
-            GatherAnimalDataForSave();
-            GatherBuildingDataForSave();
-            SaveLoadManager.Instance.SaveGame(gameData);
-        }
-    }
-
-    private void GatherAnimalDataForSave()
-    {
-        gameData.savedAnimals.Clear();
-        if (AnimalManager.Instance != null)
-        {
-            foreach (var animal in AnimalManager.Instance.activeAnimals)
-            {
-                if (animal != null)
-                {
-                    SavedAnimalData data = new SavedAnimalData();
-                    data.posX = animal.transform.position.x;
-                    data.posY = animal.transform.position.y;
-                    gameData.savedAnimals.Add(data);
-                }
-            }
-        }
-    }
-
-    private void GatherBuildingDataForSave()
-    {
-        gameData.savedBuildings.Clear();
-        if (BuildingManager.Instance != null)
-        {
-            foreach (var building in BuildingManager.Instance.activeBuildings)
-            {
-                if (building != null)
-                {
-                    SavedBuildingData data = new SavedBuildingData();
-                    data.buildingId = building.name;
-                    data.posX = building.transform.position.x;
-                    data.posY = building.transform.position.y;
-                    gameData.savedBuildings.Add(data);
-                }
-            }
-        }
-    }
-
-    private void LoadAnimals()
-    {
-        if (AnimalManager.Instance != null)
-        {
-            foreach (var animal in AnimalManager.Instance.activeAnimals.ToArray())
-            {
-                Destroy(animal.gameObject);
-            }
-            AnimalManager.Instance.activeAnimals.Clear();
-        }
-
-        if (gameData.savedAnimals.Count > 0 && cowPrefab != null)
-        {
-            foreach (var savedData in gameData.savedAnimals)
-            {
-                Vector3 position = new Vector3(savedData.posX, savedData.posY, 0);
-                GameObject newCow = Instantiate(cowPrefab, position, Quaternion.identity);
-                Cow cowComponent = newCow.GetComponent<Cow>();
-                if (cowComponent != null && AnimalManager.Instance != null)
-                {
-                    AnimalManager.Instance.AddAnimal(cowComponent);
-                }
-            }
-        }
-    }
-
-    private void LoadBuildings()
-    {
-        if (BuildingManager.Instance != null)
-        {
-            foreach (var building in BuildingManager.Instance.activeBuildings.ToArray())
-            {
-                Destroy(building.gameObject);
-            }
-            BuildingManager.Instance.activeBuildings.Clear();
-        }
-
-        if (gameData.savedBuildings.Count > 0 && buildingPrefabs.Count > 0)
-        {
-            foreach (var savedData in gameData.savedBuildings)
-            {
-                GameObject buildingPrefab = buildingPrefabs.Find(p => p.name == savedData.buildingId);
-                if (buildingPrefab != null)
-                {
-                    Vector3 position = new Vector3(savedData.posX, savedData.posY, 0);
-                    GameObject newBuilding = Instantiate(buildingPrefab, position, Quaternion.identity);
-                    if (BuildingManager.Instance != null)
-                    {
-                        BuildingManager.Instance.AddBuilding(newBuilding);
-                    }
-                }
-            }
+            SaveLoadManager.Instance.SaveGame(runtimeGameData, "default_save.json");
         }
     }
 
@@ -244,18 +158,18 @@ public class GameManager : MonoBehaviour
     {
         if (reputationText != null)
         {
-            reputationText.text = $"¸í¼ºµµ: {gameData.reputation}";
+            reputationText.text = $"ëª…ì„±ë„: {runtimeGameData.reputation}";
         }
 
         if (playerUI != null)
         {
-            playerUI.UpdateDayText(gameData.day);
+            playerUI.UpdateDayText(runtimeGameData.day);
         }
     }
 
     public void ChangeReputation(int amount)
     {
-        gameData.reputation += amount;
+        runtimeGameData.reputation += amount;
         UpdateUI();
     }
 

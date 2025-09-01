@@ -115,11 +115,11 @@ public class PlayerUI : MonoBehaviour
         }
 
         UpdateAllGauges();
-        if (gameManager != null && gameManager.gameData != null)
+        if (gameManager != null && gameManager.CurrentGameData != null)
         {
-            UpdateMoney(gameManager.gameData.money);
+            UpdateMoney(gameManager.CurrentGameData.money);
         }
-        UpdateDayText(gameManager.gameData.day);
+        UpdateDayText(gameManager.CurrentGameData.day);
     }
 
     public void UpdateAllGauges()
@@ -164,25 +164,25 @@ public class PlayerUI : MonoBehaviour
 
     public void UpdateDayText(int day)
     {
-        if (dayText != null && gameManager != null && gameManager.gameData != null)
+        if (dayText != null && gameManager != null && gameManager.CurrentGameData != null)
         {
-            dayText.text = $"{gameManager.gameData.year}년 {gameManager.gameData.month}월 {day}일";
+            dayText.text = $"{gameManager.CurrentGameData.year}년 {gameManager.CurrentGameData.month}월 {day}일";
         }
     }
 
     public void UpdateMonthText()
     {
-        if (dayText != null && gameManager != null && gameManager.gameData != null)
+        if (dayText != null && gameManager != null && gameManager.CurrentGameData != null)
         {
-            dayText.text = $"{gameManager.gameData.year}년 {gameManager.gameData.month}월 {gameManager.gameData.day}일";
+            dayText.text = $"{gameManager.CurrentGameData.year}년 {gameManager.CurrentGameData.month}월 {gameManager.CurrentGameData.day}일";
         }
     }
 
     public void UpdateYearText()
     {
-        if (dayText != null && gameManager != null && gameManager.gameData != null)
+        if (dayText != null && gameManager != null && gameManager.CurrentGameData != null)
         {
-            dayText.text = $"{gameManager.gameData.year}년 {gameManager.gameData.month}월 {gameManager.gameData.day}일";
+            dayText.text = $"{gameManager.CurrentGameData.year}년 {gameManager.CurrentGameData.month}월 {gameManager.CurrentGameData.day}일";
         }
     }
 }

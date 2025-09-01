@@ -14,7 +14,7 @@ public class PastureManager : MonoBehaviour
     public PastureUpgradeData pastureUpgradeData;
 
     // 외부에서 목초지 레벨을 읽을 수 있도록 public 프로퍼티를 추가합니다.
-    public int CurrentPastureLevel => gameManager.gameData.pastureLevel;
+    public int CurrentPastureLevel => gameManager.CurrentGameData.pastureLevel;
 
     [Header("Visual Feedback")]
     public Color[] pastureColors;
@@ -61,12 +61,12 @@ public class PastureManager : MonoBehaviour
         }
 
         // UpgradePastureData의 다음 레벨을 확인합니다.
-        int nextLevel = gameManager.gameData.pastureLevel + 1;
+        int nextLevel = gameManager.CurrentGameData.pastureLevel + 1;
 
         if (nextLevel < pastureUpgradeData.upgradeLevels.Count)
         {
-            gameManager.gameData.pastureLevel = nextLevel;
-            Debug.Log($"Pasture upgraded to level {gameManager.gameData.pastureLevel}.");
+            gameManager.CurrentGameData.pastureLevel = nextLevel;
+            Debug.Log($"Pasture upgraded to level {gameManager.CurrentGameData.pastureLevel}.");
 
             // 업그레이드 후 시각적 업데이트를 호출합니다.
             UpdateVisuals();
@@ -82,9 +82,9 @@ public class PastureManager : MonoBehaviour
     /// </summary>
     public void UpdateVisuals()
     {
-        if (mainCamera != null && pastureColors.Length > gameManager.gameData.pastureLevel)
+        if (mainCamera != null && pastureColors.Length > gameManager.CurrentGameData.pastureLevel)
         {
-            mainCamera.backgroundColor = pastureColors[gameManager.gameData.pastureLevel];
+            mainCamera.backgroundColor = pastureColors[gameManager.CurrentGameData.pastureLevel];
         }
     }
 }

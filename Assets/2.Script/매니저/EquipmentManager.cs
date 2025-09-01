@@ -1,12 +1,5 @@
 using UnityEngine;
 
-public enum EquipmentType
-{
-    None,
-    Basket,
-    Milker,
-    Gun
-}
 
 public class EquipmentManager : MonoBehaviour
 {
@@ -27,19 +20,19 @@ public class EquipmentManager : MonoBehaviour
 
     public EquipmentType GetCurrentEquipment()
     {
-        if (GameManager.Instance != null && GameManager.Instance.gameData != null)
+        if (GameManager.Instance != null && GameManager.Instance.CurrentGameData != null)
         {
-            return GameManager.Instance.gameData.currentEquipment;
+            return GameManager.Instance.CurrentGameData.currentEquipment;
         }
         return EquipmentType.None;
     }
 
     public void Equip(EquipmentType newEquipment)
     {
-        if (GameManager.Instance != null && GameManager.Instance.gameData != null)
+        if (GameManager.Instance != null && GameManager.Instance.CurrentGameData != null)
         {
-            GameManager.Instance.gameData.currentEquipment = newEquipment;
-            GameManager.Instance.SaveGame();
+            // 수정: GameData만 업데이트하고 저장 로직은 제거합니다.
+            GameManager.Instance.CurrentGameData.currentEquipment = newEquipment;
         }
 
         string equipmentName = GetEquipmentName(newEquipment);

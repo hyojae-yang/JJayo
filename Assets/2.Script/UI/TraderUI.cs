@@ -57,7 +57,7 @@ public class TraderUI : MonoBehaviour
     private void Start()
     {
         // GameManager 인스턴스에서 GameData를 직접 가져옵니다.
-        gameData = GameManager.Instance.gameData;
+        gameData = GameManager.Instance.CurrentGameData;
         if (gameData == null)
         {
             Debug.LogError("GameData를 찾을 수 없습니다.");

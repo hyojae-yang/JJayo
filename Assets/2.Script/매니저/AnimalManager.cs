@@ -10,7 +10,7 @@ public class AnimalManager : MonoBehaviour
         {
             if (_instance == null)
             {
-                _instance = FindObjectOfType<AnimalManager>();
+                _instance = FindFirstObjectByType<AnimalManager>();
 
                 if (_instance == null)
                 {

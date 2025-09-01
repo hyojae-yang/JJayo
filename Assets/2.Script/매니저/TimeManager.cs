@@ -32,7 +32,7 @@ public class TimeManager : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.Instance == null || GameManager.Instance.gameData == null)
+        if (GameManager.Instance == null || GameManager.Instance.CurrentGameData == null)
         {
             return;
         }
@@ -53,35 +53,35 @@ public class TimeManager : MonoBehaviour
     public void Initialize(float dayLength, int year, int month, int day, int reputation)
     {
         dayLengthInSeconds = dayLength;
-        if (GameManager.Instance != null && GameManager.Instance.gameData != null)
+        if (GameManager.Instance != null && GameManager.Instance.CurrentGameData != null)
         {
-            GameManager.Instance.gameData.year = year;
-            GameManager.Instance.gameData.month = month;
-            GameManager.Instance.gameData.day = day;
-            GameManager.Instance.gameData.reputation = reputation;
+            GameManager.Instance.CurrentGameData.year = year;
+            GameManager.Instance.CurrentGameData.month = month;
+            GameManager.Instance.CurrentGameData.day = day;
+            GameManager.Instance.CurrentGameData.reputation = reputation;
         }
     }
 
     private void PassOneDay()
     {
-        if (GameManager.Instance != null && GameManager.Instance.gameData != null)
+        if (GameManager.Instance != null && GameManager.Instance.CurrentGameData != null)
         {
-            GameManager.Instance.gameData.dailyMilkProduced = 0;
-            GameManager.Instance.gameData.dailyEggsProduced = 0;
-            GameManager.Instance.gameData.day++;
-            OnDayChanged?.Invoke(GameManager.Instance.gameData.day);
+            GameManager.Instance.CurrentGameData.dailyMilkProduced = 0;
+            GameManager.Instance.CurrentGameData.dailyEggsProduced = 0;
+            GameManager.Instance.CurrentGameData.day++;
+            OnDayChanged?.Invoke(GameManager.Instance.CurrentGameData.day);
 
-            if (GameManager.Instance.gameData.day > 30)
+            if (GameManager.Instance.CurrentGameData.day > 30)
             {
-                GameManager.Instance.gameData.day = 1;
-                GameManager.Instance.gameData.month++;
+                GameManager.Instance.CurrentGameData.day = 1;
+                GameManager.Instance.CurrentGameData.month++;
                 OnMonthChanged?.Invoke();
             }
 
-            if (GameManager.Instance.gameData.month > 12)
+            if (GameManager.Instance.CurrentGameData.month > 12)
             {
-                GameManager.Instance.gameData.month = 1;
-                GameManager.Instance.gameData.year++;
+                GameManager.Instance.CurrentGameData.month = 1;
+                GameManager.Instance.CurrentGameData.year++;
                 OnYearChanged?.Invoke();
             }
         }

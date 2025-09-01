@@ -43,11 +43,11 @@ public class PlayerInventory : MonoBehaviour
     {
         get
         {
-            if (GameManager.Instance == null || GameManager.Instance.gameData.basketLevel <= 0 || basketUpgradeData == null)
+            if (GameManager.Instance == null || GameManager.Instance.CurrentGameData.basketLevel <= 0 || basketUpgradeData == null)
             {
                 return 0;
             }
-            return basketUpgradeData.GetCapacity(GameManager.Instance.gameData.basketLevel);
+            return basketUpgradeData.GetCapacity(GameManager.Instance.CurrentGameData.basketLevel);
         }
     }
 
@@ -55,11 +55,11 @@ public class PlayerInventory : MonoBehaviour
     {
         get
         {
-            if (GameManager.Instance == null || GameManager.Instance.gameData.milkerLevel <= 0 || milkerUpgradeData == null)
+            if (GameManager.Instance == null || GameManager.Instance.CurrentGameData.milkerLevel <= 0 || milkerUpgradeData == null)
             {
                 return 0;
             }
-            return milkerUpgradeData.GetCapacity(GameManager.Instance.gameData.milkerLevel);
+            return milkerUpgradeData.GetCapacity(GameManager.Instance.CurrentGameData.milkerLevel);
         }
     }
 
@@ -67,11 +67,11 @@ public class PlayerInventory : MonoBehaviour
     {
         get
         {
-            if (GameManager.Instance == null || GameManager.Instance.gameData.milkerLevel <= 0 || milkerUpgradeData == null)
+            if (GameManager.Instance == null || GameManager.Instance.CurrentGameData.milkerLevel <= 0 || milkerUpgradeData == null)
             {
                 return 0;
             }
-            return milkerUpgradeData.GetMilkingYield(GameManager.Instance.gameData.milkerLevel);
+            return milkerUpgradeData.GetMilkingYield(GameManager.Instance.CurrentGameData.milkerLevel);
         }
     }
 
@@ -79,11 +79,11 @@ public class PlayerInventory : MonoBehaviour
     {
         get
         {
-            if (GameManager.Instance == null || GameManager.Instance.gameData.gunLevel <= 0 || gunUpgradeData == null)
+            if (GameManager.Instance == null || GameManager.Instance.CurrentGameData.gunLevel <= 0 || gunUpgradeData == null)
             {
                 return 0;
             }
-            return gunUpgradeData.GetDamage(GameManager.Instance.gameData.gunLevel);
+            return gunUpgradeData.GetDamage(GameManager.Instance.CurrentGameData.gunLevel);
         }
     }
 
@@ -186,6 +186,6 @@ public class PlayerInventory : MonoBehaviour
     public void AddBullets(int amount)
     {
         currentBullets += amount;
-        GameManager.Instance.gameData.bulletCount = currentBullets;
+        GameManager.Instance.CurrentGameData.bulletCount = currentBullets;
     }
 }

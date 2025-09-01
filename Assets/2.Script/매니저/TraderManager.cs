@@ -39,7 +39,7 @@ public class TraderManager : MonoBehaviour
 
     void Start()
     {
-        gameData = GameManager.Instance.gameData;
+        gameData = GameManager.Instance.CurrentGameData;
         if (gameData == null) Debug.LogError("GameData를 찾을 수 없습니다.");
 
         if (TimeManager.Instance != null)

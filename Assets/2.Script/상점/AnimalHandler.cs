@@ -3,16 +3,35 @@ using System.Collections.Generic;
 
 public class AnimalHandler : MonoBehaviour
 {
+    private static AnimalHandler m_instance;
+    public static AnimalHandler Instance
+    {
+        get
+        {
+            if (m_instance == null)
+            {
+                m_instance = FindFirstObjectByType<AnimalHandler>();
+            }
+            return m_instance;
+        }
+    }
+
+    private void Awake()
+    {
+        if (m_instance == null)
+        {
+            m_instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     public ObjectPool cowObjectPool;
     public List<Transform> cowSpawnPoints;
 
     private ChickenCoop _chickenCoop;
-
-    private void Awake()
-    {
-        // AnimalManager와는 직접 연결하지 않습니다.
-        // AnimalManager는 AnimalHandler가 호출할 때만 사용됩니다.
-    }
 
     public void RegisterChickenCoop(ChickenCoop coop)
     {
@@ -47,19 +66,18 @@ public class AnimalHandler : MonoBehaviour
             {
                 newCowObj.transform.position = cowSpawnPoints[0].position;
                 cowSpawnPoints.RemoveAt(0);
-                NotificationManager.Instance.ShowNotification("젖소를 구매했습니다!");
+                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("젖소를 구매했습니다!");
 
-                // ★★★ 수정된 부분: Cow 스크립트를 직접 가져온 후 AnimalManager에 전달합니다. ★★★
                 Cow newCowComponent = newCowObj.GetComponent<Cow>();
 
                 if (newCowComponent != null)
                 {
-                    AnimalManager.Instance.AddAnimal(newCowComponent);
+                    if (AnimalManager.Instance != null) AnimalManager.Instance.AddAnimal(newCowComponent);
                 }
             }
             else
             {
-                NotificationManager.Instance.ShowNotification("젖소를 놓을 자리가 없습니다.");
+                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("젖소를 놓을 자리가 없습니다.");
             }
         }
         else if (animalData.animalType == AnimalType.Chicken)
@@ -67,22 +85,22 @@ public class AnimalHandler : MonoBehaviour
             if (_chickenCoop != null)
             {
                 _chickenCoop.AddChicken();
-                NotificationManager.Instance.ShowNotification("닭을 구매했습니다.");
+                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("닭을 구매했습니다.");
             }
             else
             {
-                NotificationManager.Instance.ShowNotification("닭장을 찾을 수 없습니다.");
+                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("닭장을 찾을 수 없습니다.");
             }
         }
     }
 
     public void Sell(Animal animalToSell, int price)
     {
-        GameData gameData = GameManager.Instance.gameData;
+        GameData gameData = GameManager.Instance.CurrentGameData;
         gameData.money += price;
-        NotificationManager.Instance.ShowNotification(animalToSell.animalData.animalName + "을(를) " + price + "원에 판매했습니다!");
+        if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification(animalToSell.animalData.animalName + "을(를) " + price + "원에 판매했습니다!");
 
-        AnimalManager.Instance.RemoveAnimal(animalToSell);
+        if (AnimalManager.Instance != null) AnimalManager.Instance.RemoveAnimal(animalToSell);
 
         if (cowObjectPool != null)
         {

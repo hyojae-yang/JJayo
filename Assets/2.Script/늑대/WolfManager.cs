@@ -43,7 +43,7 @@ public class WolfManager : MonoBehaviour
     {
         eventDates.Clear();
 
-        int currentMonth = GameManager.Instance.gameData.month;
+        int currentMonth = GameManager.Instance.CurrentGameData.month;
         int maxEventCount;
 
         if (currentMonth <= 3)
@@ -84,7 +84,7 @@ public class WolfManager : MonoBehaviour
     {
         if (eventDates.Contains(currentDay))
         {
-            int currentYear = GameManager.Instance.gameData.year;
+            int currentYear = GameManager.Instance.CurrentGameData.year;
             int minWolves, maxWolves;
 
             if (currentYear == 1)
@@ -160,7 +160,7 @@ public class WolfManager : MonoBehaviour
             Wolf wolfScript = wolfObj.GetComponent<Wolf>();
             if (wolfScript != null)
             {
-                int currentYear = GameManager.Instance.gameData.year;
+                int currentYear = GameManager.Instance.CurrentGameData.year;
                 float scaledHealth = baseHealth * Mathf.Pow(difficultyScale, currentYear - 1);
                 float scaledDamage = baseDamage * Mathf.Pow(difficultyScale, currentYear - 1);
 

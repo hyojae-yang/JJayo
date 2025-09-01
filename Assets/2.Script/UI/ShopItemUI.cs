@@ -44,7 +44,7 @@ public class ShopItemUI : MonoBehaviour
         }
         else if (itemData.itemType == ItemType.Building)
         {
-            bool isOwned = _shopUI.shopService.gameManager.gameData.IsBuildingOwned(itemData.buildingData.buildingId);
+            bool isOwned = _shopUI.shopService.gameManager.CurrentGameData.IsBuildingOwned(itemData.buildingData.buildingId);
 
             if (isOwned)
             {
@@ -94,10 +94,10 @@ public class ShopItemUI : MonoBehaviour
 
     private int GetCurrentUpgradeLevel()
     {
-        if (_currentItemData.upgradeData is BasketUpgradeData) return _shopUI.shopService.gameManager.gameData.basketLevel;
-        if (_currentItemData.upgradeData is MilkerUpgradeData) return _shopUI.shopService.gameManager.gameData.milkerLevel;
-        if (_currentItemData.upgradeData is GunUpgradeData) return _shopUI.shopService.gameManager.gameData.gunLevel;
-        if (_currentItemData.upgradeData is PastureUpgradeData) return _shopUI.shopService.gameManager.gameData.pastureLevel;
+        if (_currentItemData.upgradeData is BasketUpgradeData) return _shopUI.shopService.gameManager.CurrentGameData.basketLevel;
+        if (_currentItemData.upgradeData is MilkerUpgradeData) return _shopUI.shopService.gameManager.CurrentGameData.milkerLevel;
+        if (_currentItemData.upgradeData is GunUpgradeData) return _shopUI.shopService.gameManager.CurrentGameData.gunLevel;
+        if (_currentItemData.upgradeData is PastureUpgradeData) return _shopUI.shopService.gameManager.CurrentGameData.pastureLevel;
         return 0;
     }
 }

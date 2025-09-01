@@ -3,19 +3,35 @@ using System.Collections.Generic;
 
 public class EquipmentHandler : MonoBehaviour
 {
-    private GameData gameData;
-    public UpgradeHandler upgradeHandler; // UpgradeHandler 참조 추가
+    private static EquipmentHandler m_instance;
+    public static EquipmentHandler Instance
+    {
+        get
+        {
+            if (m_instance == null)
+            {
+                m_instance = FindFirstObjectByType<EquipmentHandler>();
+            }
+            return m_instance;
+        }
+    }
 
     private void Awake()
     {
+        if (m_instance == null)
+        {
+            m_instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
         if (GameManager.Instance != null)
         {
-            gameData = GameManager.Instance.gameData;
+            gameData = GameManager.Instance.CurrentGameData;
         }
-        // UpgradeHandler를 찾아 연결
-        upgradeHandler = FindFirstObjectByType<UpgradeHandler>();
 
-        // ★★★ 추가된 부분: 게임 시작 시 바구니와 착유기를 소유한 상태로 설정합니다. ★★★
         if (gameData != null)
         {
             if (!gameData.ownedEquipmentIds.Contains("Basket"))
@@ -29,7 +45,8 @@ public class EquipmentHandler : MonoBehaviour
         }
     }
 
-    // 장비 아이템 구매 가능 여부를 확인합니다.
+    private GameData gameData;
+
     public bool CanBuy(EquipmentData equipmentData)
     {
         if (gameData == null)
@@ -41,7 +58,6 @@ public class EquipmentHandler : MonoBehaviour
         return !gameData.ownedEquipmentIds.Contains(equipmentData.id);
     }
 
-    // 장비 아이템 구매를 처리합니다.
     public void Purchase(EquipmentData equipmentData)
     {
         if (gameData == null)
@@ -54,17 +70,17 @@ public class EquipmentHandler : MonoBehaviour
 
         if (equipmentData.id == "Gun")
         {
-            upgradeHandler.InitializeLevel(UpgradeType.Gun);
+            if (UpgradeHandler.Instance != null) UpgradeHandler.Instance.InitializeLevel(UpgradeType.Gun);
         }
         else if (equipmentData.id == "Basket")
         {
-            upgradeHandler.InitializeLevel(UpgradeType.Basket);
+            if (UpgradeHandler.Instance != null) UpgradeHandler.Instance.InitializeLevel(UpgradeType.Basket);
         }
         else if (equipmentData.id == "Milker")
         {
-            upgradeHandler.InitializeLevel(UpgradeType.Milker);
+            if (UpgradeHandler.Instance != null) UpgradeHandler.Instance.InitializeLevel(UpgradeType.Milker);
         }
 
-        NotificationManager.Instance.ShowNotification(equipmentData.equipmentType + "을(를) 구매했습니다!");
+        if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification(equipmentData.equipmentType + "을(를) 구매했습니다!");
     }
 }

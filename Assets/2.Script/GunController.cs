@@ -9,11 +9,11 @@ public class GunController : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 // ★★★ 수정된 부분: GameData에서 총알 개수를 직접 확인합니다. ★★★
-                if (GameManager.Instance.gameData.bulletCount > 0)
+                if (GameManager.Instance.CurrentGameData.bulletCount > 0)
                 {
                     Shoot();
                     // ★★★ 수정된 부분: GameData에서 총알을 직접 소모시킵니다. ★★★
-                    GameManager.Instance.gameData.bulletCount -= 1;
+                    GameManager.Instance.CurrentGameData.bulletCount -= 1;
                 }
                 else
                 {
@@ -37,14 +37,14 @@ public class GunController : MonoBehaviour
             {
                 // 총기 데미지 값도 GameData에서 가져와야 합니다.
                 // PlayerInventory는 현재 스크립트에서 더 이상 총알을 관리하지 않습니다.
-                wolfTarget.TakeDamage(GameManager.Instance.gameData.gunDamage);
+                wolfTarget.TakeDamage(GameManager.Instance.CurrentGameData.gunDamage);
                 NotificationManager.Instance.ShowNotification("늑대를 맞췄습니다!");
                 return;
             }
 
             if (animalTarget != null && animalTarget.animalData != null)
             {
-                animalTarget.TakeDamage(GameManager.Instance.gameData.gunDamage, gameObject);
+                animalTarget.TakeDamage(GameManager.Instance.CurrentGameData.gunDamage, gameObject);
                 NotificationManager.Instance.ShowNotification("불쌍한 젖소를 쏘다니!");
             }
         }

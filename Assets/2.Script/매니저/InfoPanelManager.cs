@@ -104,7 +104,7 @@ public class InfoPanelManager : MonoBehaviour
         // 목장 정보
         if (pastureManager != null && pastureManager.pastureUpgradeData != null)
         {
-            int level = gameManager.gameData.pastureLevel;
+            int level = gameManager.CurrentGameData.pastureLevel;
             pastureLevelText.text = $"레벨: {level}";
             var freshnessRange = pastureManager.pastureUpgradeData.GetFreshnessRange(level);
             pastureStatsText.text = $"신선도 범위: {freshnessRange.min}% ~ {freshnessRange.max}%";
@@ -121,7 +121,7 @@ public class InfoPanelManager : MonoBehaviour
         var basketUpgradeData = allShopItems.FirstOrDefault(i => i.upgradeData is BasketUpgradeData)?.upgradeData as BasketUpgradeData;
         if (basketLevelText != null && basketStatsText != null && basketUpgradeData != null)
         {
-            int level = gameManager.gameData.basketLevel;
+            int level = gameManager.CurrentGameData.basketLevel;
             int capacity = basketUpgradeData.GetCapacity(level);
             basketLevelText.text = $"레벨: {level}";
             basketStatsText.text = $"용량: {capacity}개";
@@ -131,7 +131,7 @@ public class InfoPanelManager : MonoBehaviour
         var milkerUpgradeData = allShopItems.FirstOrDefault(i => i.upgradeData is MilkerUpgradeData)?.upgradeData as MilkerUpgradeData;
         if (milkerLevelText != null && milkerStatsText != null && milkerUpgradeData != null)
         {
-            int level = gameManager.gameData.milkerLevel;
+            int level = gameManager.CurrentGameData.milkerLevel;
             int capacity = milkerUpgradeData.GetCapacity(level);
             int milkingYield = milkerUpgradeData.GetMilkingYield(level);
             milkerLevelText.text = $"레벨: {level}";
@@ -142,7 +142,7 @@ public class InfoPanelManager : MonoBehaviour
         var gunUpgradeData = allShopItems.FirstOrDefault(i => i.upgradeData is GunUpgradeData)?.upgradeData as GunUpgradeData;
         if (gunLevelText != null && gunStatsText != null && gunUpgradeData != null)
         {
-            int level = gameManager.gameData.gunLevel;
+            int level = gameManager.CurrentGameData.gunLevel;
             float damage = gunUpgradeData.GetDamage(level);
             gunLevelText.text = $"레벨: {level}";
             gunStatsText.text = $"데미지: {damage:F1}";
@@ -170,13 +170,13 @@ public class InfoPanelManager : MonoBehaviour
         if (gameManager != null)
         {
             if (dailyMilkText != null)
-                dailyMilkText.text = $"{gameManager.gameData.dailyMilkProduced}개";
+                dailyMilkText.text = $"{gameManager.CurrentGameData.dailyMilkProduced}개";
             if (dailyEggText != null)
-                dailyEggText.text = $"{gameManager.gameData.dailyEggsProduced}개";
-
+                dailyEggText.text = $"{gameManager.CurrentGameData.dailyEggsProduced}개";
+                
             if (bulletsCountText != null)
             {
-                bulletsCountText.text = $"총알:{gameManager.gameData.bulletCount}개";
+                bulletsCountText.text = $"총알:{gameManager.CurrentGameData.bulletCount}개";
             }
         }
     }

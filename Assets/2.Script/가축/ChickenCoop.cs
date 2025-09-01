@@ -49,9 +49,9 @@ public class ChickenCoop : MonoBehaviour
             currentEggCount++;
             productionTimer = 0f;
             // ★★★ 추가된 부분: 달걀 생산량 기록 ★★★
-            if (GameManager.Instance != null && GameManager.Instance.gameData != null)
+            if (GameManager.Instance != null && GameManager.Instance.CurrentGameData != null)
             {
-                GameManager.Instance.gameData.dailyEggsProduced++;
+                GameManager.Instance.CurrentGameData.dailyEggsProduced++;
             }
         }
     }

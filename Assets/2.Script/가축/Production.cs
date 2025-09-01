@@ -34,9 +34,9 @@ public class Production : MonoBehaviour
             productionTimer = 0f;
 
             // ★★★ 추가된 로직: 일일 우유 생산량 기록 ★★★
-            if (GameManager.Instance != null && GameManager.Instance.gameData != null)
+            if (GameManager.Instance != null && GameManager.Instance.CurrentGameData != null)
             {
-                GameManager.Instance.gameData.dailyMilkProduced++;
+                GameManager.Instance.CurrentGameData.dailyMilkProduced++;
             }
 
             if (freshness != null)

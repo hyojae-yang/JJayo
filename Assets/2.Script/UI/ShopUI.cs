@@ -32,7 +32,7 @@ public class ShopUI : MonoBehaviour
     private Animal animalToSell;
     private bool isSellingChicken = false;
 
-    private void Awake()
+    private void OnEnable()
     {
         if (shopService == null)
         {
@@ -55,6 +55,10 @@ public class ShopUI : MonoBehaviour
 
     public void ShowShop()
     {
+        if (shopService == null)
+        {
+            shopService = ShopService.Instance;
+        }
         shopPanel.SetActive(true);
         ShowBuyPanel();
         Time.timeScale = 0f;
@@ -188,11 +192,11 @@ public class ShopUI : MonoBehaviour
 
     private int GetCurrentUpgradeLevelForConfirmation(UpgradeData upgradeData)
     {
-        if (shopService.gameManager.gameData == null) return 0;
-        if (upgradeData is BasketUpgradeData) return shopService.gameManager.gameData.basketLevel;
-        if (upgradeData is MilkerUpgradeData) return shopService.gameManager.gameData.milkerLevel;
-        if (upgradeData is GunUpgradeData) return shopService.gameManager.gameData.gunLevel;
-        if (upgradeData is PastureUpgradeData) return shopService.gameManager.gameData.pastureLevel;
+        if (shopService.gameManager.CurrentGameData == null) return 0;
+        if (upgradeData is BasketUpgradeData) return shopService.gameManager.CurrentGameData.basketLevel;
+        if (upgradeData is MilkerUpgradeData) return shopService.gameManager.CurrentGameData.milkerLevel;
+        if (upgradeData is GunUpgradeData) return shopService.gameManager.CurrentGameData.gunLevel;
+        if (upgradeData is PastureUpgradeData) return shopService.gameManager.CurrentGameData.pastureLevel;
         return 0;
     }
 

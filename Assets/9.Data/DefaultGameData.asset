@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78a660de97df56a4dbe97c88838de4a1, type: 3}
+  m_Name: DefaultGameData
+  m_EditorClassIdentifier: 
+  money: 50000
+  reputation: 50
+  day: 1
+  month: 1
+  year: 1
+  dailyMilkProduced: 0
+  dailyEggsProduced: 0
+  milkCount: 0
+  milkAverageFreshness: 0
+  eggCount: 0
+  pastureLevel: 0
+  hasGun: 0
+  gunLevel: 0
+  basketLevel: 1
+  milkerLevel: 1
+  bulletCount: 0
+  gunDamage: 0
+  currentEquipment: 2
+  ownedBuildingIds: []
+  ownedEquipmentIds: []
+  savedAnimals: []
+  savedBuildings: []
+  traderRequiredMilkAmount: 0
+  traderRequiredFreshness: 0
+  traderOfferedPrice: 0
+  traderCurrentEggPrice: 0

@@ -37,7 +37,7 @@ public class EquipmentButton : MonoBehaviour
     public void OnClickChangeEquipment()
     {
         // 현재 레벨 데이터를 가져옵니다.
-        var gameData = GameManager.Instance.gameData;
+        var gameData = GameManager.Instance.CurrentGameData;
         int initialIndex = currentIndex; // 무한 루프 방지용
 
         do
