@@ -19,4 +19,5 @@ MonoBehaviour:
   productionInterval: 2
   productData: {fileID: 11400000, guid: c469b33cce22deb46897420c90246098, type: 2}
   maxProductionCount: 10
+  animalId: Cow
   animalType: 0

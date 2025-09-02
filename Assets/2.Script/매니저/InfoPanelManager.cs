@@ -1,11 +1,12 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using TMPro;
 using System;
-using System.Linq; // LINQ¸¦ »ç¿ëÇÏ±â À§ÇØ Ãß°¡
+using System.Linq;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class InfoPanelManager : MonoBehaviour
 {
-    // ½Ì±ÛÅæ ÀÎ½ºÅÏ½º
     public static InfoPanelManager Instance { get; private set; }
 
     [Header("UI Panels")]
@@ -33,7 +34,9 @@ public class InfoPanelManager : MonoBehaviour
     public TextMeshProUGUI dailyEggText;
     public TextMeshProUGUI bulletsCountText;
 
-    // ÇÊ¿äÇÑ ¸Å´ÏÀúµéÀ» ÂüÁ¶ º¯¼ö·Î Ãß°¡
+    [Header("General UI")]
+    public TextMeshProUGUI reputationText;
+
     private GameManager gameManager;
     private PlayerInventory playerInventory;
     private Warehouse warehouse;
@@ -57,6 +60,16 @@ public class InfoPanelManager : MonoBehaviour
         playerInventory = PlayerInventory.Instance;
         warehouse = Warehouse.Instance;
         pastureManager = PastureManager.Instance;
+
+        UpdateReputationUI();
+    }
+
+    public void UpdateReputationUI()
+    {
+        if (reputationText != null && gameManager != null && gameManager.CurrentGameData != null)
+        {
+            reputationText.text = $"ëª…ì„±ë„: {gameManager.CurrentGameData.reputation}";
+        }
     }
 
     public void ToggleInfoPanel()
@@ -101,51 +114,45 @@ public class InfoPanelManager : MonoBehaviour
     {
         var allShopItems = ShopService.Instance.GetShopItems();
 
-        // ¸ñÀå Á¤º¸
         if (pastureManager != null && pastureManager.pastureUpgradeData != null)
         {
             int level = gameManager.CurrentGameData.pastureLevel;
-            pastureLevelText.text = $"·¹º§: {level}";
+            pastureLevelText.text = $"ë ˆë²¨: {level}";
             var freshnessRange = pastureManager.pastureUpgradeData.GetFreshnessRange(level);
-            pastureStatsText.text = $"½Å¼±µµ ¹üÀ§: {freshnessRange.min}% ~ {freshnessRange.max}%";
+            pastureStatsText.text = $"ì‹ ì„ ë„ ë²”ìœ„: {freshnessRange.min}% ~ {freshnessRange.max}%";
         }
         else
         {
-            if (pastureLevelText != null) pastureLevelText.text = "·¹º§: 0";
-            if (pastureStatsText != null) pastureStatsText.text = "´É·ÂÄ¡ Á¤º¸ ¾øÀ½";
+            if (pastureLevelText != null) pastureLevelText.text = "ë ˆë²¨: 0";
+            if (pastureStatsText != null) pastureStatsText.text = "ëŠ¥ë ¥ì¹˜ ì •ë³´ ì—†ìŒ";
         }
 
-        // ¡Ú¡Ú¡Ú ÀÌÁ¦ UpgradeData¿¡¼­ Á÷Á¢ ´É·ÂÄ¡ Á¤º¸¸¦ °¡Á®¿É´Ï´Ù.
-
-        // ¹Ù±¸´Ï Á¤º¸
         var basketUpgradeData = allShopItems.FirstOrDefault(i => i.upgradeData is BasketUpgradeData)?.upgradeData as BasketUpgradeData;
         if (basketLevelText != null && basketStatsText != null && basketUpgradeData != null)
         {
             int level = gameManager.CurrentGameData.basketLevel;
             int capacity = basketUpgradeData.GetCapacity(level);
-            basketLevelText.text = $"·¹º§: {level}";
-            basketStatsText.text = $"¿ë·®: {capacity}°³";
+            basketLevelText.text = $"ë ˆë²¨: {level}";
+            basketStatsText.text = $"ìš©ëŸ‰: {capacity}ê°œ";
         }
 
-        // ÂøÀ¯±â Á¤º¸
         var milkerUpgradeData = allShopItems.FirstOrDefault(i => i.upgradeData is MilkerUpgradeData)?.upgradeData as MilkerUpgradeData;
         if (milkerLevelText != null && milkerStatsText != null && milkerUpgradeData != null)
         {
             int level = gameManager.CurrentGameData.milkerLevel;
             int capacity = milkerUpgradeData.GetCapacity(level);
             int milkingYield = milkerUpgradeData.GetMilkingYield(level);
-            milkerLevelText.text = $"·¹º§: {level}";
-            milkerStatsText.text = $"¿ë·®: {capacity}L\nÂøÀ¯·®: {milkingYield}°³";
+            milkerLevelText.text = $"ë ˆë²¨: {level}";
+            milkerStatsText.text = $"ìš©ëŸ‰: {capacity}L\nì°©ìœ ëŸ‰: {milkingYield}ê°œ";
         }
 
-        // ÃÑ±â Á¤º¸
         var gunUpgradeData = allShopItems.FirstOrDefault(i => i.upgradeData is GunUpgradeData)?.upgradeData as GunUpgradeData;
         if (gunLevelText != null && gunStatsText != null && gunUpgradeData != null)
         {
             int level = gameManager.CurrentGameData.gunLevel;
             float damage = gunUpgradeData.GetDamage(level);
-            gunLevelText.text = $"·¹º§: {level}";
-            gunStatsText.text = $"µ¥¹ÌÁö: {damage:F1}";
+            gunLevelText.text = $"ë ˆë²¨: {level}";
+            gunStatsText.text = $"ë°ë¯¸ì§€: {damage:F1}";
         }
     }
 
@@ -154,30 +161,45 @@ public class InfoPanelManager : MonoBehaviour
         if (warehouse != null)
         {
             if (milkCountText != null)
-                milkCountText.text = $"{warehouse.GetMilkCount()}°³";
+                milkCountText.text = $"{warehouse.GetMilkCount()}ê°œ";
             if (eggCountText != null)
-                eggCountText.text = $"{warehouse.GetEggCount()}°³";
+                eggCountText.text = $"{warehouse.GetEggCount()}ê°œ";
             if (avgFreshnessText != null)
                 avgFreshnessText.text = $"{warehouse.GetAverageMilkFreshness():F2}%";
         }
         else
         {
-            if (milkCountText != null) milkCountText.text = "0°³";
-            if (eggCountText != null) eggCountText.text = "0°³";
+            if (milkCountText != null) milkCountText.text = "0ê°œ";
+            if (eggCountText != null) eggCountText.text = "0ê°œ";
             if (avgFreshnessText != null) avgFreshnessText.text = "0.00%";
         }
 
         if (gameManager != null)
         {
             if (dailyMilkText != null)
-                dailyMilkText.text = $"{gameManager.CurrentGameData.dailyMilkProduced}°³";
+                dailyMilkText.text = $"{gameManager.CurrentGameData.dailyMilkProduced}ê°œ";
             if (dailyEggText != null)
-                dailyEggText.text = $"{gameManager.CurrentGameData.dailyEggsProduced}°³";
-                
+                dailyEggText.text = $"{gameManager.CurrentGameData.dailyEggsProduced}ê°œ";
+
             if (bulletsCountText != null)
             {
-                bulletsCountText.text = $"ÃÑ¾Ë:{gameManager.CurrentGameData.bulletCount}°³";
+                bulletsCountText.text = $"ì´ì•Œ:{gameManager.CurrentGameData.bulletCount}ê°œ";
             }
+        }
+    }
+
+    public void GoToTitleScene()
+    {
+        SceneManager.LoadScene("TitleScene");
+    }
+
+    public void OnSaveButtonClicked()
+    {
+        if (gameManager != null)
+        {
+            // â˜…â˜…â˜… GameManagerì— ì €ì¥ ëª…ë ¹ë§Œ ë‚´ë¦¬ë©´ ë¨ â˜…â˜…â˜…
+            gameManager.SaveGame();
+            Debug.Log($"ê²Œì„ì´ ì €ì¥ë˜ì—ˆìŠµë‹ˆë‹¤!");
         }
     }
 }

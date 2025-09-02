@@ -4,9 +4,10 @@ using System.IO;
 public class SaveLoadManager : MonoBehaviour
 {
     public static SaveLoadManager Instance { get; private set; }
-    private string savePathRoot;
 
-    private void Awake()
+    [HideInInspector] public string nextLoadFileName;
+
+    void Awake()
     {
         if (Instance == null)
         {
@@ -17,75 +18,74 @@ public class SaveLoadManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-        savePathRoot = Application.persistentDataPath;
-        Debug.Log("Game data save path root: " + savePathRoot);
     }
 
-    public void SaveGame(GameData dataToSave, string fileName)
+    public void SetNextLoadFileName(string fileName)
     {
-        if (dataToSave == null)
-        {
-            Debug.LogError("GameData 객체가 없어 저장에 실패했습니다.");
-            return;
-        }
+        nextLoadFileName = fileName;
+        Debug.Log($"다음에 로드할 파일명으로 '{fileName}'이 설정되었습니다.");
+    }
 
-        string fullPath = Path.Combine(savePathRoot, fileName);
-        string json = JsonUtility.ToJson(dataToSave, true);
+    public void SaveGame(GameData data, string saveFileName)
+    {
+        string json = JsonUtility.ToJson(data);
+        string path = GetFilePath(saveFileName);
 
         try
         {
-            File.WriteAllText(fullPath, json);
-            Debug.Log("게임이 성공적으로 저장되었습니다! 경로: " + fullPath);
+            File.WriteAllText(path, json);
+            Debug.Log($"게임 저장 성공! '{path}'");
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"게임 저장 실패: {e.Message}");
+            Debug.LogError($"파일 저장 중 오류 발생: {e.Message}");
         }
     }
 
-    // ★★★ 이 메서드가 누락되었었습니다. ★★★
-    public string LoadJsonData(string fileName)
+    public string LoadJsonData(string saveFileName)
     {
-        string fullPath = Path.Combine(savePathRoot, fileName);
-        if (File.Exists(fullPath))
+        string path = GetFilePath(saveFileName);
+
+        if (File.Exists(path))
         {
             try
             {
-                string json = File.ReadAllText(fullPath);
-                Debug.Log("게임 데이터 JSON 불러오기 성공!");
+                string json = File.ReadAllText(path);
+                Debug.Log($"게임 불러오기 성공! '{path}'");
                 return json;
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"게임 데이터 JSON 불러오기 실패: {e.Message}");
-                return null;
+                Debug.LogError($"파일 불러오기 중 오류 발생: {e.Message}");
+                return string.Empty;
             }
         }
-        else
+        return string.Empty;
+    }
+
+    // ★★★ GameData 객체 대신 JSON 문자열을 직접 반환하도록 수정 ★★★
+    public string LoadGameDataJson(string saveFileName)
+    {
+        return LoadJsonData(saveFileName);
+    }
+
+    public bool HasSaveFile(string saveFileName)
+    {
+        return File.Exists(GetFilePath(saveFileName));
+    }
+
+    public void DeleteSaveFile(string saveFileName)
+    {
+        string path = GetFilePath(saveFileName);
+        if (File.Exists(path))
         {
-            Debug.LogWarning("저장 파일이 존재하지 않습니다! 경로: " + fullPath);
-            return null;
+            File.Delete(path);
+            Debug.Log($"저장 파일 삭제 성공: '{path}'");
         }
     }
 
-    public bool HasSaveFile(string fileName)
+    private string GetFilePath(string fileName)
     {
-        string fullPath = Path.Combine(savePathRoot, fileName);
-        return File.Exists(fullPath);
-    }
-
-    public void DeleteSaveFile(string fileName)
-    {
-        string filePath = Path.Combine(savePathRoot, fileName);
-        if (File.Exists(filePath))
-        {
-            File.Delete(filePath);
-            Debug.Log($"세이브 파일 삭제 성공: {filePath}");
-        }
-        else
-        {
-            Debug.LogWarning("삭제할 세이브 파일이 존재하지 않습니다.");
-        }
+        return Path.Combine(Application.persistentDataPath, fileName);
     }
 }

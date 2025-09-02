@@ -16,8 +16,8 @@ public class GameManager : MonoBehaviour
 
     public GameData CurrentGameData => runtimeGameData;
 
-    [Header("Player UI")]
-    [SerializeField] private TextMeshProUGUI reputationText;
+    private string currentSaveFileName;
+    public string CurrentSaveFileName => currentSaveFileName;
 
     [Header("Time and Date")]
     public float dayLengthInSeconds = 120f;
@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private MoneyManager moneyManager;
 
     [Header("Prefabs to Load")]
-    public GameObject cowPrefab;
+    public List<GameObject> cowPrefabs;
     public List<GameObject> buildingPrefabs;
 
     public int CurrentPastureLevel => runtimeGameData.pastureLevel;
@@ -83,7 +83,6 @@ public class GameManager : MonoBehaviour
             EquipmentHandler.Instance.Initialize();
         }
 
-        // ★★★ TraderManager와 TraderUI 초기화 순서 보장 ★★★
         if (TraderManager.Instance != null)
         {
             TraderManager.Instance.Initialize();
@@ -92,11 +91,19 @@ public class GameManager : MonoBehaviour
         {
             TraderUI.Instance.Initialize();
         }
-        // ------------------------------------------
 
         if (timeManager != null)
         {
             timeManager.Initialize(dayLengthInSeconds, runtimeGameData.year, runtimeGameData.month, runtimeGameData.day, runtimeGameData.reputation);
+        }
+
+        if (AnimalManager.Instance != null && runtimeGameData.savedCows != null)
+        {
+            AnimalManager.Instance.LoadCowData(runtimeGameData.savedCows, cowPrefabs);
+        }
+        if (BuildingManager.Instance != null && runtimeGameData.savedBuildings != null)
+        {
+            BuildingManager.Instance.LoadBuildingData(runtimeGameData.savedBuildings, buildingPrefabs);
         }
 
         UpdateUI();
@@ -104,33 +111,43 @@ public class GameManager : MonoBehaviour
 
     private void InitializeGameData()
     {
-        string saveFileName = "default_save.json";
+        currentSaveFileName = SaveLoadManager.Instance.nextLoadFileName;
+        SaveLoadManager.Instance.SetNextLoadFileName(null);
 
-        if (defaultGameData == null)
+        // 불러올 파일명이 있고, 파일이 실제로 존재할 때만 데이터를 로드합니다.
+        if (!string.IsNullOrEmpty(currentSaveFileName) && SaveLoadManager.Instance.HasSaveFile(currentSaveFileName))
         {
-            Debug.LogError("Error: 'Default Game Data' 에셋이 GameManager에 연결되지 않았습니다. 게임 초기값이 모두 0으로 설정됩니다.");
-            runtimeGameData = ScriptableObject.CreateInstance<GameData>();
-            return;
-        }
+            string loadedJson = SaveLoadManager.Instance.LoadJsonData(currentSaveFileName);
 
-        if (SaveLoadManager.Instance != null && SaveLoadManager.Instance.HasSaveFile(saveFileName))
-        {
-            string loadedJson = SaveLoadManager.Instance.LoadJsonData(saveFileName);
             if (!string.IsNullOrEmpty(loadedJson))
             {
+                // 이어하기 모드: runtimeGameData가 null이 아닐 경우 파괴 후 새로 생성
+                if (runtimeGameData != null)
+                {
+                    Destroy(runtimeGameData);
+                }
                 runtimeGameData = Instantiate(defaultGameData);
                 JsonUtility.FromJsonOverwrite(loadedJson, runtimeGameData);
-                Debug.Log($"불러오기 성공! {saveFileName} 파일의 데이터로 게임이 시작됩니다.");
+                Debug.Log($"불러오기 성공! {currentSaveFileName} 파일의 데이터로 게임이 시작됩니다.");
             }
             else
             {
                 Debug.LogWarning("저장 파일이 손상되어 초기값으로 시작합니다.");
+                if (runtimeGameData != null)
+                {
+                    Destroy(runtimeGameData);
+                }
                 runtimeGameData = Instantiate(defaultGameData);
             }
         }
         else
         {
-            Debug.Log("저장 파일이 없어 새 게임 시작.");
+            Debug.Log("불러올 파일이 없거나 새 게임 시작. 초기값으로 게임을 시작합니다.");
+            // 새 게임 모드: 기존 데이터가 있으면 파괴하고 새로 생성
+            if (runtimeGameData != null)
+            {
+                Destroy(runtimeGameData);
+            }
             runtimeGameData = Instantiate(defaultGameData);
         }
     }
@@ -141,15 +158,6 @@ public class GameManager : MonoBehaviour
         if (timeManager == null) timeManager = TimeManager.Instance;
         if (moneyManager == null) moneyManager = MoneyManager.Instance;
 
-        GameObject reputationObject = GameObject.FindWithTag("ReputationText");
-        if (reputationObject != null)
-        {
-            reputationText = reputationObject.GetComponent<TextMeshProUGUI>();
-        }
-        else
-        {
-            reputationText = null;
-        }
         if (mainCamera == null) mainCamera = Camera.main;
     }
 
@@ -157,15 +165,30 @@ public class GameManager : MonoBehaviour
     {
         if (SaveLoadManager.Instance != null && runtimeGameData != null)
         {
-            SaveLoadManager.Instance.SaveGame(runtimeGameData, "default_save.json");
+            if (AnimalManager.Instance != null)
+            {
+                runtimeGameData.savedCows = AnimalManager.Instance.SaveCowData();
+            }
+            if (BuildingManager.Instance != null)
+            {
+                runtimeGameData.savedBuildings = BuildingManager.Instance.SaveBuildingData();
+            }
+
+            string saveFileName = currentSaveFileName;
+            if (string.IsNullOrEmpty(saveFileName))
+            {
+                saveFileName = "save_slot_1.json";
+            }
+
+            SaveLoadManager.Instance.SaveGame(runtimeGameData, saveFileName);
         }
     }
 
     public void UpdateUI()
     {
-        if (reputationText != null)
+        if (InfoPanelManager.Instance != null)
         {
-            reputationText.text = $"명성도: {runtimeGameData.reputation}";
+            InfoPanelManager.Instance.UpdateReputationUI();
         }
 
         if (playerUI != null)
@@ -178,10 +201,5 @@ public class GameManager : MonoBehaviour
     {
         runtimeGameData.reputation += amount;
         UpdateUI();
-    }
-
-    public void GoToTitleScene()
-    {
-        SceneManager.LoadScene("TitleScene");
     }
 }

@@ -19,4 +19,5 @@ MonoBehaviour:
   productionInterval: 1
   productData: {fileID: 11400000, guid: 4c5445ce975dd874cbe10248c0e54a8e, type: 2}
   maxProductionCount: 10
+  animalId: Chicken
   animalType: 1

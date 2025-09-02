@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2504288623626478895}
   - component: {fileID: 5442456879452341435}
   - component: {fileID: 7449306480787039896}
+  - component: {fileID: 3010979601722255625}
   m_Layer: 0
   m_Name: "\uB2ED\uC7A5_0"
   m_TagString: Building
@@ -150,3 +151,16 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 4.88, y: 4.48}
   m_EdgeRadius: 0
+--- !u!114 &3010979601722255625
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9221872427881102256}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8accbf1c696001e45baa998a24675aa5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buildingData: {fileID: 11400000, guid: 82c23d27d6eb3c94888e6c8cbc70dc90, type: 2}

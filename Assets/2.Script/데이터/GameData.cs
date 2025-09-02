@@ -38,8 +38,8 @@ public class GameData : ScriptableObject
     public List<string> ownedBuildingIds;
     public List<string> ownedEquipmentIds;
 
-    // ★★★ 추가된 부분: 젖소와 건물의 위치 데이터를 담을 리스트 ★★★
-    public List<SavedAnimalData> savedAnimals;
+    // ★★★ 추가된 부분: 젖소와 건물의 위치 및 ID 데이터를 담을 리스트 ★★★
+    public List<SavedCowData> savedCows;
     public List<SavedBuildingData> savedBuildings;
 
     // NPC(상인) 관련 데이터
@@ -53,19 +53,17 @@ public class GameData : ScriptableObject
     {
         return ownedBuildingIds.Contains(buildingId);
     }
-
-    // ★★★ GameData() 생성자는 ScriptableObject에서 직접 사용되지 않으므로 제거합니다. ★★★
-    // 초기값 설정은 다음 단계에서 GameManager가 담당하게 됩니다.
 }
 
-// 각 젖소의 위치 정보를 저장하는 클래스 (변경 없음)
+// 각 젖소의 종류 및 위치 정보를 저장하는 클래스
 [Serializable]
-public class SavedAnimalData
+public class SavedCowData
 {
+    public string cowId;
     public float posX, posY;
 }
 
-// 각 건물의 위치 정보를 저장하는 클래스 (변경 없음)
+// 각 건물의 ID와 위치 정보를 저장하는 클래스
 [Serializable]
 public class SavedBuildingData
 {
@@ -74,7 +72,6 @@ public class SavedBuildingData
 }
 
 // 기존에 GameData 스크립트가 사용하던 열거형이 필요할 경우를 대비하여 추가
-// 이 부분은 기존 스크립트의 의존성에 따라 달라질 수 있습니다.
 public enum EquipmentType
 {
     None,

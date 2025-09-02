@@ -19,5 +19,6 @@ public class AnimalData : ScriptableObject
     public int maxProductionCount;
 
     // 이 변수가 추가되었습니다.
+    public string animalId;
     public AnimalType animalType;
 }
