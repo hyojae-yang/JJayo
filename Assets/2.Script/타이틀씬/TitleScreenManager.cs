@@ -63,7 +63,6 @@ public class TitleScreenManager : MonoBehaviour
 
             string fileName = $"save_slot_{i}.json";
 
-            // ★★★ JSONUtility.FromJson을 호출하지 않고, FromJsonOverwrite를 사용하여 안전하게 데이터 로드 ★★★
             string loadedJson = saveLoadManager.LoadJsonData(fileName);
             GameData loadedData = null;
             bool isFilled = !string.IsNullOrEmpty(loadedJson);
@@ -77,7 +76,6 @@ public class TitleScreenManager : MonoBehaviour
                 string displayName = $"슬롯 {i} (저장됨)";
                 newSlot.Setup(displayName, date, loadedData.money, loadedData.reputation);
 
-                // UI 업데이트 후 임시로 생성한 인스턴스 파괴
                 Destroy(loadedData);
             }
             else
@@ -113,16 +111,19 @@ public class TitleScreenManager : MonoBehaviour
 
     public void OnConfirmClicked()
     {
+        if (string.IsNullOrEmpty(selectedFileName))
+        {
+            Debug.LogWarning("선택된 파일명이 없습니다. 게임을 시작할 수 없습니다.");
+            return;
+        }
+
         if (isNewGameMode)
         {
             saveLoadManager.DeleteSaveFile(selectedFileName);
-            saveLoadManager.SetNextLoadFileName(selectedFileName);
-            SceneManager.LoadScene("MainScene");
         }
-        else
-        {
-            saveLoadManager.SetNextLoadFileName(selectedFileName);
-            SceneManager.LoadScene("MainScene");
-        }
+
+        saveLoadManager.SetNextLoadInfo(selectedFileName, isNewGameMode);
+        GameManager.Instance.InitializeGameData();
+        SceneManager.LoadScene("MainScene");
     }
 }

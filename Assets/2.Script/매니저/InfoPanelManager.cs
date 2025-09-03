@@ -191,6 +191,9 @@ public class InfoPanelManager : MonoBehaviour
     public void GoToTitleScene()
     {
         SceneManager.LoadScene("TitleScene");
+
+        // GameManager의 데이터 초기화 메서드 호출
+        GameManager.Instance.ResetGameData();
     }
 
     public void OnSaveButtonClicked()
@@ -199,7 +202,8 @@ public class InfoPanelManager : MonoBehaviour
         {
             // ★★★ GameManager에 저장 명령만 내리면 됨 ★★★
             gameManager.SaveGame();
-            Debug.Log($"게임이 저장되었습니다!");
+
+            NotificationManager.Instance.ShowNotification($"게임이 저장되었습니다!");
         }
     }
 }

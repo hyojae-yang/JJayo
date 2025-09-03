@@ -17,7 +17,6 @@ public class AnimalManager : MonoBehaviour
                     GameObject singletonObject = new GameObject();
                     _instance = singletonObject.AddComponent<AnimalManager>();
                     singletonObject.name = typeof(AnimalManager).ToString() + " (Singleton)";
-                    DontDestroyOnLoad(singletonObject);
                 }
             }
             return _instance;
@@ -25,6 +24,8 @@ public class AnimalManager : MonoBehaviour
     }
 
     public List<Animal> activeAnimals = new List<Animal>();
+    // 추가된 부분: 현재 젖소들이 차지하고 있는 위치 리스트
+    public List<Vector2> occupiedCowPositions = new List<Vector2>();
 
     private void Awake()
     {
@@ -51,6 +52,8 @@ public class AnimalManager : MonoBehaviour
         if (activeAnimals.Contains(animal))
         {
             activeAnimals.Remove(animal);
+            // 추가된 부분: 젖소를 제거할 때 해당 위치를 점유 리스트에서 제거
+            occupiedCowPositions.Remove(animal.transform.position);
         }
     }
 
@@ -63,7 +66,6 @@ public class AnimalManager : MonoBehaviour
         List<SavedCowData> savedDataList = new List<SavedCowData>();
         foreach (Animal animal in activeAnimals)
         {
-            // ★★★ 수정된 부분: animalData를 통해 ID에 접근합니다.
             if (animal.animalData != null)
             {
                 SavedCowData data = new SavedCowData();
@@ -95,20 +97,39 @@ public class AnimalManager : MonoBehaviour
             Destroy(animal.gameObject);
         }
         activeAnimals.Clear();
+        // 추가된 부분: 새로운 젖소를 불러오기 전에 위치 리스트를 비웁니다.
+        occupiedCowPositions.Clear();
 
         foreach (SavedCowData data in savedDataList)
         {
-            // ★★★ 수정된 부분: ID에 해당하는 젖소 프리팹을 찾습니다.
-            // 프리팹 자체에 연결된 Animal 컴포넌트의 animalData에 접근하여 ID를 비교합니다.
             GameObject prefabToInstantiate = cowPrefabs.Find(p => p.GetComponent<Animal>().animalData.animalId == data.cowId);
 
             if (prefabToInstantiate != null)
             {
-                GameObject newCow = Instantiate(prefabToInstantiate, new Vector2(data.posX, data.posY), Quaternion.identity);
+                Vector2 loadedPosition = new Vector2(data.posX, data.posY);
+                GameObject newCow = Instantiate(prefabToInstantiate, loadedPosition, Quaternion.identity);
                 Animal newAnimal = newCow.GetComponent<Animal>();
+                Production productionComponent = newCow.GetComponent<Production>();
+
+                if (newAnimal != null)
+                {
+                    newAnimal.Initialize(prefabToInstantiate.GetComponent<Animal>().animalData);
+                }
+
+                if (productionComponent != null && GameManager.Instance != null && GameManager.Instance.pastureUpgradeData != null)
+                {
+                    productionComponent.Initialize(GameManager.Instance.CurrentPastureLevel, GameManager.Instance.pastureUpgradeData);
+                }
+                else
+                {
+                    Debug.LogError("생산 및 신선도 초기화에 필요한 데이터가 유효하지 않습니다. GameManager 또는 Production 컴포넌트를 확인하세요.");
+                }
+
                 if (newAnimal != null)
                 {
                     AddAnimal(newAnimal);
+                    // 추가된 부분: 불러온 젖소의 위치를 occupiedCowPositions에 기록합니다.
+                    occupiedCowPositions.Add(loadedPosition);
                 }
             }
             else
@@ -116,5 +137,18 @@ public class AnimalManager : MonoBehaviour
                 Debug.LogWarning($"젖소 ID '{data.cowId}'에 해당하는 프리팹을 찾을 수 없습니다!");
             }
         }
+    }
+
+    // 추가된 부분: 젖소를 배치할 빈 공간을 찾아주는 메서드
+    public Vector2 GetAvailableCowPosition(List<Transform> spawnPoints)
+    {
+        foreach (Transform spawnPoint in spawnPoints)
+        {
+            if (!occupiedCowPositions.Contains(spawnPoint.position))
+            {
+                return spawnPoint.position;
+            }
+        }
+        return Vector2.zero; // 빈 공간이 없을 경우 Vector2.zero 반환
     }
 }

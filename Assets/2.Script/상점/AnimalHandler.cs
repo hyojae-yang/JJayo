@@ -28,8 +28,9 @@ public class AnimalHandler : MonoBehaviour
         }
     }
 
-    public ObjectPool cowObjectPool;
-    public List<Transform> cowSpawnPoints;
+    // **수정된 부분: 인스펙터로 연결된 오브젝트 풀과 스폰 포인트를 추가합니다.**
+    [SerializeField] public ObjectPool cowObjectPool;
+    [SerializeField] public List<Transform> cowSpawnPoints;
 
     private ChickenCoop _chickenCoop;
 
@@ -56,28 +57,50 @@ public class AnimalHandler : MonoBehaviour
         return _chickenCoop != null && _chickenCoop.numberOfChickens > 0;
     }
 
+    // 이 메서드는 이제 ShopService에서 직접 호출됩니다.
     public void Purchase(AnimalData animalData)
     {
         if (animalData.animalType == AnimalType.Cow)
         {
+            if (cowSpawnPoints.Count == 0)
+            {
+                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("젖소를 놓을 자리가 없습니다.");
+                return;
+            }
+
             GameObject newCowObj = cowObjectPool.GetFromPool();
 
             if (newCowObj != null)
             {
                 newCowObj.transform.position = cowSpawnPoints[0].position;
                 cowSpawnPoints.RemoveAt(0);
+
                 if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("젖소를 구매했습니다!");
 
-                Cow newCowComponent = newCowObj.GetComponent<Cow>();
+                Animal newCowComponent = newCowObj.GetComponent<Animal>();
+                Production productionComponent = newCowObj.GetComponent<Production>();
 
                 if (newCowComponent != null)
                 {
+                    // Animal 컴포넌트의 Initialize 메서드 호출
+                    newCowComponent.Initialize(animalData);
+
+                    // Production 컴포넌트의 Initialize 메서드 호출
+                    if (productionComponent != null && GameManager.Instance != null && GameManager.Instance.pastureUpgradeData != null)
+                    {
+                        productionComponent.Initialize(GameManager.Instance.CurrentPastureLevel, GameManager.Instance.pastureUpgradeData);
+                    }
+                    else
+                    {
+                        Debug.LogError("Production 컴포넌트를 찾을 수 없거나 GameManager 데이터가 유효하지 않습니다.");
+                    }
+
                     if (AnimalManager.Instance != null) AnimalManager.Instance.AddAnimal(newCowComponent);
                 }
             }
             else
             {
-                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("젖소를 놓을 자리가 없습니다.");
+                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("젖소를 가져올 수 없습니다. 오브젝트 풀을 확인하세요.");
             }
         }
         else if (animalData.animalType == AnimalType.Chicken)

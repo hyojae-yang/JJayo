@@ -6,6 +6,7 @@ public class SaveLoadManager : MonoBehaviour
     public static SaveLoadManager Instance { get; private set; }
 
     [HideInInspector] public string nextLoadFileName;
+    [HideInInspector] public bool isNewGameMode;
 
     void Awake()
     {
@@ -20,10 +21,10 @@ public class SaveLoadManager : MonoBehaviour
         }
     }
 
-    public void SetNextLoadFileName(string fileName)
+    public void SetNextLoadInfo(string fileName, bool isNewGame)
     {
         nextLoadFileName = fileName;
-        Debug.Log($"다음에 로드할 파일명으로 '{fileName}'이 설정되었습니다.");
+        isNewGameMode = isNewGame;
     }
 
     public void SaveGame(GameData data, string saveFileName)
@@ -34,7 +35,6 @@ public class SaveLoadManager : MonoBehaviour
         try
         {
             File.WriteAllText(path, json);
-            Debug.Log($"게임 저장 성공! '{path}'");
         }
         catch (System.Exception e)
         {
@@ -51,7 +51,6 @@ public class SaveLoadManager : MonoBehaviour
             try
             {
                 string json = File.ReadAllText(path);
-                Debug.Log($"게임 불러오기 성공! '{path}'");
                 return json;
             }
             catch (System.Exception e)
@@ -63,7 +62,6 @@ public class SaveLoadManager : MonoBehaviour
         return string.Empty;
     }
 
-    // ★★★ GameData 객체 대신 JSON 문자열을 직접 반환하도록 수정 ★★★
     public string LoadGameDataJson(string saveFileName)
     {
         return LoadJsonData(saveFileName);
@@ -80,7 +78,6 @@ public class SaveLoadManager : MonoBehaviour
         if (File.Exists(path))
         {
             File.Delete(path);
-            Debug.Log($"저장 파일 삭제 성공: '{path}'");
         }
     }
 

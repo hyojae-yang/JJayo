@@ -44,13 +44,13 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
         {
             Destroy(gameObject);
             return;
         }
-        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
@@ -60,10 +60,12 @@ public class GameManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        InitializeReferences();
-        InitializeGameData();
+        if (scene.name == "MainScene")
+        {
+            Debug.Log("### 1. GameManager의 OnSceneLoaded()가 실행되었습니다.");
+            InitializeReferences();
 
-        if (PastureManager.Instance != null)
+            if (PastureManager.Instance != null)
         {
             PastureManager.Instance.Initialize();
         }
@@ -107,48 +109,62 @@ public class GameManager : MonoBehaviour
         }
 
         UpdateUI();
-    }
-
-    private void InitializeGameData()
-    {
-        currentSaveFileName = SaveLoadManager.Instance.nextLoadFileName;
-        SaveLoadManager.Instance.SetNextLoadFileName(null);
-
-        // 불러올 파일명이 있고, 파일이 실제로 존재할 때만 데이터를 로드합니다.
-        if (!string.IsNullOrEmpty(currentSaveFileName) && SaveLoadManager.Instance.HasSaveFile(currentSaveFileName))
-        {
-            string loadedJson = SaveLoadManager.Instance.LoadJsonData(currentSaveFileName);
-
-            if (!string.IsNullOrEmpty(loadedJson))
-            {
-                // 이어하기 모드: runtimeGameData가 null이 아닐 경우 파괴 후 새로 생성
-                if (runtimeGameData != null)
-                {
-                    Destroy(runtimeGameData);
-                }
-                runtimeGameData = Instantiate(defaultGameData);
-                JsonUtility.FromJsonOverwrite(loadedJson, runtimeGameData);
-                Debug.Log($"불러오기 성공! {currentSaveFileName} 파일의 데이터로 게임이 시작됩니다.");
-            }
-            else
-            {
-                Debug.LogWarning("저장 파일이 손상되어 초기값으로 시작합니다.");
-                if (runtimeGameData != null)
-                {
-                    Destroy(runtimeGameData);
-                }
-                runtimeGameData = Instantiate(defaultGameData);
-            }
         }
         else
         {
-            Debug.Log("불러올 파일이 없거나 새 게임 시작. 초기값으로 게임을 시작합니다.");
-            // 새 게임 모드: 기존 데이터가 있으면 파괴하고 새로 생성
-            if (runtimeGameData != null)
-            {
-                Destroy(runtimeGameData);
-            }
+            Debug.Log("메인 씬이 아니므로 초기화를 건너뜁니다.");
+        }
+    }
+
+    public void ResetGameData()
+    {
+        if (runtimeGameData != null)
+        {
+            Destroy(runtimeGameData);
+            runtimeGameData = null;
+        }
+    }
+
+    public void InitializeGameData()
+    {
+        currentSaveFileName = SaveLoadManager.Instance.nextLoadFileName;
+        Debug.Log($"### 2. InitializeGameData() 실행: nextLoadFileName = '{SaveLoadManager.Instance.nextLoadFileName}', currentSaveFileName = '{currentSaveFileName}'");
+        bool isNewGame = SaveLoadManager.Instance.isNewGameMode;
+
+        SaveLoadManager.Instance.SetNextLoadInfo(null, false);
+
+        if (isNewGame)
+        {
+            Debug.Log($"새 게임 시작. {currentSaveFileName}에 저장할 예정입니다.");
             runtimeGameData = Instantiate(defaultGameData);
+        }
+        else
+        {
+            if (!string.IsNullOrEmpty(currentSaveFileName) && SaveLoadManager.Instance.HasSaveFile(currentSaveFileName))
+            {
+                string loadedJson = SaveLoadManager.Instance.LoadJsonData(currentSaveFileName);
+
+                if (!string.IsNullOrEmpty(loadedJson))
+                {
+                    if (runtimeGameData == null)
+                    {
+                        runtimeGameData = Instantiate(defaultGameData);
+                    }
+                    JsonUtility.FromJsonOverwrite(loadedJson, runtimeGameData);
+                    Debug.Log($"불러오기 성공! {currentSaveFileName} 파일의 데이터로 게임이 시작됩니다.");
+                }
+                else
+                {
+                    Debug.LogWarning("저장 파일이 손상되어 초기값으로 시작합니다.");
+                    runtimeGameData = Instantiate(defaultGameData);
+                }
+            }
+            else
+            {
+                Debug.LogError("이어하기: 저장 파일이 존재하지 않아 게임을 시작할 수 없습니다. 초기값으로 시작합니다.");
+                runtimeGameData = Instantiate(defaultGameData);
+                currentSaveFileName = null;
+            }
         }
     }
 
@@ -163,6 +179,7 @@ public class GameManager : MonoBehaviour
 
     public void SaveGame()
     {
+        Debug.Log($"### 3. SaveGame() 호출: 현재 currentSaveFileName = '{currentSaveFileName}'");
         if (SaveLoadManager.Instance != null && runtimeGameData != null)
         {
             if (AnimalManager.Instance != null)
@@ -174,13 +191,9 @@ public class GameManager : MonoBehaviour
                 runtimeGameData.savedBuildings = BuildingManager.Instance.SaveBuildingData();
             }
 
-            string saveFileName = currentSaveFileName;
-            if (string.IsNullOrEmpty(saveFileName))
-            {
-                saveFileName = "save_slot_1.json";
-            }
+            SaveLoadManager.Instance.SaveGame(runtimeGameData, currentSaveFileName);
 
-            SaveLoadManager.Instance.SaveGame(runtimeGameData, saveFileName);
+            Debug.Log($"게임을 {currentSaveFileName} 파일에 저장했습니다.");
         }
     }
 

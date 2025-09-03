@@ -7,19 +7,24 @@ public class Animal : MonoBehaviour
 
     public AnimalData animalData;
     private Production production;
-    private Freshness freshness;
+    // Freshness 스크립트가 제거되었으므로 변수도 삭제
+    // private Freshness freshness;
     private AnimalUI animalUI;
 
-    void Awake()
+    // 기존 Awake() 메서드는 삭제
+
+    // AnimalHandler가 호출하는 초기화 메서드
+    public void Initialize(AnimalData data)
     {
+        this.animalData = data;
+
         production = GetComponent<Production>();
-        freshness = GetComponent<Freshness>();
         animalUI = GetComponent<AnimalUI>();
 
-        if (production != null && animalData != null)
+        if (production != null && this.animalData != null)
         {
-            production.productionTime = animalData.productionInterval;
-            production.productionMax = animalData.maxProductionCount;
+            production.productionTime = this.animalData.productionInterval;
+            production.productionMax = this.animalData.maxProductionCount;
         }
     }
 
@@ -37,10 +42,12 @@ public class Animal : MonoBehaviour
         {
             if (production.currentProductionCount > 0)
             {
-                if (freshness != null)
+                // Production 스크립트에 Freshness 기능이 통합되었으므로
+                // production.currentFreshness를 직접 사용합니다.
+                if (production != null)
                 {
                     int milkToCollect = Mathf.Min(production.currentProductionCount, PlayerInventory.Instance.MilkingYield);
-                    int collectedCount = PlayerInventory.Instance.AddMilk(milkToCollect, freshness.currentFreshness);
+                    int collectedCount = PlayerInventory.Instance.AddMilk(milkToCollect, production.currentFreshness);
                     production.currentProductionCount -= collectedCount;
 
                     if (collectedCount > 0)
@@ -67,7 +74,6 @@ public class Animal : MonoBehaviour
     {
         Debug.Log($"{animalData.animalName}이(가) 죽었습니다.");
 
-        // ★★★ 수정된 부분: AnimalManager 리스트에서 스스로를 제거합니다. ★★★
         if (AnimalManager.Instance != null)
         {
             AnimalManager.Instance.RemoveAnimal(this);
