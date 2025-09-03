@@ -27,6 +27,9 @@ public class AnimalManager : MonoBehaviour
     // 추가된 부분: 현재 젖소들이 차지하고 있는 위치 리스트
     public List<Vector2> occupiedCowPositions = new List<Vector2>();
 
+    // 수정된 부분: 이제 스폰포인트 리스트를 AnimalManager가 직접 관리합니다.
+    [SerializeField] public List<Transform> cowSpawnPoints;
+
     private void Awake()
     {
         if (_instance == null)
@@ -57,10 +60,6 @@ public class AnimalManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 현재 활성화된 모든 젖소의 ID와 위치를 리스트로 저장합니다.
-    /// </summary>
-    /// <returns>저장할 젖소 데이터 리스트</returns>
     public List<SavedCowData> SaveCowData()
     {
         List<SavedCowData> savedDataList = new List<SavedCowData>();
@@ -78,11 +77,6 @@ public class AnimalManager : MonoBehaviour
         return savedDataList;
     }
 
-    /// <summary>
-    /// 저장된 데이터를 바탕으로 젖소를 씬에 다시 생성합니다.
-    /// </summary>
-    /// <param name="savedDataList">불러올 젖소 데이터 리스트</param>
-    /// <param name="cowPrefabs">모든 젖소 프리팹 리스트</param>
     public void LoadCowData(List<SavedCowData> savedDataList, List<GameObject> cowPrefabs)
     {
         if (savedDataList == null)
@@ -91,13 +85,11 @@ public class AnimalManager : MonoBehaviour
             return;
         }
 
-        // 기존에 씬에 남아있을 수 있는 젖소를 모두 제거
         foreach (Animal animal in activeAnimals)
         {
             Destroy(animal.gameObject);
         }
         activeAnimals.Clear();
-        // 추가된 부분: 새로운 젖소를 불러오기 전에 위치 리스트를 비웁니다.
         occupiedCowPositions.Clear();
 
         foreach (SavedCowData data in savedDataList)
@@ -128,7 +120,6 @@ public class AnimalManager : MonoBehaviour
                 if (newAnimal != null)
                 {
                     AddAnimal(newAnimal);
-                    // 추가된 부분: 불러온 젖소의 위치를 occupiedCowPositions에 기록합니다.
                     occupiedCowPositions.Add(loadedPosition);
                 }
             }
@@ -139,16 +130,16 @@ public class AnimalManager : MonoBehaviour
         }
     }
 
-    // 추가된 부분: 젖소를 배치할 빈 공간을 찾아주는 메서드
-    public Vector2 GetAvailableCowPosition(List<Transform> spawnPoints)
+    // 수정된 부분: 인수를 받지 않고 내부 스폰포인트 리스트를 사용합니다.
+    public Vector2 GetAvailableCowPosition()
     {
-        foreach (Transform spawnPoint in spawnPoints)
+        foreach (Transform spawnPoint in cowSpawnPoints)
         {
             if (!occupiedCowPositions.Contains(spawnPoint.position))
             {
                 return spawnPoint.position;
             }
         }
-        return Vector2.zero; // 빈 공간이 없을 경우 Vector2.zero 반환
+        return Vector2.zero;
     }
 }

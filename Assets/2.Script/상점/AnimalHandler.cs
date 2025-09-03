@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
 
 public class AnimalHandler : MonoBehaviour
@@ -28,9 +28,8 @@ public class AnimalHandler : MonoBehaviour
         }
     }
 
-    // **¼öÁ¤µÈ ºÎºĞ: ÀÎ½ºÆåÅÍ·Î ¿¬°áµÈ ¿ÀºêÁ§Æ® Ç®°ú ½ºÆù Æ÷ÀÎÆ®¸¦ Ãß°¡ÇÕ´Ï´Ù.**
     [SerializeField] public ObjectPool cowObjectPool;
-    [SerializeField] public List<Transform> cowSpawnPoints;
+    // ìˆ˜ì •ëœ ë¶€ë¶„: AnimalHandlerëŠ” ì´ì œ ìŠ¤í°í¬ì¸íŠ¸ë¥¼ ê´€ë¦¬í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.
 
     private ChickenCoop _chickenCoop;
 
@@ -43,7 +42,8 @@ public class AnimalHandler : MonoBehaviour
     {
         if (animalData.animalType == AnimalType.Cow)
         {
-            return cowSpawnPoints.Count > 0;
+            // ìˆ˜ì •ëœ ë¶€ë¶„: AnimalManagerì—ê²Œ ë¹ˆ ê³µê°„ì´ ìˆëŠ”ì§€ ì§ì ‘ í™•ì¸í•©ë‹ˆë‹¤.
+            return AnimalManager.Instance != null && AnimalManager.Instance.GetAvailableCowPosition() != Vector2.zero;
         }
         else if (animalData.animalType == AnimalType.Chicken)
         {
@@ -57,14 +57,16 @@ public class AnimalHandler : MonoBehaviour
         return _chickenCoop != null && _chickenCoop.numberOfChickens > 0;
     }
 
-    // ÀÌ ¸Ş¼­µå´Â ÀÌÁ¦ ShopService¿¡¼­ Á÷Á¢ È£ÃâµË´Ï´Ù.
     public void Purchase(AnimalData animalData)
     {
         if (animalData.animalType == AnimalType.Cow)
         {
-            if (cowSpawnPoints.Count == 0)
+            // ìˆ˜ì •ëœ ë¶€ë¶„: AnimalManagerì—ê²Œ ë¹ˆ ê³µê°„ì„ ìš”ì²­í•©ë‹ˆë‹¤.
+            Vector2 spawnPosition = AnimalManager.Instance.GetAvailableCowPosition();
+
+            if (spawnPosition == Vector2.zero)
             {
-                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("Á¥¼Ò¸¦ ³õÀ» ÀÚ¸®°¡ ¾ø½À´Ï´Ù.");
+                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("ì –ì†Œë¥¼ ë†“ì„ ìë¦¬ê°€ ì—†ìŠµë‹ˆë‹¤.");
                 return;
             }
 
@@ -72,27 +74,25 @@ public class AnimalHandler : MonoBehaviour
 
             if (newCowObj != null)
             {
-                newCowObj.transform.position = cowSpawnPoints[0].position;
-                cowSpawnPoints.RemoveAt(0);
+                newCowObj.transform.position = spawnPosition;
+                AnimalManager.Instance.occupiedCowPositions.Add(spawnPosition);
 
-                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("Á¥¼Ò¸¦ ±¸¸ÅÇß½À´Ï´Ù!");
+                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("ì –ì†Œë¥¼ êµ¬ë§¤í–ˆìŠµë‹ˆë‹¤!");
 
                 Animal newCowComponent = newCowObj.GetComponent<Animal>();
                 Production productionComponent = newCowObj.GetComponent<Production>();
 
                 if (newCowComponent != null)
                 {
-                    // Animal ÄÄÆ÷³ÍÆ®ÀÇ Initialize ¸Ş¼­µå È£Ãâ
                     newCowComponent.Initialize(animalData);
 
-                    // Production ÄÄÆ÷³ÍÆ®ÀÇ Initialize ¸Ş¼­µå È£Ãâ
                     if (productionComponent != null && GameManager.Instance != null && GameManager.Instance.pastureUpgradeData != null)
                     {
                         productionComponent.Initialize(GameManager.Instance.CurrentPastureLevel, GameManager.Instance.pastureUpgradeData);
                     }
                     else
                     {
-                        Debug.LogError("Production ÄÄÆ÷³ÍÆ®¸¦ Ã£À» ¼ö ¾ø°Å³ª GameManager µ¥ÀÌÅÍ°¡ À¯È¿ÇÏÁö ¾Ê½À´Ï´Ù.");
+                        Debug.LogError("Production ì»´í¬ë„ŒíŠ¸ë¥¼ ì°¾ì„ ìˆ˜ ì—†ê±°ë‚˜ GameManager ë°ì´í„°ê°€ ìœ íš¨í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.");
                     }
 
                     if (AnimalManager.Instance != null) AnimalManager.Instance.AddAnimal(newCowComponent);
@@ -100,7 +100,7 @@ public class AnimalHandler : MonoBehaviour
             }
             else
             {
-                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("Á¥¼Ò¸¦ °¡Á®¿Ã ¼ö ¾ø½À´Ï´Ù. ¿ÀºêÁ§Æ® Ç®À» È®ÀÎÇÏ¼¼¿ä.");
+                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("ì –ì†Œë¥¼ ê°€ì ¸ì˜¬ ìˆ˜ ì—†ìŠµë‹ˆë‹¤. ì˜¤ë¸Œì íŠ¸ í’€ì„ í™•ì¸í•˜ì„¸ìš”.");
             }
         }
         else if (animalData.animalType == AnimalType.Chicken)
@@ -108,11 +108,11 @@ public class AnimalHandler : MonoBehaviour
             if (_chickenCoop != null)
             {
                 _chickenCoop.AddChicken();
-                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("´ßÀ» ±¸¸ÅÇß½À´Ï´Ù.");
+                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("ë‹­ì„ êµ¬ë§¤í–ˆìŠµë‹ˆë‹¤.");
             }
             else
             {
-                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("´ßÀåÀ» Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("ë‹­ì¥ì„ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             }
         }
     }
@@ -121,7 +121,7 @@ public class AnimalHandler : MonoBehaviour
     {
         GameData gameData = GameManager.Instance.CurrentGameData;
         gameData.money += price;
-        if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification(animalToSell.animalData.animalName + "À»(¸¦) " + price + "¿ø¿¡ ÆÇ¸ÅÇß½À´Ï´Ù!");
+        if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification(animalToSell.animalData.animalName + "ì„(ë¥¼) " + price + "ì›ì— íŒë§¤í–ˆìŠµë‹ˆë‹¤!");
 
         if (AnimalManager.Instance != null) AnimalManager.Instance.RemoveAnimal(animalToSell);
 

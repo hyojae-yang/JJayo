@@ -62,7 +62,6 @@ public class GameManager : MonoBehaviour
     {
         if (scene.name == "MainScene")
         {
-            Debug.Log("### 1. GameManager의 OnSceneLoaded()가 실행되었습니다.");
             InitializeReferences();
 
             if (PastureManager.Instance != null)
@@ -128,14 +127,12 @@ public class GameManager : MonoBehaviour
     public void InitializeGameData()
     {
         currentSaveFileName = SaveLoadManager.Instance.nextLoadFileName;
-        Debug.Log($"### 2. InitializeGameData() 실행: nextLoadFileName = '{SaveLoadManager.Instance.nextLoadFileName}', currentSaveFileName = '{currentSaveFileName}'");
         bool isNewGame = SaveLoadManager.Instance.isNewGameMode;
 
         SaveLoadManager.Instance.SetNextLoadInfo(null, false);
 
         if (isNewGame)
         {
-            Debug.Log($"새 게임 시작. {currentSaveFileName}에 저장할 예정입니다.");
             runtimeGameData = Instantiate(defaultGameData);
         }
         else
@@ -151,7 +148,6 @@ public class GameManager : MonoBehaviour
                         runtimeGameData = Instantiate(defaultGameData);
                     }
                     JsonUtility.FromJsonOverwrite(loadedJson, runtimeGameData);
-                    Debug.Log($"불러오기 성공! {currentSaveFileName} 파일의 데이터로 게임이 시작됩니다.");
                 }
                 else
                 {
@@ -179,7 +175,6 @@ public class GameManager : MonoBehaviour
 
     public void SaveGame()
     {
-        Debug.Log($"### 3. SaveGame() 호출: 현재 currentSaveFileName = '{currentSaveFileName}'");
         if (SaveLoadManager.Instance != null && runtimeGameData != null)
         {
             if (AnimalManager.Instance != null)

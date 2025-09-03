@@ -3,20 +3,18 @@ using System.Collections.Generic;
 
 public class Animal : MonoBehaviour
 {
-    public float health = 100f;
-
+    public float health = 100f; // 현재 체력
     public AnimalData animalData;
     private Production production;
-    // Freshness 스크립트가 제거되었으므로 변수도 삭제
-    // private Freshness freshness;
     private AnimalUI animalUI;
-
-    // 기존 Awake() 메서드는 삭제
 
     // AnimalHandler가 호출하는 초기화 메서드
     public void Initialize(AnimalData data)
     {
         this.animalData = data;
+
+        // 초기화 시 젖소의 체력도 AnimalData에 기반해 설정할 수 있습니다.
+        // 현재는 public float health를 사용하고 있으므로 그대로 둡니다.
 
         production = GetComponent<Production>();
         animalUI = GetComponent<AnimalUI>();
@@ -42,8 +40,6 @@ public class Animal : MonoBehaviour
         {
             if (production.currentProductionCount > 0)
             {
-                // Production 스크립트에 Freshness 기능이 통합되었으므로
-                // production.currentFreshness를 직접 사용합니다.
                 if (production != null)
                 {
                     int milkToCollect = Mathf.Min(production.currentProductionCount, PlayerInventory.Instance.MilkingYield);
@@ -61,33 +57,41 @@ public class Animal : MonoBehaviour
 
     public void TakeDamage(float amount, GameObject attacker)
     {
-        health -= amount;
-        Debug.Log($"{animalData.animalName}이(가) {amount}만큼 피해를 입었습니다. 현재 체력: {health}");
-
-        if (health <= 0)
+        // 총에 맞는 데미지 로직은 제외하고 늑대 공격만 처리합니다.
+        if (attacker != null && attacker.CompareTag("Wolf"))
         {
-            Die(attacker);
+            health -= amount;
+
+            if (health <= 0)
+            {
+                Die(attacker);
+            }
         }
     }
 
     private void Die(GameObject lastHitter)
     {
-        Debug.Log($"{animalData.animalName}이(가) 죽었습니다.");
+        NotificationManager.Instance.ShowNotification($"{animalData.animalName}이(가) 죽었습니다.");
 
+        // AnimalManager 리스트에서 자신을 제거
         if (AnimalManager.Instance != null)
         {
             AnimalManager.Instance.RemoveAnimal(this);
         }
 
+        // 늑대가 마지막으로 공격했는지 확인하고, 늑대가 풀로 돌아가게 처리
         if (lastHitter != null)
         {
             Wolf wolfComponent = lastHitter.GetComponent<Wolf>();
-            if (wolfComponent != null && wolfComponent.isReturning == false)
+            if (wolfComponent != null)
             {
-                wolfComponent.isReturning = true;
+                // isReturning 변수를 직접 수정하는 대신,
+                // OnKillTarget 메서드를 호출하여 늑대의 상태를 관리
+                wolfComponent.OnKillTarget();
             }
         }
 
+        // 오브젝트 풀로 돌아가거나 파괴
         if (transform.parent != null && transform.parent.GetComponent<ObjectPool>() != null)
         {
             transform.parent.GetComponent<ObjectPool>().ReturnToPool(gameObject);

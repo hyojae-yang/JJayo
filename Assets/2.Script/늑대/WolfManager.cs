@@ -21,6 +21,13 @@ public class WolfManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            // GameManager 대신 TimeManager의 이벤트를 구독
+            if (TimeManager.Instance != null)
+            {
+                TimeManager.Instance.OnMonthChanged += GenerateRandomEventDates;
+                TimeManager.Instance.OnDayChanged += CheckForWolfEvent;
+            }
+            GenerateRandomEventDates();
         }
         else
         {
@@ -28,16 +35,6 @@ public class WolfManager : MonoBehaviour
         }
     }
 
-    void Start()
-    {
-        // GameManager 대신 TimeManager의 이벤트를 구독
-        if (TimeManager.Instance != null)
-        {
-            TimeManager.Instance.OnMonthChanged += GenerateRandomEventDates;
-            TimeManager.Instance.OnDayChanged += CheckForWolfEvent;
-        }
-        GenerateRandomEventDates();
-    }
     public void GenerateRandomEventDates()
     {
         eventDates.Clear();
@@ -83,6 +80,13 @@ public class WolfManager : MonoBehaviour
     {
         if (eventDates.Contains(currentDay))
         {
+            // 젖소가 한 마리라도 있는지 확인
+            if (AnimalManager.Instance.activeAnimals.Count == 0)
+            {
+                Debug.Log("젖소가 없어 늑대가 나타나지 않습니다.");
+                return;
+            }
+
             int currentYear = GameManager.Instance.CurrentGameData.year;
             int minWolves, maxWolves;
 
@@ -211,5 +215,15 @@ public class WolfManager : MonoBehaviour
         }
 
         return spawnPosition + Camera.main.transform.position;
+    }
+
+    // Wolf 스크립트가 젖소 목록에 접근할 수 있도록 하는 중개자 메서드
+    public List<Animal> GetActiveCows()
+    {
+        if (AnimalManager.Instance != null)
+        {
+            return AnimalManager.Instance.activeAnimals;
+        }
+        return new List<Animal>();
     }
 }

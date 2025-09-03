@@ -1382,10 +1382,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 341430195}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1080, y: 1920}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &532590594
 MonoBehaviour:
@@ -3704,7 +3704,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultGameData: {fileID: 11400000, guid: 726a215529f5256408a6a6254552ada7, type: 2}
-  dayLengthInSeconds: 10
+  dayLengthInSeconds: 90
   pastureUpgradeData: {fileID: 11400000, guid: 497b1d9b21095764dbcecac7b191a094, type: 2}
   mainCamera: {fileID: 0}
   pastureColors:

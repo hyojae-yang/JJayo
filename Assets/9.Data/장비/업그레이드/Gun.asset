@@ -16,12 +16,12 @@ MonoBehaviour:
   - upgradePrice: 1000
     damage: 0
   - upgradePrice: 2000
-    damage: 10
-  - upgradePrice: 4000
     damage: 20
-  - upgradePrice: 8000
-    damage: 30
-  - upgradePrice: 16000
+  - upgradePrice: 4000
     damage: 40
+  - upgradePrice: 8000
+    damage: 60
+  - upgradePrice: 16000
+    damage: 80
   - upgradePrice: 32000
-    damage: 50
+    damage: 100

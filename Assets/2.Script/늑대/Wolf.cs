@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class Wolf : MonoBehaviour
@@ -25,9 +26,6 @@ public class Wolf : MonoBehaviour
     public WolfManager wolfManager;
     public bool isReturning = false;
 
-    /// <summary>
-    /// 늑대를 초기화하고 체력과 공격력을 설정합니다.
-    /// </summary>
     public void Initialize(WolfManager manager, float newHealth, float newDamage)
     {
         this.wolfManager = manager;
@@ -38,7 +36,6 @@ public class Wolf : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         isReturning = false;
 
-        // 체력바 초기화
         if (healthBarSlider != null)
         {
             healthBarSlider.maxValue = maxHealth;
@@ -74,9 +71,10 @@ public class Wolf : MonoBehaviour
             else
             {
                 FindNewTarget();
+
                 if (targetCow == null)
                 {
-                    Debug.Log("젖소 타겟이 모두 사라졌습니다. 임무 완수! 화면 밖으로 돌아갑니다.");
+                    Debug.Log("젖소 타겟이 모두 사라졌습니다. 임무 실패! 화면 밖으로 돌아갑니다.");
                     isReturning = true;
                 }
             }
@@ -84,7 +82,6 @@ public class Wolf : MonoBehaviour
         else
         {
             transform.position = Vector3.MoveTowards(transform.position, Camera.main.transform.position + (transform.position - Camera.main.transform.position) * 10f, moveSpeed * Time.deltaTime);
-            CheckIfOffScreen();
         }
     }
 
@@ -94,9 +91,10 @@ public class Wolf : MonoBehaviour
         float closestDistance = Mathf.Infinity;
         Vector3 wolfPosition = transform.position;
 
-        foreach (Animal cow in AnimalManager.Instance.activeAnimals)
+        List<Animal> activeCows = wolfManager.GetActiveCows();
+
+        foreach (Animal cow in activeCows)
         {
-            // ★★★ 수정된 부분: 리스트에 null 값이 있으면 스킵하고 다음 항목으로 넘어갑니다. ★★★
             if (cow == null)
             {
                 continue;
@@ -129,6 +127,7 @@ public class Wolf : MonoBehaviour
         }
     }
 
+    // 총에 맞았을 때 호출되는 메서드
     public void TakeDamage(float amount)
     {
         health -= amount;
@@ -140,9 +139,37 @@ public class Wolf : MonoBehaviour
 
         if (health <= 0)
         {
+            Debug.Log("늑대가 총에 맞아 쓰러졌습니다! 풀로 돌아갑니다.");
             if (wolfManager != null)
             {
                 wolfManager.ReturnWolfToPool(gameObject);
+            }
+        }
+    }
+
+    // 늑대가 젖소를 성공적으로 처치했을 때 호출됩니다.
+    public void OnKillTarget()
+    {
+        isReturning = true;
+        targetCow = null;
+        Debug.Log("늑대가 젖소 처치에 성공했습니다. 임무 완료! 풀로 돌아갑니다.");
+    }
+
+    // ★★★ 추가된 부분: 늑대 클릭 시 총알 데미지 처리 ★★★
+    void OnMouseDown()
+    {
+        if (EquipmentManager.Instance.GetCurrentEquipment() == EquipmentType.Gun)
+        {
+            if (GameManager.Instance.CurrentGameData.bulletCount > 0)
+            {
+                // 총알 소모 및 데미지 적용
+                GameManager.Instance.CurrentGameData.bulletCount -= 1;
+                TakeDamage(GameManager.Instance.CurrentGameData.gunDamage);
+                NotificationManager.Instance.ShowNotification("늑대를 맞췄습니다!");
+            }
+            else
+            {
+                NotificationManager.Instance.ShowNotification("총알이 부족합니다!");
             }
         }
     }

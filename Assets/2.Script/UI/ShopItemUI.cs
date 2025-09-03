@@ -10,12 +10,19 @@ public class ShopItemUI : MonoBehaviour
     public Image itemIcon;
     public Button actionButton;
 
-    // 더 이상 private가 아닌 public 또는 protected로 변경
+    // 수정된 부분: actionButton의 텍스트를 제어할 변수 추가
+    private TextMeshProUGUI _actionButtonText;
+
     private ShopUI _shopUI;
     private PurchasableItemData _currentItemData;
     private Animal _animalToSell;
 
-    // ShopUI 인스턴스를 직접 받도록 수정
+    private void Awake()
+    {
+        // Awake 메서드에서 actionButton의 자식으로 있는 TextMeshProUGUI 컴포넌트를 찾습니다.
+        _actionButtonText = actionButton.GetComponentInChildren<TextMeshProUGUI>();
+    }
+
     public void SetupBuyItem(ShopUI shopUI, PurchasableItemData itemData)
     {
         this._shopUI = shopUI;
@@ -23,6 +30,12 @@ public class ShopItemUI : MonoBehaviour
 
         itemNameText.text = itemData.itemName;
         itemIcon.sprite = itemData.itemIcon;
+
+        // 수정된 부분: 버튼 텍스트를 "구매"로 변경
+        if (_actionButtonText != null)
+        {
+            _actionButtonText.text = "구매";
+        }
 
         if (itemData.itemType == ItemType.Upgrade)
         {
@@ -32,6 +45,7 @@ public class ShopItemUI : MonoBehaviour
             if (currentLevel >= maxLevel)
             {
                 itemPriceText.text = "최대 레벨";
+                if (_actionButtonText != null) _actionButtonText.text = "최대"; // 버튼 텍스트도 변경
                 actionButton.interactable = false;
             }
             else
@@ -43,7 +57,6 @@ public class ShopItemUI : MonoBehaviour
         }
         else if (itemData.itemType == ItemType.Building)
         {
-            // === ★★★ 수정된 부분: Building 타입에도 Null 체크 추가 ★★★ ===
             bool isOwned = false;
             if (_shopUI.shopService != null && _shopUI.shopService.gameManager != null && _shopUI.shopService.gameManager.CurrentGameData != null)
             {
@@ -51,13 +64,13 @@ public class ShopItemUI : MonoBehaviour
             }
             else
             {
-                // 데이터 로드 전이므로 일단 보유하지 않은 것으로 간주
                 isOwned = false;
             }
 
             if (isOwned)
             {
                 itemPriceText.text = "보유중";
+                if (_actionButtonText != null) _actionButtonText.text = "보유중"; // 버튼 텍스트도 변경
                 actionButton.interactable = false;
             }
             else
@@ -85,6 +98,12 @@ public class ShopItemUI : MonoBehaviour
         itemPriceText.text = (animalToSell.animalData.animalPrice / 2).ToString("C0");
         itemIcon.sprite = animalToSell.animalData.animalIcon;
 
+        // 수정된 부분: 버튼 텍스트를 "판매"로 변경
+        if (_actionButtonText != null)
+        {
+            _actionButtonText.text = "판매";
+        }
+
         actionButton.onClick.RemoveAllListeners();
         actionButton.onClick.AddListener(() => _shopUI.ShowConfirmationPanelForSell(_animalToSell));
     }
@@ -93,16 +112,25 @@ public class ShopItemUI : MonoBehaviour
     {
         this._shopUI = shopUI;
 
+        // 수정된 부분: 닭 판매 버튼 텍스트를 "판매"로 변경
+        if (_actionButtonText != null)
+        {
+            _actionButtonText.text = "판매";
+        }
+
+        itemPriceText.text = price.ToString("C0");
+        itemIcon.sprite = null; // 닭 아이콘이 없으므로 null로 설정
+        itemNameText.text = "닭 판매";
+
         actionButton.onClick.RemoveAllListeners();
         actionButton.onClick.AddListener(() => _shopUI.ShowConfirmationPanelForSellChicken(price));
     }
 
     private int GetCurrentUpgradeLevel()
     {
-        // === ★★★ 수정된 부분: Null 체크 추가 ★★★ ===
         if (_shopUI == null || _shopUI.shopService == null || _shopUI.shopService.gameManager == null || _shopUI.shopService.gameManager.CurrentGameData == null)
         {
-            return 0; // 데이터가 아직 로드되지 않았으므로 0을 반환합니다.
+            return 0;
         }
 
         if (_currentItemData.upgradeData is BasketUpgradeData) return _shopUI.shopService.gameManager.CurrentGameData.basketLevel;

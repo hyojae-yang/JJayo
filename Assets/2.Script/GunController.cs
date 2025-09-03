@@ -6,51 +6,8 @@ public class GunController : MonoBehaviour
     {
         if (EquipmentManager.Instance.GetCurrentEquipment() == EquipmentType.Gun)
         {
-            if (Input.GetMouseButtonDown(0))
-            {
-                // ★★★ 수정된 부분: GameData에서 총알 개수를 직접 확인합니다. ★★★
-                if (GameManager.Instance.CurrentGameData.bulletCount > 0)
-                {
-                    Shoot();
-                    // ★★★ 수정된 부분: GameData에서 총알을 직접 소모시킵니다. ★★★
-                    GameManager.Instance.CurrentGameData.bulletCount -= 1;
-                }
-                else
-                {
-                    NotificationManager.Instance.ShowNotification("총알이 부족합니다!");
-                }
-            }
-        }
-    }
-
-    void Shoot()
-    {
-        Vector2 mousePosition2D = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Collider2D hitCollider = Physics2D.OverlapPoint(mousePosition2D);
-
-        if (hitCollider != null)
-        {
-            Wolf wolfTarget = hitCollider.GetComponent<Wolf>();
-            Animal animalTarget = hitCollider.GetComponent<Animal>();
-
-            if (wolfTarget != null)
-            {
-                // 총기 데미지 값도 GameData에서 가져와야 합니다.
-                // PlayerInventory는 현재 스크립트에서 더 이상 총알을 관리하지 않습니다.
-                wolfTarget.TakeDamage(GameManager.Instance.CurrentGameData.gunDamage);
-                NotificationManager.Instance.ShowNotification("늑대를 맞췄습니다!");
-                return;
-            }
-
-            if (animalTarget != null && animalTarget.animalData != null)
-            {
-                animalTarget.TakeDamage(GameManager.Instance.CurrentGameData.gunDamage, gameObject);
-                NotificationManager.Instance.ShowNotification("불쌍한 젖소를 쏘다니!");
-            }
-        }
-        else
-        {
-            NotificationManager.Instance.ShowNotification("허공에 총을 쐈습니다!");
+            // 이제 마우스 클릭 로직은 Wolf.cs의 OnMouseDown에서 처리되므로, 이 스크립트의 역할은 단순히 총을 장착했는지 확인하는 것으로 축소됩니다.
+            // 총기 사운드나 시각 효과 로직은 여기에 추가할 수 있습니다.
         }
     }
 }
