@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78a660de97df56a4dbe97c88838de4a1, type: 3}
   m_Name: DefaultGameData
   m_EditorClassIdentifier: 
-  money: 50000
-  reputation: 1000
+  money: 1000000
+  reputation: 50
   day: 1
   month: 1
   year: 1
@@ -25,6 +25,7 @@ MonoBehaviour:
   gunLevel: 0
   basketLevel: 1
   milkerLevel: 1
+  warehouseLevel: 0
   bulletCount: 0
   currentEquipment: 2
   ownedBuildingIds: []
@@ -38,3 +39,13 @@ MonoBehaviour:
   traderRequiredFreshness: 0
   traderOfferedPrice: 0
   traderCurrentEggPrice: 0
+  totalMoneyEarned: 0
+  totalMilkSold: 0
+  totalEggsSold: 0
+  totalCowsPurchased: 0
+  totalCowsSold: 0
+  totalChickensPurchased: 0
+  totalChickensSold: 0
+  totalWolvesKilled: 0
+  totalCowsEaten: 0
+  totalPlayTime: 0

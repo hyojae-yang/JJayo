@@ -138,8 +138,8 @@ public class Wolf : MonoBehaviour
         }
 
         if (health <= 0)
-        {
-            Debug.Log("늑대가 총에 맞아 쓰러졌습니다! 풀로 돌아갑니다.");
+        { // ★★★ 이 줄을 추가합니다. ★★★
+            GameManager.Instance.CurrentGameData.totalWolvesKilled++;
             if (wolfManager != null)
             {
                 wolfManager.ReturnWolfToPool(gameObject);

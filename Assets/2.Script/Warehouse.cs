@@ -15,7 +15,7 @@ public class Warehouse : MonoBehaviour
     public List<Milk> storedMilkList = new List<Milk>();
 
     [Tooltip("아이템의 신선도가 감소하는 주기(초).")]
-    public float freshnessDecayInterval = 120f;
+    public float freshnessDecayInterval = 90f;
     private float decayTimer = 0f;
 
     private void Awake()
@@ -57,9 +57,27 @@ public class Warehouse : MonoBehaviour
 
     private void DecayFreshness()
     {
+        // GameManager와 ShopService를 통해 현재 창고 레벨과 업그레이드 데이터를 가져옵니다.
+        int warehouseLevel = GameManager.Instance.CurrentGameData.warehouseLevel;
+
+        // ShopService의 GetShopItems()를 통해 창고 업그레이드 데이터를 찾습니다.
+        // FirstOrDefault()는 일치하는 항목이 없으면 null을 반환합니다.
+        var warehouseUpgradeItem = ShopService.Instance.GetShopItems()
+                               .FirstOrDefault(item => item.itemType == ItemType.Upgrade && item.upgradeData is WarehouseUpgradeData);
+
+        float freshnessDecayMultiplier = 1.0f;
+        if (warehouseUpgradeItem != null)
+        {
+            var warehouseUpgradeData = warehouseUpgradeItem.upgradeData as WarehouseUpgradeData;
+            freshnessDecayMultiplier = warehouseUpgradeData.GetFreshnessDecayMultiplier(warehouseLevel);
+        }
+
+        // 신선도 감소량에 업그레이드 배율을 적용합니다.
+        float decayAmount = 1f * freshnessDecayMultiplier;
+
         for (int i = storedMilkList.Count - 1; i >= 0; i--)
         {
-            storedMilkList[i].freshness = Mathf.Max(0, storedMilkList[i].freshness - 1);
+            storedMilkList[i].freshness = Mathf.Max(0, storedMilkList[i].freshness - decayAmount);
             if (storedMilkList[i].freshness <= 0)
             {
                 storedMilkList.RemoveAt(i);
@@ -68,7 +86,7 @@ public class Warehouse : MonoBehaviour
 
         for (int i = storedEggFreshness.Count - 1; i >= 0; i--)
         {
-            storedEggFreshness[i] = Mathf.Max(0, storedEggFreshness[i] - 1);
+            storedEggFreshness[i] = Mathf.Max(0, storedEggFreshness[i] - decayAmount);
             if (storedEggFreshness[i] <= 0)
             {
                 storedEggFreshness.RemoveAt(i);
@@ -137,7 +155,7 @@ public class Warehouse : MonoBehaviour
             // 신선도가 낮은 우유부터 판매 (가장 오래된 우유부터 처리)
             storedMilkList.Sort((a, b) => a.freshness.CompareTo(b.freshness));
             storedMilkList.RemoveRange(0, amount);
-
+            GameManager.Instance.CurrentGameData.totalMilkSold += amount; // ★★★ 이 줄을 추가합니다. ★★★
             NotificationManager.Instance.ShowNotification($"우유 {amount}개를 상인에게 판매했습니다!");
         }
     }

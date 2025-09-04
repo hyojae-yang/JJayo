@@ -33,6 +33,8 @@ public class MoneyManager : MonoBehaviour
     {
         // GameManager.Instance를 직접 참조하도록 변경
         GameManager.Instance.CurrentGameData.money += amount;
+        // ★★★ 이 줄을 추가합니다. ★★★
+        GameManager.Instance.CurrentGameData.totalMoneyEarned += amount;
         OnMoneyChanged?.Invoke(GameManager.Instance.CurrentGameData.money);
     }
 

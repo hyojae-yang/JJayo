@@ -25,6 +25,9 @@ public class InfoPanelManager : MonoBehaviour
     public TextMeshProUGUI milkerStatsText;
     public TextMeshProUGUI gunLevelText;
     public TextMeshProUGUI gunStatsText;
+    // ★★★ 창고 업그레이드 UI 텍스트 변수 추가 ★★★
+    public TextMeshProUGUI warehouseLevelText;
+    public TextMeshProUGUI warehouseStatsText;
 
     [Header("Panel 2: Inventory UI Texts")]
     public TextMeshProUGUI milkCountText;
@@ -160,6 +163,23 @@ public class InfoPanelManager : MonoBehaviour
             float damage = gunUpgradeData.GetDamage(level);
             gunLevelText.text = $"레벨: {level}";
             gunStatsText.text = $"데미지: {damage:F1}";
+        }
+
+        // ★★★ 새로 추가된 창고 업그레이드 정보 UI 업데이트 로직 ★★★
+        var warehouseUpgradeData = allShopItems.FirstOrDefault(i => i.upgradeData is WarehouseUpgradeData)?.upgradeData as WarehouseUpgradeData;
+        if (warehouseLevelText != null && warehouseStatsText != null && warehouseUpgradeData != null)
+        {
+            int level = gameManager.CurrentGameData.warehouseLevel;
+            float freshnessMultiplier = warehouseUpgradeData.GetFreshnessDecayMultiplier(level);
+            // 1.0f - multiplier를 계산하여 몇 퍼센트가 '감소'하는지 표시합니다.
+            string percentage = $"{((1 - freshnessMultiplier) * 100):F0}";
+            warehouseLevelText.text = $"레벨: {level}";
+            warehouseStatsText.text = $"신선도 감소 속도: {percentage}% 감소";
+        }
+        else
+        {
+            if (warehouseLevelText != null) warehouseLevelText.text = "레벨: 0";
+            if (warehouseStatsText != null) warehouseStatsText.text = "능력치 정보 없음";
         }
     }
 

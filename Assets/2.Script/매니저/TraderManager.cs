@@ -168,6 +168,7 @@ public class TraderManager : MonoBehaviour
         Warehouse.Instance.RemoveEggs(count);
         traderData.eggsSoldToday += count;
         traderData.eggRevenueToday += totalRevenue;
+        GameManager.Instance.CurrentGameData.totalEggsSold += count; // ★★★ 이 줄을 추가합니다. ★★★
     }
 }
 

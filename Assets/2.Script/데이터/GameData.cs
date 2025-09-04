@@ -20,23 +20,15 @@ public class GameData : ScriptableObject
     public int dailyEggsProduced;
     public int milkCount;
 
-    // ★★★ 삭제된 부분: milkAverageFreshness는 더 이상 저장하지 않습니다. ★★★
-    // public float milkAverageFreshness;
-
     public int eggCount;
 
     // 장비 및 업그레이드 레벨
     public int pastureLevel;
-    // ★★★ 삭제된 부분: hasGun은 더 이상 저장하지 않습니다. ownedEquipmentIds로 대체합니다. ★★★
-    // public bool hasGun;
-
     public int gunLevel;
     public int basketLevel;
     public int milkerLevel;
+    public int warehouseLevel; // ★★★ 새로 추가된 변수 ★★★
     public int bulletCount;
-
-    // ★★★ 삭제된 부분: gunDamage는 더 이상 저장하지 않습니다. gunLevel을 기반으로 계산됩니다. ★★★
-    // public float gunDamage;
 
     public EquipmentType currentEquipment;
 
@@ -44,11 +36,11 @@ public class GameData : ScriptableObject
     public List<string> ownedBuildingIds;
     public List<string> ownedEquipmentIds;
 
-    // ★★★ 추가된 부분: 닭 마릿수 및 닭장에 쌓인 알의 개수를 저장합니다. ★★★
+    // 닭 마릿수 및 닭장에 쌓인 알의 개수를 저장합니다.
     public int chickenCount;
     public int currentChickenEggCount;
 
-    // ★★★ 추가된 부분: 하루가 지났는지 여부를 저장합니다. ★★★
+    // 하루가 지났는지 여부를 저장합니다.
     public bool dailyProductionReset = false;
 
 
@@ -67,6 +59,18 @@ public class GameData : ScriptableObject
     {
         return ownedBuildingIds.Contains(buildingId);
     }
+    // ★★★ 게임 통계 변수 추가 ★★★
+    public int totalMoneyEarned;
+    public int totalMilkSold;
+    public int totalEggsSold;
+    public int totalCowsPurchased;
+    public int totalCowsSold;
+    public int totalChickensPurchased;
+    public int totalChickensSold;
+    public int totalWolvesKilled;
+    public int totalCowsEaten;
+    public float totalPlayTime;
+    // ★★★ 통계 변수 추가 끝 ★★★
 }
 
 [Serializable]

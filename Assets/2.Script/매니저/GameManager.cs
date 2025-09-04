@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
 
     private GameData runtimeGameData;
 
+    public GameObject clearPanel;
     public GameData CurrentGameData => runtimeGameData;
 
     private string currentSaveFileName;
@@ -64,7 +65,8 @@ public class GameManager : MonoBehaviour
         if (scene.name == "MainScene")
         {
             InitializeReferences();
-
+            FindClearPanel();
+            clearPanel.SetActive(false);
             if (PastureManager.Instance != null)
             {
                 PastureManager.Instance.Initialize();
@@ -135,6 +137,14 @@ public class GameManager : MonoBehaviour
         if (isNewGame)
         {
             runtimeGameData = Instantiate(defaultGameData);
+            // ★★★ 이 부분에 아래 코드를 추가합니다. ★★★
+            runtimeGameData.totalMilkSold = 0;
+            runtimeGameData.totalEggsSold = 0;
+            runtimeGameData.totalCowsPurchased = 0;
+            runtimeGameData.totalCowsSold = 0;
+            runtimeGameData.totalChickensPurchased = 0;
+            runtimeGameData.totalWolvesKilled = 0;
+            runtimeGameData.totalCowsEaten = 0;
         }
         else
         {
@@ -222,5 +232,57 @@ public class GameManager : MonoBehaviour
     {
         runtimeGameData.reputation += amount;
         UpdateUI();
+    }
+    private void FindClearPanel()
+    {
+        if (clearPanel == null)
+        {
+            GameObject panelObject = GameObject.FindWithTag("GameClearPanel");
+            if (panelObject != null)
+            {
+                clearPanel = panelObject;
+                Debug.Log("게임 클리어 패널을 태그로 찾았습니다: " + clearPanel.name);
+            }
+            else
+            {
+                Debug.LogWarning("씬에서 'GameClearPanel' 태그를 가진 오브젝트를 찾을 수 없습니다.");
+            }
+        }
+    }
+    // GameManager.cs - EndGame() 메서드 추가
+    public void EndGame()
+    {
+        Debug.Log("게임 클리어!");
+
+        // 1. 게임 내 모든 상호작용 및 진행 관련 스크립트 비활성화
+        Time.timeScale = 0; // 게임 시간 정지
+        if (timeManager != null) timeManager.enabled = false;
+        if (MoneyManager.Instance != null) MoneyManager.Instance.enabled = false;
+        if (AnimalManager.Instance != null) AnimalManager.Instance.enabled = false;
+        if (BuildingManager.Instance != null) BuildingManager.Instance.enabled = false;
+        if (EquipmentHandler.Instance != null) EquipmentHandler.Instance.enabled = false;
+        if (ShopService.Instance != null) ShopService.Instance.enabled = false;
+        if (TraderManager.Instance != null) TraderManager.Instance.enabled = false;
+        if (TraderUI.Instance != null) TraderUI.Instance.enabled = false;
+        if (InfoPanelManager.Instance != null) InfoPanelManager.Instance.enabled = false;
+        if (PlayerUI.Instance != null) PlayerUI.Instance.enabled = false;
+        if (PastureManager.Instance != null) PastureManager.Instance.enabled = false;
+        if (UpgradeHandler.Instance != null) UpgradeHandler.Instance.enabled = false;
+        if (ChickenCoop.Instance != null) ChickenCoop.Instance.enabled = false;
+        if (ShopUI.Instance != null) ShopUI.Instance.enabled = false;
+        // 필요에 따라 다른 매니저 스크립트도 추가할 수 있습니다.
+
+        // 2. UI 패널 활성화
+        if (clearPanel != null)
+        {
+            clearPanel.SetActive(true); // 클리어 팝업 활성화
+
+            // 3. GameClearPanel 스크립트의 통계 업데이트 메서드 호출
+            GameClearPanel gameClearPanelScript = clearPanel.GetComponent<GameClearPanel>();
+            if (gameClearPanelScript != null)
+            {
+                gameClearPanelScript.UpdateStatsUI();
+            }
+        }
     }
 }

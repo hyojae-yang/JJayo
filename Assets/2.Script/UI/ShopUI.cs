@@ -136,23 +136,19 @@ public class ShopUI : MonoBehaviour
             }
         }
 
-        // ★★★ 수정된 부분: ChickenCoop.numberOfChickens 대신 GameData의 chickenCount를 사용합니다. ★★★
         if (GameManager.Instance != null && GameManager.Instance.CurrentGameData != null && GameManager.Instance.CurrentGameData.chickenCount > 0)
         {
             int sellPrice = shopService.GetChickenSellPrice();
 
-            GameObject itemCard = Instantiate(uiItemCardPrefab, sellContentPanel);
-            ShopItemUI itemUI = itemCard.GetComponent<ShopItemUI>();
-
             var chickenData = shopService.GetShopItems().FirstOrDefault(item => item.animalData != null && item.animalData.animalType == AnimalType.Chicken);
+
             if (chickenData != null)
             {
-                // ★★★ 수정된 부분: ChickenCoop.numberOfChickens 대신 GameData의 chickenCount를 사용합니다. ★★★
-                itemUI.itemNameText.text = chickenData.animalData.animalName + $" (현재 {GameManager.Instance.CurrentGameData.chickenCount}마리)";
-                itemUI.itemPriceText.text = sellPrice.ToString("C0");
-                itemUI.itemIcon.sprite = chickenData.animalData.animalIcon;
+                GameObject itemCard = Instantiate(uiItemCardPrefab, sellContentPanel);
+                ShopItemUI itemUI = itemCard.GetComponent<ShopItemUI>();
+
+                itemUI.SetupSellChicken(this, sellPrice, chickenData.itemIcon);
             }
-            itemUI.SetupSellChicken(this, sellPrice);
         }
     }
 
@@ -208,6 +204,7 @@ public class ShopUI : MonoBehaviour
         if (upgradeData is MilkerUpgradeData) return shopService.gameManager.CurrentGameData.milkerLevel;
         if (upgradeData is GunUpgradeData) return shopService.gameManager.CurrentGameData.gunLevel;
         if (upgradeData is PastureUpgradeData) return shopService.gameManager.CurrentGameData.pastureLevel;
+        if (upgradeData is WarehouseUpgradeData) return shopService.gameManager.CurrentGameData.warehouseLevel; // ★★★ 새로 추가된 부분 ★★★
         return 0;
     }
 

@@ -48,6 +48,8 @@ public class TimeManager : MonoBehaviour
             timeElapsed -= dayLengthInSeconds;
             PassOneDay();
         }
+        // ★★★ 이 줄을 추가합니다. ★★★
+        GameManager.Instance.CurrentGameData.totalPlayTime += Time.deltaTime;
     }
 
     public void Initialize(float dayLength, int year, int month, int day, int reputation)

@@ -93,6 +93,7 @@ public class TraderUI : MonoBehaviour
         {
             traderUIPanel.SetActive(false);
             Time.timeScale = 1;
+            InfoPanelManager.Instance.OnSaveButtonClicked();
         }
     }
 

@@ -122,10 +122,29 @@ public class ShopService : MonoBehaviour
         {
             case ItemType.Animal:
                 AnimalHandler.Instance.Purchase(itemToPurchase.animalData);
+                // ★★★ 이 부분에 아래 코드를 추가합니다. ★★★
+                if (itemToPurchase.animalData.animalType == AnimalType.Cow)
+                {
+                    gameManager.CurrentGameData.totalCowsPurchased++;
+                }
+                else if (itemToPurchase.animalData.animalType == AnimalType.Chicken)
+                {
+                    gameManager.CurrentGameData.totalChickensPurchased++;
+                }
+                // ★★★ 추가 끝 ★★★
                 if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification(itemToPurchase.itemName + "을(를) 구매했습니다!");
                 break;
             case ItemType.Building:
                 BuildingHandler.Instance.Purchase(itemToPurchase.buildingData);
+                // ★★★ 이 줄을 추가합니다. ★★★
+                if (itemToPurchase.buildingData.buildingId == "Factory")
+                {
+                    if (GameManager.Instance != null)
+                    {
+                        GameManager.Instance.EndGame();
+                    }
+                }
+                // ★★★ 추가 끝 ★★★
                 break;
             case ItemType.Equipment:
                 EquipmentHandler.Instance.Purchase(itemToPurchase.equipmentData);
@@ -175,6 +194,8 @@ public class ShopService : MonoBehaviour
         {
             moneyManager.AddMoney(GetChickenSellPrice());
             AnimalHandler.Instance.RemoveChicken();
+            // ★★★ 이 줄을 추가합니다. ★★★
+            GameManager.Instance.CurrentGameData.totalChickensSold++;
         }
         else
         {

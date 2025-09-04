@@ -150,8 +150,8 @@ public class AnimalHandler : MonoBehaviour
         if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification(animalToSell.animalData.animalName + "을(를) " + price + "원에 판매했습니다!");
 
         if (AnimalManager.Instance != null) AnimalManager.Instance.RemoveAnimal(animalToSell);
-
-        // ★★★ 수정된 부분: 이제 cowObjectPool 대신 해당 젖소의 풀을 찾아 반환해야 합니다. ★★★
+        // ★★★ 이 줄을 추가합니다. ★★★
+        GameManager.Instance.CurrentGameData.totalCowsSold++;
         ObjectPool targetPool = null;
         foreach (var pair in animalPools)
         {

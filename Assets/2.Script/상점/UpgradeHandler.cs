@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 // 업그레이드 타입을 명시하기 위한 Enum
-public enum UpgradeType { Gun, Basket, Milker, Pasture }
+public enum UpgradeType { Gun, Basket, Milker, Pasture, Warehouse } // ★★★ Warehouse 추가 ★★★
 
 public class UpgradeHandler : MonoBehaviour
 {
@@ -61,6 +61,8 @@ public class UpgradeHandler : MonoBehaviour
                 break;
             case UpgradeType.Pasture:
                 break;
+            case UpgradeType.Warehouse: // ★★★ 새로 추가된 부분 ★★★
+                break;
         }
     }
 
@@ -74,6 +76,7 @@ public class UpgradeHandler : MonoBehaviour
         else if (upgradeData is MilkerUpgradeData) currentLevel = gameData.milkerLevel;
         else if (upgradeData is GunUpgradeData) currentLevel = gameData.gunLevel;
         else if (upgradeData is PastureUpgradeData) currentLevel = gameData.pastureLevel;
+        else if (upgradeData is WarehouseUpgradeData) currentLevel = gameData.warehouseLevel; // ★★★ 새로 추가된 부분 ★★★
 
         if (currentLevel == upgradeData.GetMaxLevel())
         {
@@ -110,6 +113,11 @@ public class UpgradeHandler : MonoBehaviour
                 pastureManager.UpdateVisuals();
             }
             if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("목초가 레벨 " + gameData.pastureLevel + "로 업그레이드 되었습니다!");
+        }
+        else if (upgradeData is WarehouseUpgradeData) // ★★★ 새로 추가된 부분 ★★★
+        {
+            gameData.warehouseLevel++;
+            if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("창고가 업그레이드 되었습니다!");
         }
     }
 }

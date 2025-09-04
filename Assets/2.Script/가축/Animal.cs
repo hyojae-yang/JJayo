@@ -86,6 +86,8 @@ public class Animal : MonoBehaviour
             if (wolfComponent != null)
             {
                 wolfComponent.OnKillTarget();
+                // ★★★ 이 줄을 추가합니다. ★★★
+                GameManager.Instance.CurrentGameData.totalCowsEaten++;
             }
         }
 
