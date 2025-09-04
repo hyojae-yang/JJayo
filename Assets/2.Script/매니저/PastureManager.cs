@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using System;
+using System.Collections.Generic; // List를 사용하기 위해 추가
 
 public class PastureManager : MonoBehaviour
 {
@@ -85,5 +86,20 @@ public class PastureManager : MonoBehaviour
         {
             mainCamera.backgroundColor = pastureColors[gameManager.CurrentGameData.pastureLevel];
         }
+    }
+
+    // ★★★ 새로 추가된 메서드 ★★★
+    public float GetFreshnessBonus()
+    {
+        if (pastureUpgradeData == null)
+        {
+            Debug.LogError("PastureUpgradeData가 할당되지 않았습니다.");
+            return 0f;
+        }
+
+        (int min, int max) range = pastureUpgradeData.GetFreshnessRange(CurrentPastureLevel);
+
+        // 범위 내에서 무작위 값을 반환합니다.
+        return UnityEngine.Random.Range((float)range.min, (float)range.max);
     }
 }

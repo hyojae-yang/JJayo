@@ -108,13 +108,15 @@ public class AnimalManager : MonoBehaviour
                     newAnimal.Initialize(prefabToInstantiate.GetComponent<Animal>().animalData);
                 }
 
-                if (productionComponent != null && GameManager.Instance != null && GameManager.Instance.pastureUpgradeData != null)
+                if (productionComponent != null) // 기존 코드에서 && 이후 부분을 제거
                 {
-                    productionComponent.Initialize(GameManager.Instance.CurrentPastureLevel, GameManager.Instance.pastureUpgradeData);
+                    // ★★★ 수정된 부분: 새로운 초기화 메서드에 animalData를 전달합니다. ★★★
+                    productionComponent.Initialize(newAnimal.animalData);
                 }
                 else
                 {
-                    Debug.LogError("생산 및 신선도 초기화에 필요한 데이터가 유효하지 않습니다. GameManager 또는 Production 컴포넌트를 확인하세요.");
+                    // 에러 메시지도 Production 컴포넌트를 찾지 못했다는 내용으로 단순화합니다.
+                    Debug.LogError("생산 컴포넌트를 찾을 수 없습니다.");
                 }
 
                 if (newAnimal != null)
@@ -130,7 +132,6 @@ public class AnimalManager : MonoBehaviour
         }
     }
 
-    // 수정된 부분: 인수를 받지 않고 내부 스폰포인트 리스트를 사용합니다.
     public Vector2 GetAvailableCowPosition()
     {
         foreach (Transform spawnPoint in cowSpawnPoints)

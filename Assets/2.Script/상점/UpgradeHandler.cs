@@ -22,6 +22,7 @@ public class UpgradeHandler : MonoBehaviour
     private GameData gameData;
     private PastureManager pastureManager;
 
+
     private void Awake()
     {
         if (m_instance == null)

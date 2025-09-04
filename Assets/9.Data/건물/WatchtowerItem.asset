@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2abbf4080b335e94cae47429c7c4fc9d, type: 3}
+  m_Name: WatchtowerItem
+  m_EditorClassIdentifier: 
+  itemName: "\uAC10\uC2DC\uD0D1"
+  itemPrice: 30000
+  itemIcon: {fileID: -5203024000661803953, guid: ba590aa2b72f4e44b9573d6d6f9075c3, type: 3}
+  itemPrefab: {fileID: 8652172408353631754, guid: e8a8de96eab5be04cba69b25b9dfaaad, type: 3}
+  itemType: 1
+  animalData: {fileID: 0}
+  buildingData: {fileID: 11400000, guid: ecc47f3b2f068fa41b7b0776868b185b, type: 2}
+  equipmentData: {fileID: 0}
+  consumableData: {fileID: 0}
+  upgradeData: {fileID: 0}

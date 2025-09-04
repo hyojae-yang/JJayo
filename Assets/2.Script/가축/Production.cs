@@ -15,22 +15,20 @@ public class Production : MonoBehaviour
     public float currentFreshness;
 
     private float productionTimer = 0f;
-    private int pastureLevel;
-    private PastureUpgradeData pastureUpgradeData;
 
-    // 추가된 부분: 초기화 여부를 확인하는 플래그
+    // ★★★ 변경된 변수: 이제 AnimalData를 직접 참조합니다. ★★★
+    private AnimalData animalData;
+
     private bool isInitialized = false;
 
     // AnimalHandler가 호출하는 초기화 메서드
-    public void Initialize(int level, PastureUpgradeData data)
+    // ★★★ 매개변수가 변경되었습니다. ★★★
+    public void Initialize(AnimalData data)
     {
-        this.pastureLevel = level;
-        this.pastureUpgradeData = data;
+        this.animalData = data;
 
         currentProductionCount = 0;
         productionTimer = 0f;
-
-        // 데이터 할당 후 초기화 완료 플래그를 true로 설정
         isInitialized = true;
 
         SetFreshnessBasedOnPasture();
@@ -38,7 +36,6 @@ public class Production : MonoBehaviour
 
     void Update()
     {
-        // 수정된 부분: 초기화가 완료된 후에만 로직 실행
         if (!isInitialized) return;
 
         if (currentProductionCount >= productionMax)
@@ -52,7 +49,6 @@ public class Production : MonoBehaviour
             currentProductionCount++;
             productionTimer = 0f;
 
-            // 일일 우유 생산량 기록
             if (GameManager.Instance != null && GameManager.Instance.CurrentGameData != null)
             {
                 GameManager.Instance.CurrentGameData.dailyMilkProduced++;
@@ -65,15 +61,20 @@ public class Production : MonoBehaviour
     // 신선도를 설정하는 함수
     private void SetFreshnessBasedOnPasture()
     {
-        // isInitialized 체크가 추가되었으므로, pastureUpgradeData가 null일 가능성이 사라짐
-        if (pastureUpgradeData == null)
+        // ★★★ 신선도 계산 로직이 전면 교체되었습니다. ★★★
+        if (animalData == null)
         {
-            Debug.LogError("PastureUpgradeData가 할당되지 않았습니다. 데이터를 전달하는 코드를 확인해주세요.");
+            Debug.LogError("AnimalData가 할당되지 않았습니다. 데이터를 전달하는 코드를 확인해주세요.");
             return;
         }
 
-        (int min, int max) range = pastureUpgradeData.GetFreshnessRange(pastureLevel);
+        // 젖소의 기본 신선도를 가져옵니다.
+        float baseFreshness = animalData.baseFreshness;
 
-        currentFreshness = Random.Range(range.min, range.max + 1);
+        // 목초지 매니저로부터 무작위 보너스 값을 가져옵니다.
+        float pastureBonus = PastureManager.Instance.GetFreshnessBonus();
+
+        // 두 값을 더하여 최종 신선도를 결정합니다.
+        currentFreshness = baseFreshness + pastureBonus;
     }
 }

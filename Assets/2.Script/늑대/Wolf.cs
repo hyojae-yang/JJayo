@@ -162,10 +162,9 @@ public class Wolf : MonoBehaviour
         {
             if (GameManager.Instance.CurrentGameData.bulletCount > 0)
             {
-                // 총알 소모 및 데미지 적용
                 GameManager.Instance.CurrentGameData.bulletCount -= 1;
-                TakeDamage(GameManager.Instance.CurrentGameData.gunDamage);
-                NotificationManager.Instance.ShowNotification("늑대를 맞췄습니다!");
+                TakeDamage(PlayerInventory.Instance.GunDamage);
+
             }
             else
             {

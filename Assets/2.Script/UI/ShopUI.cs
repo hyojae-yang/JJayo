@@ -136,8 +136,8 @@ public class ShopUI : MonoBehaviour
             }
         }
 
-        ChickenCoop chickenCoop = FindFirstObjectByType<ChickenCoop>();
-        if (chickenCoop != null && chickenCoop.numberOfChickens > 0)
+        // ★★★ 수정된 부분: ChickenCoop.numberOfChickens 대신 GameData의 chickenCount를 사용합니다. ★★★
+        if (GameManager.Instance != null && GameManager.Instance.CurrentGameData != null && GameManager.Instance.CurrentGameData.chickenCount > 0)
         {
             int sellPrice = shopService.GetChickenSellPrice();
 
@@ -147,7 +147,8 @@ public class ShopUI : MonoBehaviour
             var chickenData = shopService.GetShopItems().FirstOrDefault(item => item.animalData != null && item.animalData.animalType == AnimalType.Chicken);
             if (chickenData != null)
             {
-                itemUI.itemNameText.text = chickenData.animalData.animalName + $" (현재 {chickenCoop.numberOfChickens}마리)";
+                // ★★★ 수정된 부분: ChickenCoop.numberOfChickens 대신 GameData의 chickenCount를 사용합니다. ★★★
+                itemUI.itemNameText.text = chickenData.animalData.animalName + $" (현재 {GameManager.Instance.CurrentGameData.chickenCount}마리)";
                 itemUI.itemPriceText.text = sellPrice.ToString("C0");
                 itemUI.itemIcon.sprite = chickenData.animalData.animalIcon;
             }

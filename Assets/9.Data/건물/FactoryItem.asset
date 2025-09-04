@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingId: Factory
   buildingName: "\uC6B0\uC720 \uACF5\uC7A5"
-  buildingPrice: 50000
+  buildingPrice: 1000000
   buildingIcon: {fileID: -7783430325343852132, guid: 769ab7c3acc9c09488c9bd6f9cbeb83c, type: 3}
   buildingPrefab: {fileID: 8652172408353631754, guid: b9debeedd09336b478f018c946cf124f, type: 3}

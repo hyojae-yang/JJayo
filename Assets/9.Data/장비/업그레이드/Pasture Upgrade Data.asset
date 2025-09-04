@@ -15,22 +15,22 @@ MonoBehaviour:
   upgradeLevels:
   - upgradePrice: 10000
     minFreshness: 0
-    maxFreshness: 20
+    maxFreshness: 5
   - upgradePrice: 30000
+    minFreshness: 5
+    maxFreshness: 10
+  - upgradePrice: 50000
+    minFreshness: 10
+    maxFreshness: 20
+  - upgradePrice: 100000
     minFreshness: 20
     maxFreshness: 30
-  - upgradePrice: 50000
+  - upgradePrice: 300000
     minFreshness: 30
     maxFreshness: 40
-  - upgradePrice: 100000
+  - upgradePrice: 500000
     minFreshness: 40
     maxFreshness: 50
-  - upgradePrice: 300000
-    minFreshness: 50
-    maxFreshness: 60
-  - upgradePrice: 500000
-    minFreshness: 60
-    maxFreshness: 70
   - upgradePrice: 1000000
-    minFreshness: 70
-    maxFreshness: 90
+    minFreshness: 40
+    maxFreshness: 50

@@ -13,26 +13,26 @@ MonoBehaviour:
   m_Name: DefaultGameData
   m_EditorClassIdentifier: 
   money: 50000
-  reputation: 50
+  reputation: 1000
   day: 1
   month: 1
   year: 1
   dailyMilkProduced: 0
   dailyEggsProduced: 0
   milkCount: 0
-  milkAverageFreshness: 0
   eggCount: 0
   pastureLevel: 0
-  hasGun: 0
   gunLevel: 0
   basketLevel: 1
   milkerLevel: 1
   bulletCount: 0
-  gunDamage: 0
   currentEquipment: 2
   ownedBuildingIds: []
   ownedEquipmentIds: []
-  savedAnimals: []
+  chickenCount: 0
+  currentChickenEggCount: 0
+  dailyProductionReset: 0
+  savedCows: []
   savedBuildings: []
   traderRequiredMilkAmount: 0
   traderRequiredFreshness: 0

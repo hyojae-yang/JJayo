@@ -1,4 +1,5 @@
 using UnityEngine;
+
 public enum AnimalType
 {
     Cow,
@@ -18,7 +19,16 @@ public class AnimalData : ScriptableObject
     public ProductData productData;
     public int maxProductionCount;
 
-    // 이 변수가 추가되었습니다.
     public string animalId;
     public AnimalType animalType;
+
+    // ★★★ 추가된 변수: 이 젖소를 해금하는 데 필요한 명성도 값 ★★★
+    public int unlockReputation;
+
+    // ★★★ 추가된 변수: 이 젖소의 기본 신선도 값 (0-50) ★★★
+    public float baseFreshness;
+
+    // ★★★ 추가된 변수: 이 동물의 최대 체력 값 ★★★
+    [Tooltip("이 동물의 최대 체력입니다.")]
+    public float maxHealth;
 }

@@ -10,7 +10,6 @@ public class ShopService : MonoBehaviour
     public MoneyManager moneyManager;
     public ShopManager shopManager;
 
-    // 이 변수는 인스펙터로 연결하지 않고, 스크립트에서 직접 찾습니다.
     public GameManager gameManager;
 
     private void Awake()
@@ -135,10 +134,17 @@ public class ShopService : MonoBehaviour
                 UpgradeHandler.Instance.Purchase(itemToPurchase.upgradeData);
                 break;
             case ItemType.Consumable:
-                if (itemToPurchase.itemName == "총알(30개)")
+                if (itemToPurchase.itemName == "총알(10개)")
                 {
                     gameData.bulletCount += itemToPurchase.consumableData.amount;
-                    if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification(itemToPurchase.itemName + "을(를) 구매했습니다.");
+                    if (NotificationManager.Instance != null)
+                    {
+                        NotificationManager.Instance.ShowNotification(itemToPurchase.itemName + "을(를) 구매했습니다.");
+                    }
+                    if (InfoPanelManager.Instance != null)
+                    {
+                        InfoPanelManager.Instance.UpdateBulletCountUI();
+                    }
                 }
                 break;
         }

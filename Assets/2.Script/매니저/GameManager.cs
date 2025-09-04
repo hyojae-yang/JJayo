@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public class GameManager : MonoBehaviour
 {
@@ -65,49 +66,49 @@ public class GameManager : MonoBehaviour
             InitializeReferences();
 
             if (PastureManager.Instance != null)
-        {
-            PastureManager.Instance.Initialize();
-        }
+            {
+                PastureManager.Instance.Initialize();
+            }
 
-        if (ShopUI.Instance != null)
-        {
-            ShopUI.Instance.Initialize();
-        }
+            if (ShopUI.Instance != null)
+            {
+                ShopUI.Instance.Initialize();
+            }
 
-        if (UpgradeHandler.Instance != null)
-        {
-            UpgradeHandler.Instance.Initialize();
-        }
+            if (UpgradeHandler.Instance != null)
+            {
+                UpgradeHandler.Instance.Initialize();
+            }
 
-        if (EquipmentHandler.Instance != null)
-        {
-            EquipmentHandler.Instance.Initialize();
-        }
+            if (EquipmentHandler.Instance != null)
+            {
+                EquipmentHandler.Instance.Initialize();
+            }
 
-        if (TraderManager.Instance != null)
-        {
-            TraderManager.Instance.Initialize();
-        }
-        if (TraderUI.Instance != null)
-        {
-            TraderUI.Instance.Initialize();
-        }
+            if (TraderManager.Instance != null)
+            {
+                TraderManager.Instance.Initialize();
+            }
+            if (TraderUI.Instance != null)
+            {
+                TraderUI.Instance.Initialize();
+            }
 
-        if (timeManager != null)
-        {
-            timeManager.Initialize(dayLengthInSeconds, runtimeGameData.year, runtimeGameData.month, runtimeGameData.day, runtimeGameData.reputation);
-        }
+            if (timeManager != null)
+            {
+                timeManager.Initialize(dayLengthInSeconds, runtimeGameData.year, runtimeGameData.month, runtimeGameData.day, runtimeGameData.reputation);
+            }
 
-        if (AnimalManager.Instance != null && runtimeGameData.savedCows != null)
-        {
-            AnimalManager.Instance.LoadCowData(runtimeGameData.savedCows, cowPrefabs);
-        }
-        if (BuildingManager.Instance != null && runtimeGameData.savedBuildings != null)
-        {
-            BuildingManager.Instance.LoadBuildingData(runtimeGameData.savedBuildings, buildingPrefabs);
-        }
+            if (AnimalManager.Instance != null && runtimeGameData.savedCows != null)
+            {
+                AnimalManager.Instance.LoadCowData(runtimeGameData.savedCows, cowPrefabs);
+            }
+            if (BuildingManager.Instance != null && runtimeGameData.savedBuildings != null)
+            {
+                BuildingManager.Instance.LoadBuildingData(runtimeGameData.savedBuildings, buildingPrefabs);
+            }
 
-        UpdateUI();
+            UpdateUI();
         }
         else
         {
@@ -162,6 +163,11 @@ public class GameManager : MonoBehaviour
                 currentSaveFileName = null;
             }
         }
+
+        if (ChickenCoop.Instance != null)
+        {
+            // 위 코드는 이제 필요 없습니다. ChickenCoop 스크립트 자체가 GameData를 직접 참조하도록 변경되었기 때문입니다.
+        }
     }
 
     private void InitializeReferences()
@@ -186,6 +192,11 @@ public class GameManager : MonoBehaviour
                 runtimeGameData.savedBuildings = BuildingManager.Instance.SaveBuildingData();
             }
 
+            if (ChickenCoop.Instance != null)
+            {
+                // 위 코드는 이제 필요 없습니다. 다른 스크립트에서 GameData를 직접 수정하기 때문입니다.
+            }
+
             SaveLoadManager.Instance.SaveGame(runtimeGameData, currentSaveFileName);
 
             Debug.Log($"게임을 {currentSaveFileName} 파일에 저장했습니다.");
@@ -197,6 +208,8 @@ public class GameManager : MonoBehaviour
         if (InfoPanelManager.Instance != null)
         {
             InfoPanelManager.Instance.UpdateReputationUI();
+            // ★★★ 추가된 코드: 총알 UI도 함께 업데이트합니다. ★★★
+            InfoPanelManager.Instance.UpdateBulletCountUI();
         }
 
         if (playerUI != null)

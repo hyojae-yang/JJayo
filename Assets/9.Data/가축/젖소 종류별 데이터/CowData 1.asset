@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03673a69712f9a04c8a8afe517a15159, type: 3}
+  m_Name: CowData 1
+  m_EditorClassIdentifier: 
+  animalName: "\uC816\uC18C2"
+  animalPrice: 800
+  animalIcon: {fileID: 910929823126855903, guid: 87ba9154a408a514483311c84c975a15, type: 3}
+  animalPrefab: {fileID: 746704991644772496, guid: c3338b9fadb310c4fbe8c0d7ad9fa3b5, type: 3}
+  productionInterval: 3.5
+  productData: {fileID: 11400000, guid: c469b33cce22deb46897420c90246098, type: 2}
+  maxProductionCount: 20
+  animalId: Cow2
+  animalType: 0
+  unlockReputation: 100
+  baseFreshness: 10
+  maxHealth: 150

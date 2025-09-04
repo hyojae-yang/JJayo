@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine; // ScriptableObject 사용을 위해 UnityEngine 네임스페이스 추가
+using UnityEngine;
 
 // 유니티 에디터 메뉴에 'Create/Game Data' 항목을 추가합니다.
 [CreateAssetMenu(fileName = "New Game Data", menuName = "Game Data")]
@@ -19,18 +19,24 @@ public class GameData : ScriptableObject
     public int dailyMilkProduced;
     public int dailyEggsProduced;
     public int milkCount;
-    public float milkAverageFreshness;
+
+    // ★★★ 삭제된 부분: milkAverageFreshness는 더 이상 저장하지 않습니다. ★★★
+    // public float milkAverageFreshness;
+
     public int eggCount;
 
     // 장비 및 업그레이드 레벨
     public int pastureLevel;
-    public bool hasGun;
+    // ★★★ 삭제된 부분: hasGun은 더 이상 저장하지 않습니다. ownedEquipmentIds로 대체합니다. ★★★
+    // public bool hasGun;
+
     public int gunLevel;
     public int basketLevel;
     public int milkerLevel;
     public int bulletCount;
 
-    public float gunDamage;
+    // ★★★ 삭제된 부분: gunDamage는 더 이상 저장하지 않습니다. gunLevel을 기반으로 계산됩니다. ★★★
+    // public float gunDamage;
 
     public EquipmentType currentEquipment;
 
@@ -38,7 +44,15 @@ public class GameData : ScriptableObject
     public List<string> ownedBuildingIds;
     public List<string> ownedEquipmentIds;
 
-    // ★★★ 추가된 부분: 젖소와 건물의 위치 및 ID 데이터를 담을 리스트 ★★★
+    // ★★★ 추가된 부분: 닭 마릿수 및 닭장에 쌓인 알의 개수를 저장합니다. ★★★
+    public int chickenCount;
+    public int currentChickenEggCount;
+
+    // ★★★ 추가된 부분: 하루가 지났는지 여부를 저장합니다. ★★★
+    public bool dailyProductionReset = false;
+
+
+    // 젖소와 건물의 위치 및 ID 데이터를 담을 리스트
     public List<SavedCowData> savedCows;
     public List<SavedBuildingData> savedBuildings;
 
@@ -55,7 +69,6 @@ public class GameData : ScriptableObject
     }
 }
 
-// 각 젖소의 종류 및 위치 정보를 저장하는 클래스
 [Serializable]
 public class SavedCowData
 {
@@ -63,7 +76,6 @@ public class SavedCowData
     public float posX, posY;
 }
 
-// 각 건물의 ID와 위치 정보를 저장하는 클래스
 [Serializable]
 public class SavedBuildingData
 {
@@ -71,7 +83,6 @@ public class SavedBuildingData
     public float posX, posY;
 }
 
-// 기존에 GameData 스크립트가 사용하던 열거형이 필요할 경우를 대비하여 추가
 public enum EquipmentType
 {
     None,

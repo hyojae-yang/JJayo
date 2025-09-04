@@ -9,6 +9,9 @@ public class TitleScreenManager : MonoBehaviour
     public GameObject saveSlotPanel;
     public Transform saveSlotParent;
     public GameObject saveSlotPrefab;
+    // ★★★ 추가된 부분 ★★★
+    public GameObject howToPlayPanel;
+    public GameObject settingsPanel;
 
     [Header("Save Slot Settings")]
     public int numberOfSaveSlots = 3;
@@ -41,6 +44,54 @@ public class TitleScreenManager : MonoBehaviour
     public void HideSaveSlotPanel()
     {
         saveSlotPanel.SetActive(false);
+    }
+
+    // ★★★ 추가된 메서드 ★★★
+    public void ShowHowToPlayPanel()
+    {
+        if (howToPlayPanel != null)
+        {
+            howToPlayPanel.SetActive(true);
+        }
+    }
+
+    // ★★★ 추가된 메서드 ★★★
+    public void HideHowToPlayPanel()
+    {
+        if (howToPlayPanel != null)
+        {
+            howToPlayPanel.SetActive(false);
+        }
+    }
+
+    // ★★★ 추가된 메서드 ★★★
+    public void ShowSettingsPanel()
+    {
+        if (settingsPanel != null)
+        {
+            settingsPanel.SetActive(true);
+        }
+    }
+
+    // ★★★ 추가된 메서드 ★★★
+    public void HideSettingsPanel()
+    {
+        if (settingsPanel != null)
+        {
+            settingsPanel.SetActive(false);
+        }
+    }
+
+    // ★★★ 추가된 메서드 ★★★
+    public void QuitGame()
+    {
+        Debug.Log("게임 종료!");
+        Application.Quit();
+
+#if UNITY_EDITOR
+        // 에디터에서 실행할 경우 게임 종료 시 동작
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
 
     private void GenerateSaveSlots()

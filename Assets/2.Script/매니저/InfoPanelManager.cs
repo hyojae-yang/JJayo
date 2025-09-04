@@ -37,6 +37,11 @@ public class InfoPanelManager : MonoBehaviour
     [Header("General UI")]
     public TextMeshProUGUI reputationText;
 
+    [Header("Panel 3: Cow Info UI")]
+    public TextMeshProUGUI chickenCountText;
+    public Transform cowCardContentParent;
+    public GameObject cowInfoCardPrefab;
+
     private GameManager gameManager;
     private PlayerInventory playerInventory;
     private Warehouse warehouse;
@@ -62,6 +67,7 @@ public class InfoPanelManager : MonoBehaviour
         pastureManager = PastureManager.Instance;
 
         UpdateReputationUI();
+        UpdateBulletCountUI();
     }
 
     public void UpdateReputationUI()
@@ -103,6 +109,7 @@ public class InfoPanelManager : MonoBehaviour
                 break;
             case 3:
                 panel3_CowInfoPanel.SetActive(true);
+                UpdateCowInfoPanel();
                 break;
             case 4:
                 panel4_CowPlacementPanel.SetActive(true);
@@ -180,10 +187,46 @@ public class InfoPanelManager : MonoBehaviour
                 dailyMilkText.text = $"{gameManager.CurrentGameData.dailyMilkProduced}개";
             if (dailyEggText != null)
                 dailyEggText.text = $"{gameManager.CurrentGameData.dailyEggsProduced}개";
+        }
 
-            if (bulletsCountText != null)
+        UpdateBulletCountUI();
+    }
+
+    public void UpdateBulletCountUI()
+    {
+        if (bulletsCountText != null && gameManager != null && gameManager.CurrentGameData != null)
+        {
+            bulletsCountText.text = $"총알: {gameManager.CurrentGameData.bulletCount}개";
+        }
+    }
+
+    private void UpdateCowInfoPanel()
+    {
+        if (gameManager == null || gameManager.CurrentGameData == null) return;
+
+        if (chickenCountText != null)
+        {
+            chickenCountText.text = $"닭 마릿수: {gameManager.CurrentGameData.chickenCount}마리";
+        }
+
+        foreach (Transform child in cowCardContentParent)
+        {
+            Destroy(child.gameObject);
+        }
+
+        if (AnimalManager.Instance != null && AnimalManager.Instance.activeAnimals != null)
+        {
+            foreach (Animal animal in AnimalManager.Instance.activeAnimals)
             {
-                bulletsCountText.text = $"총알:{gameManager.CurrentGameData.bulletCount}개";
+                if (animal.animalData.animalType == AnimalType.Cow)
+                {
+                    GameObject newCard = Instantiate(cowInfoCardPrefab, cowCardContentParent);
+                    CowInfoCard cardScript = newCard.GetComponent<CowInfoCard>();
+                    if (cardScript != null)
+                    {
+                        cardScript.SetupCowInfo(animal);
+                    }
+                }
             }
         }
     }
@@ -191,8 +234,6 @@ public class InfoPanelManager : MonoBehaviour
     public void GoToTitleScene()
     {
         SceneManager.LoadScene("TitleScene");
-
-        // GameManager의 데이터 초기화 메서드 호출
         GameManager.Instance.ResetGameData();
     }
 
@@ -200,9 +241,7 @@ public class InfoPanelManager : MonoBehaviour
     {
         if (gameManager != null)
         {
-            // ★★★ GameManager에 저장 명령만 내리면 됨 ★★★
             gameManager.SaveGame();
-
             NotificationManager.Instance.ShowNotification($"게임이 저장되었습니다!");
         }
     }

@@ -1,4 +1,10 @@
 using UnityEngine;
+using System.Collections;
+using TMPro;
+using UnityEngine.SceneManagement;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 public class ChickenCoop : MonoBehaviour
 {
@@ -7,9 +13,9 @@ public class ChickenCoop : MonoBehaviour
     [Header("닭장 고유 데이터")]
     public ChickenCoopData chickenCoopData;
 
-    [Header("현재 닭장 상태")]
-    public int currentEggCount = 0;
-    public int numberOfChickens;
+    // ★★★ 삭제된 부분: 이 변수들은 이제 GameData에서 관리됩니다. ★★★
+    // public int currentEggCount = 0;
+    // public int numberOfChickens;
 
     private float productionTimer = 0f;
 
@@ -37,18 +43,22 @@ public class ChickenCoop : MonoBehaviour
 
     void Update()
     {
-        if (numberOfChickens <= 0)
+        // ★★★ 수정된 부분: numberOfChickens 대신 GameData의 chickenCount를 사용합니다. ★★★
+        if (GameManager.Instance == null || GameManager.Instance.CurrentGameData == null) return;
+
+        if (GameManager.Instance.CurrentGameData.chickenCount <= 0)
         {
             return;
         }
 
-        productionTimer += Time.deltaTime * numberOfChickens;
+        productionTimer += Time.deltaTime * GameManager.Instance.CurrentGameData.chickenCount;
 
         if (productionTimer >= chickenCoopData.eggProductionInterval)
         {
-            currentEggCount++;
+            // ★★★ 수정된 부분: currentEggCount 대신 GameData의 currentChickenEggCount를 사용합니다. ★★★
+            GameManager.Instance.CurrentGameData.currentChickenEggCount++;
             productionTimer = 0f;
-            // ★★★ 추가된 부분: 달걀 생산량 기록 ★★★
+
             if (GameManager.Instance != null && GameManager.Instance.CurrentGameData != null)
             {
                 GameManager.Instance.CurrentGameData.dailyEggsProduced++;
@@ -60,28 +70,26 @@ public class ChickenCoop : MonoBehaviour
     {
         if (EquipmentManager.Instance.GetCurrentEquipment() == EquipmentType.Basket)
         {
-            if (currentEggCount > 0)
+            // ★★★ 수정된 부분: currentEggCount 대신 GameData의 currentChickenEggCount를 사용합니다. ★★★
+            if (GameManager.Instance.CurrentGameData.currentChickenEggCount > 0)
             {
-                int eggsTransferred = PlayerInventory.Instance.AddEggs(currentEggCount);
-                currentEggCount -= eggsTransferred;
-                NotificationManager.Instance.ShowNotification($"바구니에 알 {eggsTransferred}개를 담았습니다. 닭장에 남은 알: {currentEggCount}");
+                int eggsTransferred = PlayerInventory.Instance.AddEggs(GameManager.Instance.CurrentGameData.currentChickenEggCount);
+                GameManager.Instance.CurrentGameData.currentChickenEggCount -= eggsTransferred;
+                NotificationManager.Instance.ShowNotification($"바구니에 알 {eggsTransferred}개를 담았습니다. 닭장에 남은 알: {GameManager.Instance.CurrentGameData.currentChickenEggCount}");
                 productionTimer = 0f;
             }
         }
     }
 
+    // ★★★ 수정된 부분: 이 메서드들은 이제 GameData의 값을 직접 수정하도록 AnimalHandler에서 호출됩니다. ★★★
     public void AddChicken()
     {
-        numberOfChickens++;
-        NotificationManager.Instance.ShowNotification("새로운 닭이 닭장에 추가되었습니다. 현재 닭의 수: " + numberOfChickens);
+        // 이제 이 메서드에서 직접 chickenCount를 수정하지 않습니다. AnimalHandler에서 GameData를 직접 수정합니다.
+        // 이 메서드는 더 이상 AnimalHandler에서 호출되지 않습니다.
     }
 
     public void RemoveChicken()
     {
-        if (numberOfChickens > 0)
-        {
-            numberOfChickens--;
-            NotificationManager.Instance.ShowNotification("닭 한 마리가 판매되었습니다. 현재 닭의 수: " + numberOfChickens);
-        }
+        // 이 메서드는 더 이상 AnimalHandler에서 호출되지 않습니다.
     }
 }

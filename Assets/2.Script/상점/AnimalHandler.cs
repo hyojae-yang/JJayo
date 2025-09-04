@@ -28,8 +28,16 @@ public class AnimalHandler : MonoBehaviour
         }
     }
 
-    [SerializeField] public ObjectPool cowObjectPool;
-    // 수정된 부분: AnimalHandler는 이제 스폰포인트를 관리하지 않습니다.
+    // ★★★ 추가된 구조체: AnimalData와 ObjectPool을 묶어서 관리합니다. ★★★
+    [System.Serializable]
+    public struct AnimalPoolPair
+    {
+        public AnimalData animalData;
+        public ObjectPool objectPool;
+    }
+
+    // ★★★ 수정된 변수: 여러 젖소 풀을 관리할 수 있는 리스트입니다. ★★★
+    public List<AnimalPoolPair> animalPools;
 
     private ChickenCoop _chickenCoop;
 
@@ -42,7 +50,6 @@ public class AnimalHandler : MonoBehaviour
     {
         if (animalData.animalType == AnimalType.Cow)
         {
-            // 수정된 부분: AnimalManager에게 빈 공간이 있는지 직접 확인합니다.
             return AnimalManager.Instance != null && AnimalManager.Instance.GetAvailableCowPosition() != Vector2.zero;
         }
         else if (animalData.animalType == AnimalType.Chicken)
@@ -54,14 +61,15 @@ public class AnimalHandler : MonoBehaviour
 
     public bool CanSellChicken()
     {
-        return _chickenCoop != null && _chickenCoop.numberOfChickens > 0;
+        // ★★★ 수정된 부분: ChickenCoop 대신 GameData의 chickenCount를 확인합니다. ★★★
+        if (GameManager.Instance == null || GameManager.Instance.CurrentGameData == null) return false;
+        return GameManager.Instance.CurrentGameData.chickenCount > 0;
     }
 
     public void Purchase(AnimalData animalData)
     {
         if (animalData.animalType == AnimalType.Cow)
         {
-            // 수정된 부분: AnimalManager에게 빈 공간을 요청합니다.
             Vector2 spawnPosition = AnimalManager.Instance.GetAvailableCowPosition();
 
             if (spawnPosition == Vector2.zero)
@@ -70,7 +78,24 @@ public class AnimalHandler : MonoBehaviour
                 return;
             }
 
-            GameObject newCowObj = cowObjectPool.GetFromPool();
+            // ★★★ 수정된 로직: 구매하려는 젖소의 종류에 맞는 풀을 찾습니다. ★★★
+            ObjectPool targetPool = null;
+            foreach (var pair in animalPools)
+            {
+                if (pair.animalData.animalId == animalData.animalId)
+                {
+                    targetPool = pair.objectPool;
+                    break;
+                }
+            }
+
+            if (targetPool == null)
+            {
+                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("해당 젖소의 오브젝트 풀이 없습니다.");
+                return;
+            }
+
+            GameObject newCowObj = targetPool.GetFromPool();
 
             if (newCowObj != null)
             {
@@ -86,13 +111,13 @@ public class AnimalHandler : MonoBehaviour
                 {
                     newCowComponent.Initialize(animalData);
 
-                    if (productionComponent != null && GameManager.Instance != null && GameManager.Instance.pastureUpgradeData != null)
+                    if (productionComponent != null)
                     {
-                        productionComponent.Initialize(GameManager.Instance.CurrentPastureLevel, GameManager.Instance.pastureUpgradeData);
+                        productionComponent.Initialize(animalData);
                     }
                     else
                     {
-                        Debug.LogError("Production 컴포넌트를 찾을 수 없거나 GameManager 데이터가 유효하지 않습니다.");
+                        Debug.LogError("Production 컴포넌트를 찾을 수 없습니다.");
                     }
 
                     if (AnimalManager.Instance != null) AnimalManager.Instance.AddAnimal(newCowComponent);
@@ -105,14 +130,15 @@ public class AnimalHandler : MonoBehaviour
         }
         else if (animalData.animalType == AnimalType.Chicken)
         {
-            if (_chickenCoop != null)
+            // ★★★ 수정된 부분: ChickenCoop에 직접 요청하는 대신 GameData를 수정합니다. ★★★
+            if (GameManager.Instance != null && GameManager.Instance.CurrentGameData != null)
             {
-                _chickenCoop.AddChicken();
+                GameManager.Instance.CurrentGameData.chickenCount++;
                 if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("닭을 구매했습니다.");
             }
             else
             {
-                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("닭장을 찾을 수 없습니다.");
+                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("게임 데이터를 찾을 수 없습니다.");
             }
         }
     }
@@ -125,9 +151,20 @@ public class AnimalHandler : MonoBehaviour
 
         if (AnimalManager.Instance != null) AnimalManager.Instance.RemoveAnimal(animalToSell);
 
-        if (cowObjectPool != null)
+        // ★★★ 수정된 부분: 이제 cowObjectPool 대신 해당 젖소의 풀을 찾아 반환해야 합니다. ★★★
+        ObjectPool targetPool = null;
+        foreach (var pair in animalPools)
         {
-            cowObjectPool.ReturnToPool(animalToSell.gameObject);
+            if (pair.animalData.animalId == animalToSell.animalData.animalId)
+            {
+                targetPool = pair.objectPool;
+                break;
+            }
+        }
+
+        if (targetPool != null)
+        {
+            targetPool.ReturnToPool(animalToSell.gameObject);
         }
         else
         {
@@ -137,9 +174,13 @@ public class AnimalHandler : MonoBehaviour
 
     public void RemoveChicken()
     {
-        if (_chickenCoop != null)
+        // ★★★ 수정된 부분: ChickenCoop에 직접 요청하는 대신 GameData를 수정합니다. ★★★
+        if (GameManager.Instance != null && GameManager.Instance.CurrentGameData != null)
         {
-            _chickenCoop.RemoveChicken();
+            if (GameManager.Instance.CurrentGameData.chickenCount > 0)
+            {
+                GameManager.Instance.CurrentGameData.chickenCount--;
+            }
         }
     }
 }
