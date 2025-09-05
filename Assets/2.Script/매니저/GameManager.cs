@@ -32,13 +32,21 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TimeManager timeManager;
     [SerializeField] private PlayerUI playerUI;
     [SerializeField] private MoneyManager moneyManager;
-
+    // ★★★ 추가된 코드: MonthlyReviewManager 변수 추가 ★★★
+    [SerializeField] private MonthlyReviewManager monthlyReviewManager;
     [Header("Prefabs to Load")]
     public List<GameObject> cowPrefabs;
     public List<GameObject> buildingPrefabs;
 
     public int CurrentPastureLevel => runtimeGameData.pastureLevel;
     public string CurrentDate => $"{runtimeGameData.year}년 {runtimeGameData.month}월 {runtimeGameData.day}일";
+
+    private bool isMenuOn = false;
+    public bool IsMenuOn 
+    {
+        get { return isMenuOn; }
+        set { isMenuOn = value; }
+    } // 프로퍼티
 
     void Awake()
     {
@@ -95,7 +103,10 @@ public class GameManager : MonoBehaviour
             {
                 TraderUI.Instance.Initialize();
             }
-
+            if (MonthlyReviewManager.Instance != null)
+            {
+                MonthlyReviewManager.Instance.Initialize();
+            }
             if (timeManager != null)
             {
                 timeManager.Initialize(dayLengthInSeconds, runtimeGameData.year, runtimeGameData.month, runtimeGameData.day, runtimeGameData.reputation);
@@ -110,11 +121,8 @@ public class GameManager : MonoBehaviour
                 BuildingManager.Instance.LoadBuildingData(runtimeGameData.savedBuildings, buildingPrefabs);
             }
 
+            
             UpdateUI();
-        }
-        else
-        {
-            Debug.Log("메인 씬이 아니므로 초기화를 건너뜁니다.");
         }
     }
 
@@ -202,14 +210,8 @@ public class GameManager : MonoBehaviour
                 runtimeGameData.savedBuildings = BuildingManager.Instance.SaveBuildingData();
             }
 
-            if (ChickenCoop.Instance != null)
-            {
-                // 위 코드는 이제 필요 없습니다. 다른 스크립트에서 GameData를 직접 수정하기 때문입니다.
-            }
-
             SaveLoadManager.Instance.SaveGame(runtimeGameData, currentSaveFileName);
 
-            Debug.Log($"게임을 {currentSaveFileName} 파일에 저장했습니다.");
         }
     }
 
@@ -241,7 +243,6 @@ public class GameManager : MonoBehaviour
             if (panelObject != null)
             {
                 clearPanel = panelObject;
-                Debug.Log("게임 클리어 패널을 태그로 찾았습니다: " + clearPanel.name);
             }
             else
             {
@@ -252,25 +253,10 @@ public class GameManager : MonoBehaviour
     // GameManager.cs - EndGame() 메서드 추가
     public void EndGame()
     {
-        Debug.Log("게임 클리어!");
 
-        // 1. 게임 내 모든 상호작용 및 진행 관련 스크립트 비활성화
         Time.timeScale = 0; // 게임 시간 정지
-        if (timeManager != null) timeManager.enabled = false;
-        if (MoneyManager.Instance != null) MoneyManager.Instance.enabled = false;
-        if (AnimalManager.Instance != null) AnimalManager.Instance.enabled = false;
-        if (BuildingManager.Instance != null) BuildingManager.Instance.enabled = false;
-        if (EquipmentHandler.Instance != null) EquipmentHandler.Instance.enabled = false;
-        if (ShopService.Instance != null) ShopService.Instance.enabled = false;
-        if (TraderManager.Instance != null) TraderManager.Instance.enabled = false;
-        if (TraderUI.Instance != null) TraderUI.Instance.enabled = false;
-        if (InfoPanelManager.Instance != null) InfoPanelManager.Instance.enabled = false;
-        if (PlayerUI.Instance != null) PlayerUI.Instance.enabled = false;
-        if (PastureManager.Instance != null) PastureManager.Instance.enabled = false;
-        if (UpgradeHandler.Instance != null) UpgradeHandler.Instance.enabled = false;
-        if (ChickenCoop.Instance != null) ChickenCoop.Instance.enabled = false;
-        if (ShopUI.Instance != null) ShopUI.Instance.enabled = false;
-        // 필요에 따라 다른 매니저 스크립트도 추가할 수 있습니다.
+        GameManager.Instance.IsMenuOn = true;
+        SoundManager.Instance.PlayGameClearBGM();
 
         // 2. UI 패널 활성화
         if (clearPanel != null)

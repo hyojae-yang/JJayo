@@ -27,7 +27,7 @@ public class GameData : ScriptableObject
     public int gunLevel;
     public int basketLevel;
     public int milkerLevel;
-    public int warehouseLevel; // ★★★ 새로 추가된 변수 ★★★
+    public int warehouseLevel;
     public int bulletCount;
 
     public EquipmentType currentEquipment;
@@ -42,7 +42,6 @@ public class GameData : ScriptableObject
 
     // 하루가 지났는지 여부를 저장합니다.
     public bool dailyProductionReset = false;
-
 
     // 젖소와 건물의 위치 및 ID 데이터를 담을 리스트
     public List<SavedCowData> savedCows;
@@ -70,6 +69,7 @@ public class GameData : ScriptableObject
     public int totalWolvesKilled;
     public int totalCowsEaten;
     public float totalPlayTime;
+    public int totalCowsKilledByPlayer; // ★★★ 플레이어가 죽인 젖소 마릿수 변수 추가 ★★★
     // ★★★ 통계 변수 추가 끝 ★★★
 }
 

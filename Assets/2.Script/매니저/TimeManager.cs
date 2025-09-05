@@ -40,7 +40,7 @@ public class TimeManager : MonoBehaviour
         timeElapsed += Time.deltaTime;
 
         timeProgress = 1f - (timeElapsed / dayLengthInSeconds);
-        
+
         OnTimeChanged?.Invoke(timeProgress);
 
         if (timeElapsed >= dayLengthInSeconds)

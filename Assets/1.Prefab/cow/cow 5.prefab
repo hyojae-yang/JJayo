@@ -105,6 +105,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animalData: {fileID: 11400000, guid: dd53c28207dd95445b3f05e9ce43ed74, type: 2}
+  overproductionDeathTime: 13
+  maxEmptyClicks: 11
 --- !u!61 &102148894191888153
 BoxCollider2D:
   m_ObjectHideFlags: 0

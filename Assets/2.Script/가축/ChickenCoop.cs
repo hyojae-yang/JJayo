@@ -13,10 +13,6 @@ public class ChickenCoop : MonoBehaviour
     [Header("닭장 고유 데이터")]
     public ChickenCoopData chickenCoopData;
 
-    // ★★★ 삭제된 부분: 이 변수들은 이제 GameData에서 관리됩니다. ★★★
-    // public int currentEggCount = 0;
-    // public int numberOfChickens;
-
     private float productionTimer = 0f;
 
     void Awake()
@@ -35,12 +31,6 @@ public class ChickenCoop : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
-    void Start()
-    {
-        // numberOfChickens = 0;
-    }
-
     void Update()
     {
         // ★★★ 수정된 부분: numberOfChickens 대신 GameData의 chickenCount를 사용합니다. ★★★
@@ -68,6 +58,7 @@ public class ChickenCoop : MonoBehaviour
 
     void OnMouseDown()
     {
+        if (GameManager.Instance.IsMenuOn) return;
         if (EquipmentManager.Instance.GetCurrentEquipment() == EquipmentType.Basket)
         {
             // ★★★ 수정된 부분: currentEggCount 대신 GameData의 currentChickenEggCount를 사용합니다. ★★★
@@ -79,17 +70,5 @@ public class ChickenCoop : MonoBehaviour
                 productionTimer = 0f;
             }
         }
-    }
-
-    // ★★★ 수정된 부분: 이 메서드들은 이제 GameData의 값을 직접 수정하도록 AnimalHandler에서 호출됩니다. ★★★
-    public void AddChicken()
-    {
-        // 이제 이 메서드에서 직접 chickenCount를 수정하지 않습니다. AnimalHandler에서 GameData를 직접 수정합니다.
-        // 이 메서드는 더 이상 AnimalHandler에서 호출되지 않습니다.
-    }
-
-    public void RemoveChicken()
-    {
-        // 이 메서드는 더 이상 AnimalHandler에서 호출되지 않습니다.
     }
 }

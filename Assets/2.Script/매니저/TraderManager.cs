@@ -78,18 +78,31 @@ public class TraderManager : MonoBehaviour
 
     private void GenerateTradeDemand()
     {
-        int dailyBonus = (gameData.day / 10) * 5;
-        traderData.requiredMilkAmount = UnityEngine.Random.Range(minRequiredMilk + dailyBonus, maxRequiredMilk + dailyBonus);
-        traderData.requiredFreshness = UnityEngine.Random.Range(minRequiredFreshness + dailyBonus, maxRequiredFreshness + dailyBonus);
+        // ★★★ 명성도에 따른 보너스 스텝 계산 (고객님 임의수정 값 50 반영) ★★★
+        int reputationBonusStep = gameData.reputation / 50;
 
-        traderData.offeredPrice = traderData.requiredMilkAmount * (baseMilkPrice + (int)(traderData.requiredFreshness / 10f));
+        // ★★★ 요구 우유 개수 재계산 (최소값 1로 제한) ★★★
+        int milkReputationBonus = reputationBonusStep * 5;
+        int calculatedMilkAmount = UnityEngine.Random.Range(minRequiredMilk + milkReputationBonus, maxRequiredMilk + milkReputationBonus);
+        traderData.requiredMilkAmount = Mathf.Max(1, calculatedMilkAmount);
+
+        // ★★★ 요구 신선도 재계산 (최소값 1, 최대값 95로 제한) ★★★
+        int freshnessReputationBonus = reputationBonusStep;
+        int calculatedFreshness = UnityEngine.Random.Range(minRequiredFreshness + freshnessReputationBonus, maxRequiredFreshness + freshnessReputationBonus);
+        traderData.requiredFreshness = Mathf.Clamp(calculatedFreshness, 1, 95);
+
+        // ★★★ 가격 책정 방식 재계산 (최종 가격이 1원 미만일 경우 1원으로 제한) ★★★
+        int finalBasePrice = baseMilkPrice + reputationBonusStep * 5;
+        int finalFreshnessBonus = (int)(traderData.requiredFreshness / 10f) + reputationBonusStep;
+        int calculatedOfferedPrice = traderData.requiredMilkAmount * (finalBasePrice + finalFreshnessBonus);
+        traderData.offeredPrice = Mathf.Max(1, calculatedOfferedPrice);
     }
 
     public void GenerateNewEggPrice()
     {
         int currentBasePrice = (gameData.day == 1) ? baseEggPrice : traderData.currentEggPrice;
 
-        float priceMultiplier = UnityEngine.Random.Range(0.1f, 3.0f);
+        float priceMultiplier = UnityEngine.Random.Range(0.1f, 1.5f);
 
         float newPrice = currentBasePrice * priceMultiplier;
         traderData.currentEggPrice = Mathf.Max(1, Mathf.CeilToInt(newPrice));
@@ -156,7 +169,7 @@ public class TraderManager : MonoBehaviour
         {
             if (TraderUI.Instance != null)
             {
-                TraderUI.Instance.DisplayResult(false, 0, 0, "요구 개수 또는 신선도가 부족하여 흥정을 시도할 수 없습니다.", traderData.eggsSoldToday, traderData.eggRevenueToday);
+                TraderUI.Instance.DisplayResult(false, 0, -1, "요구 개수 또는 신선도가 부족하여 흥정을 시도할 수 없습니다.", traderData.eggsSoldToday, traderData.eggRevenueToday);
             }
         }
     }

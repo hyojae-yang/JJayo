@@ -57,11 +57,8 @@ public class Warehouse : MonoBehaviour
 
     private void DecayFreshness()
     {
-        // GameManager와 ShopService를 통해 현재 창고 레벨과 업그레이드 데이터를 가져옵니다.
         int warehouseLevel = GameManager.Instance.CurrentGameData.warehouseLevel;
 
-        // ShopService의 GetShopItems()를 통해 창고 업그레이드 데이터를 찾습니다.
-        // FirstOrDefault()는 일치하는 항목이 없으면 null을 반환합니다.
         var warehouseUpgradeItem = ShopService.Instance.GetShopItems()
                                .FirstOrDefault(item => item.itemType == ItemType.Upgrade && item.upgradeData is WarehouseUpgradeData);
 
@@ -136,13 +133,11 @@ public class Warehouse : MonoBehaviour
     {
         if (GetMilkCount() < requiredAmount)
         {
-            NotificationManager.Instance.ShowNotification("창고에 우유가 부족합니다!");
             return false;
         }
 
         if (GetAverageMilkFreshness() < requiredFreshness)
         {
-            NotificationManager.Instance.ShowNotification("우유의 평균 신선도가 낮아 상인의 요구 조건을 충족하지 못합니다.");
             return false;
         }
         return true;

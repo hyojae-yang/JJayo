@@ -79,6 +79,7 @@ public class TraderUI : MonoBehaviour
         if (traderUIPanel != null)
         {
             traderUIPanel.SetActive(true);
+            GameManager.Instance.IsMenuOn = true;
             Time.timeScale = 0;
             UpdateUI();
         }
@@ -92,6 +93,7 @@ public class TraderUI : MonoBehaviour
         if (traderUIPanel != null)
         {
             traderUIPanel.SetActive(false);
+            GameManager.Instance.IsMenuOn = false;
             Time.timeScale = 1;
             InfoPanelManager.Instance.OnSaveButtonClicked();
         }

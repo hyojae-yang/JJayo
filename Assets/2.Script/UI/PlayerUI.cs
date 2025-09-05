@@ -32,13 +32,6 @@ public class PlayerUI : MonoBehaviour
         }
     }
 
-    // 매니저를 찾고 이벤트에 구독하는 로직을 Start()로 옮겼습니다.
-    private void OnEnable()
-    {
-        // 오브젝트가 비활성화된 후 다시 활성화될 때 구독을 해제하지 않도록 수정했습니다.
-    }
-
-    // 오브젝트가 비활성화될 때 이벤트 구독을 해제합니다.
     private void OnDisable()
     {
         UnsubscribeFromEvents();

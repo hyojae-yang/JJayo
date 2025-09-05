@@ -8,8 +8,7 @@ public class WarehouseInteraction : MonoBehaviour
     /// </summary>
     void OnMouseDown()
     {
-        // PlayerInventory의 싱글톤 인스턴스를 통해 직접 접근합니다.
-        // 이 방법은 PlayerInventory 스크립트가 어디에 붙어있든 상관없이 작동합니다.
+        if (GameManager.Instance.IsMenuOn) return;
         if (PlayerInventory.Instance != null)
         {
             PlayerInventory.Instance.TransferToWarehouse();

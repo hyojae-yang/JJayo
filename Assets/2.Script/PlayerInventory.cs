@@ -112,9 +112,7 @@ public class PlayerInventory : MonoBehaviour
         currentEggs += eggsToAdd;
 
         NotifyInventoryChanged();
-
-        NotificationManager.Instance.ShowNotification($"바구니에 달걀 {eggsToAdd}개를 담았습니다. 현재: {currentEggs}/{BasketCapacity}");
-        return eggsToAdd;
+    return eggsToAdd;
     }
 
     public int GetEggCount()
@@ -151,7 +149,6 @@ public class PlayerInventory : MonoBehaviour
         if (addedCount > 0)
         {
             NotifyInventoryChanged();
-            NotificationManager.Instance.ShowNotification($"착유기에 우유 {addedCount}개를 담았습니다. 현재: {milkList.Count}/{MilkerCapacity}");
         }
 
         return addedCount;
@@ -180,7 +177,6 @@ public class PlayerInventory : MonoBehaviour
         }
 
         NotifyInventoryChanged();
-        NotificationManager.Instance.ShowNotification("아이템을 모두 창고로 옮겼습니다!");
     }
 
     public void AddBullets(int amount)

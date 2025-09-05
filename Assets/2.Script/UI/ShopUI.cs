@@ -73,6 +73,7 @@ public class ShopUI : MonoBehaviour
             shopService = ShopService.Instance;
         }
         shopPanel.SetActive(true);
+        GameManager.Instance.IsMenuOn = true;
         ShowBuyPanel();
         Time.timeScale = 0f;
     }
@@ -80,6 +81,7 @@ public class ShopUI : MonoBehaviour
     public void HideShop()
     {
         shopPanel.SetActive(false);
+        GameManager.Instance.IsMenuOn = false;
         Time.timeScale = 1f;
     }
 

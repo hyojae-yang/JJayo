@@ -87,9 +87,12 @@ public class InfoPanelManager : MonoBehaviour
         mainInfoPanel.SetActive(!isActive);
         Time.timeScale = isActive ? 1 : 0;
 
+
         if (!isActive)
         {
             ShowPanel(1);
+
+            GameManager.Instance.IsMenuOn = isActive;
         }
     }
 

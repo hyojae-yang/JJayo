@@ -17,6 +17,7 @@ public class GameClearPanel : MonoBehaviour
     public TextMeshProUGUI chickensSoldText;
     public TextMeshProUGUI wolvesKilledText;
     public TextMeshProUGUI cowsEatenText;
+    public TextMeshProUGUI cowsKilledByPlayerText; // ★★★ 추가된 변수 ★★★
 
     // 이 메서드는 GameManager에서 게임이 끝났을 때 호출합니다.
     public void UpdateStatsUI()
@@ -39,7 +40,9 @@ public class GameClearPanel : MonoBehaviour
         chickensSoldText.text = $"판매한 닭 마릿수: {gameData.totalChickensSold.ToString()}마리";
         wolvesKilledText.text = $"잡은 늑대 마릿수: {gameData.totalWolvesKilled.ToString()}마리";
         cowsEatenText.text = $"먹힌 젖소 마릿수: {gameData.totalCowsEaten.ToString()}마리";
+        cowsKilledByPlayerText.text = $"플레이어가 죽인 젖소 마릿수: {gameData.totalCowsKilledByPlayer.ToString()}마리"; // ★★★ 추가된 코드 ★★★
     }
+
     public void GoToTitleScene()
     {
         SceneManager.LoadScene("TitleScene");
