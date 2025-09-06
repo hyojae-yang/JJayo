@@ -32,7 +32,8 @@ public class InfoPanelManager : MonoBehaviour
     [Header("Panel 2: Inventory UI Texts")]
     public TextMeshProUGUI milkCountText;
     public TextMeshProUGUI eggCountText;
-    public TextMeshProUGUI avgFreshnessText;
+    public TextMeshProUGUI avgMilkFreshnessText; // ★★★ 변수명 변경: avgFreshnessText -> avgMilkFreshnessText ★★★
+    public TextMeshProUGUI avgEggFreshnessText;  // ★★★ 추가: 달걀 평균 신선도 UI 텍스트 변수 ★★★
     public TextMeshProUGUI dailyMilkText;
     public TextMeshProUGUI dailyEggText;
     public TextMeshProUGUI bulletsCountText;
@@ -87,7 +88,6 @@ public class InfoPanelManager : MonoBehaviour
         mainInfoPanel.SetActive(!isActive);
         Time.timeScale = isActive ? 1 : 0;
 
-
         if (!isActive)
         {
             ShowPanel(1);
@@ -132,7 +132,8 @@ public class InfoPanelManager : MonoBehaviour
             int level = gameManager.CurrentGameData.pastureLevel;
             pastureLevelText.text = $"레벨: {level}";
             var freshnessRange = pastureManager.pastureUpgradeData.GetFreshnessRange(level);
-            pastureStatsText.text = $"신선도 범위: {freshnessRange.min}% ~ {freshnessRange.max}%";
+            // ★★★ 2배 로직 추가 반영: UI에도 2배로 표시 ★★★
+            pastureStatsText.text = $"신선도 범위: {freshnessRange.min * 2}% ~ {freshnessRange.max * 2}%";
         }
         else
         {
@@ -194,14 +195,21 @@ public class InfoPanelManager : MonoBehaviour
                 milkCountText.text = $"{warehouse.GetMilkCount()}개";
             if (eggCountText != null)
                 eggCountText.text = $"{warehouse.GetEggCount()}개";
-            if (avgFreshnessText != null)
-                avgFreshnessText.text = $"{warehouse.GetAverageMilkFreshness():F2}%";
+
+            // ★★★ 수정: 우유 평균 신선도 텍스트 UI 업데이트 ★★★
+            if (avgMilkFreshnessText != null)
+                avgMilkFreshnessText.text = $"{warehouse.GetAverageMilkFreshness():F2}%";
+
+            // ★★★ 추가: 달걀 평균 신선도 텍스트 UI 업데이트 ★★★
+            if (avgEggFreshnessText != null)
+                avgEggFreshnessText.text = $"{warehouse.GetAverageEggFreshness():F2}%";
         }
         else
         {
             if (milkCountText != null) milkCountText.text = "0개";
             if (eggCountText != null) eggCountText.text = "0개";
-            if (avgFreshnessText != null) avgFreshnessText.text = "0.00%";
+            if (avgMilkFreshnessText != null) avgMilkFreshnessText.text = "0.00%";
+            if (avgEggFreshnessText != null) avgEggFreshnessText.text = "0.00%";
         }
 
         if (gameManager != null)

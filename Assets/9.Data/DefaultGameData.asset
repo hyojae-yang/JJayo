@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78a660de97df56a4dbe97c88838de4a1, type: 3}
   m_Name: DefaultGameData
   m_EditorClassIdentifier: 
-  money: 1000
+  money: 150
   reputation: 50
-  day: 29
+  day: 1
   month: 1
-  year: 1
+  year: 2000
   dailyMilkProduced: 0
   dailyEggsProduced: 0
   milkCount: 0
@@ -32,6 +32,7 @@ MonoBehaviour:
   ownedEquipmentIds: []
   chickenCount: 0
   currentChickenEggCount: 0
+  savedChickenEggs: []
   dailyProductionReset: 0
   savedCows: []
   savedBuildings: []
@@ -49,3 +50,4 @@ MonoBehaviour:
   totalWolvesKilled: 0
   totalCowsEaten: 0
   totalPlayTime: 0
+  totalCowsKilledByPlayer: 0

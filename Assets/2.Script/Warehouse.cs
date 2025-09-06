@@ -9,7 +9,7 @@ public class Warehouse : MonoBehaviour
 
     [Header("창고 설정")]
     [Tooltip("창고에 보관된 모든 달걀의 신선도 목록.")]
-    public List<float> storedEggFreshness = new List<float>();
+    public List<float> storedEggFreshness = new List<float>(); // ★★★ int에서 List<float>로 변경 ★★★
 
     [Tooltip("창고에 보관된 모든 우유의 신선도 목록.")]
     public List<Milk> storedMilkList = new List<Milk>();
@@ -41,12 +41,11 @@ public class Warehouse : MonoBehaviour
         }
     }
 
-    public void AddEggs(int amount)
+    // ★★★ 수정된 메서드: 달걀 리스트를 인자로 받습니다. ★★★
+    public void AddEggs(List<float> newEggs)
     {
-        for (int i = 0; i < amount; i++)
-        {
-            storedEggFreshness.Add(100f);
-        }
+        storedEggFreshness.AddRange(newEggs);
+        NotificationManager.Instance.ShowNotification($"창고에 달걀 {newEggs.Count}개를 추가했습니다. 현재 총 달걀: {storedEggFreshness.Count}개");
     }
 
     public void AddMilk(List<Milk> newMilkList)
@@ -69,7 +68,6 @@ public class Warehouse : MonoBehaviour
             freshnessDecayMultiplier = warehouseUpgradeData.GetFreshnessDecayMultiplier(warehouseLevel);
         }
 
-        // 신선도 감소량에 업그레이드 배율을 적용합니다.
         float decayAmount = 1f * freshnessDecayMultiplier;
 
         for (int i = storedMilkList.Count - 1; i >= 0; i--)
@@ -107,6 +105,11 @@ public class Warehouse : MonoBehaviour
         return storedMilkList.Any() ? storedMilkList.Average(m => m.freshness) : 0f;
     }
 
+    public float GetAverageEggFreshness()
+    {
+        return storedEggFreshness.Any() ? storedEggFreshness.Average() : 0f;
+    }
+
     public void RemoveMilk(int amount)
     {
         if (amount > storedMilkList.Count)
@@ -118,6 +121,7 @@ public class Warehouse : MonoBehaviour
         storedMilkList.RemoveRange(0, amount);
     }
 
+    // ★★★ 수정된 메서드: 신선도가 낮은 달걀부터 정렬하여 제거 ★★★
     public void RemoveEggs(int amount)
     {
         if (amount > storedEggFreshness.Count)
@@ -125,6 +129,7 @@ public class Warehouse : MonoBehaviour
             Debug.LogError("창고에 판매할 달걀이 부족합니다!");
             return;
         }
+        storedEggFreshness.Sort(); // 신선도 낮은 순으로 정렬
         storedEggFreshness.RemoveRange(0, amount);
     }
 
@@ -143,6 +148,12 @@ public class Warehouse : MonoBehaviour
         return true;
     }
 
+    // ★★★ 추가: 달걀 판매 가능 여부 메서드 ★★★
+    public bool CanSellEggs(int requiredAmount)
+    {
+        return GetEggCount() >= requiredAmount;
+    }
+
     public void SellMilk(int amount)
     {
         if (CanSellMilk(amount, 0)) // 여기서 신선도 조건은 이미 TraderManager에서 체크했으므로 0으로 설정
@@ -150,8 +161,19 @@ public class Warehouse : MonoBehaviour
             // 신선도가 낮은 우유부터 판매 (가장 오래된 우유부터 처리)
             storedMilkList.Sort((a, b) => a.freshness.CompareTo(b.freshness));
             storedMilkList.RemoveRange(0, amount);
-            GameManager.Instance.CurrentGameData.totalMilkSold += amount; // ★★★ 이 줄을 추가합니다. ★★★
+            GameManager.Instance.CurrentGameData.totalMilkSold += amount;
             NotificationManager.Instance.ShowNotification($"우유 {amount}개를 상인에게 판매했습니다!");
+        }
+    }
+
+    public void SellEggs(int amount)
+    {
+        if (CanSellEggs(amount))
+        {
+            storedEggFreshness.Sort(); // 신선도 낮은 달걀부터 정렬
+            storedEggFreshness.RemoveRange(0, amount);
+            GameManager.Instance.CurrentGameData.totalEggsSold += amount;
+            NotificationManager.Instance.ShowNotification($"달걀 {amount}개를 상인에게 판매했습니다!");
         }
     }
 }

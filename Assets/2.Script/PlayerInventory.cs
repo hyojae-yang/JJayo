@@ -23,8 +23,8 @@ public class PlayerInventory : MonoBehaviour
     public event Action OnInventoryChanged;
 
     [Header("바구니 설정")]
-    [Tooltip("현재 바구니에 담긴 달걀의 개수.")]
-    public int currentEggs = 0;
+    [Tooltip("현재 바구니에 담긴 달걀의 신선도 목록.")]
+    public List<float> eggFreshnessList = new List<float>(); // ★★★ int에서 List<float>로 변경 ★★★
     [Tooltip("바구니 업그레이드 데이터 ScriptableObject를 연결하세요.")]
     public BasketUpgradeData basketUpgradeData;
 
@@ -105,28 +105,40 @@ public class PlayerInventory : MonoBehaviour
         OnInventoryChanged?.Invoke();
     }
 
-    public int AddEggs(int amount)
+    // ★★★ 수정된 메서드: 달걀 리스트를 인자로 받습니다. ★★★
+    public int AddEggs(List<float> newEggs)
     {
-        int spaceLeft = BasketCapacity - currentEggs;
-        int eggsToAdd = Mathf.Min(amount, spaceLeft);
-        currentEggs += eggsToAdd;
+        int spaceLeft = BasketCapacity - eggFreshnessList.Count;
+        int eggsToAdd = Mathf.Min(newEggs.Count, spaceLeft);
+
+        for (int i = 0; i < eggsToAdd; i++)
+        {
+            eggFreshnessList.Add(newEggs[i]);
+        }
 
         NotifyInventoryChanged();
-    return eggsToAdd;
+        return eggsToAdd;
     }
 
     public int GetEggCount()
     {
-        return currentEggs;
+        return eggFreshnessList.Count;
     }
 
     public void RemoveEggs(int amount)
     {
-        currentEggs = Mathf.Max(0, currentEggs - amount);
+        if (amount > eggFreshnessList.Count)
+        {
+            Debug.LogError("바구니에 달걀이 부족합니다.");
+            return;
+        }
+
+        // ★★★ 추가: 신선도가 낮은 달걀부터 정렬하여 제거 ★★★
+        eggFreshnessList.Sort();
+        eggFreshnessList.RemoveRange(0, amount);
 
         NotifyInventoryChanged();
-
-        NotificationManager.Instance.ShowNotification($"바구니에서 달걀 {amount}개를 꺼냈습니다. 현재: {currentEggs}/{BasketCapacity}");
+        NotificationManager.Instance.ShowNotification($"바구니에서 달걀 {amount}개를 꺼냈습니다. 현재: {eggFreshnessList.Count}/{BasketCapacity}");
     }
 
     public int AddMilk(int amount, float freshness)
@@ -156,15 +168,15 @@ public class PlayerInventory : MonoBehaviour
 
     public void TransferToWarehouse()
     {
-        NotificationManager.Instance.ShowNotification($"현재 알: {currentEggs}개, 현재 우유: {milkList.Count}개");
+        NotificationManager.Instance.ShowNotification($"현재 알: {eggFreshnessList.Count}개, 현재 우유: {milkList.Count}개");
 
-        if (currentEggs > 0)
+        if (eggFreshnessList.Count > 0)
         {
             if (Warehouse.Instance != null)
             {
-                Warehouse.Instance.AddEggs(currentEggs);
+                Warehouse.Instance.AddEggs(new List<float>(eggFreshnessList));
             }
-            currentEggs = 0;
+            eggFreshnessList.Clear();
         }
 
         if (milkList.Count > 0)

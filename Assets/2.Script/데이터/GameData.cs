@@ -38,7 +38,10 @@ public class GameData : ScriptableObject
 
     // 닭 마릿수 및 닭장에 쌓인 알의 개수를 저장합니다.
     public int chickenCount;
+    // 기존의 달걀 개수 변수 (호환성을 위해 유지)
     public int currentChickenEggCount;
+    // ★★★ 추가: 닭장에 있는 달걀들의 신선도 리스트 ★★★
+    public List<float> savedChickenEggs = new List<float>();
 
     // 하루가 지났는지 여부를 저장합니다.
     public bool dailyProductionReset = false;
@@ -69,7 +72,7 @@ public class GameData : ScriptableObject
     public int totalWolvesKilled;
     public int totalCowsEaten;
     public float totalPlayTime;
-    public int totalCowsKilledByPlayer; // ★★★ 플레이어가 죽인 젖소 마릿수 변수 추가 ★★★
+    public int totalCowsKilledByPlayer;
     // ★★★ 통계 변수 추가 끝 ★★★
 }
 

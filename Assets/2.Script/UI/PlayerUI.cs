@@ -143,7 +143,7 @@ public class PlayerUI : MonoBehaviour
         if (playerInventory != null)
         {
             milkerGauge.value = playerInventory.milkList.Count;
-            basketGauge.value = playerInventory.currentEggs;
+            basketGauge.value = playerInventory.eggFreshnessList.Count;
         }
     }
 

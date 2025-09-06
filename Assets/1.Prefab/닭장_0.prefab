@@ -103,8 +103,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chickenCoopData: {fileID: 11400000, guid: 1006c2caed56b114791ee5b741759dcd, type: 2}
-  currentEggCount: 0
-  numberOfChickens: 0
+  pastureUpgradeData: {fileID: 11400000, guid: 497b1d9b21095764dbcecac7b191a094, type: 2}
 --- !u!61 &7449306480787039896
 BoxCollider2D:
   m_ObjectHideFlags: 0
