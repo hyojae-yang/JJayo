@@ -68,12 +68,12 @@ public class Animal : MonoBehaviour
     void OnMouseDown()
     {
         if (GameManager.Instance.IsMenuOn) return;
-
         if (EquipmentManager.Instance.GetCurrentEquipment() == EquipmentType.Milker)
         {
             // ★★★ 수정된 코드: 우유량이 1 이상일 때의 로직 ★★★
             if (production.currentProductionCount > 0)
             {
+                SoundManager.Instance.PlaySFX(SFXType.Cow_Moo);
                 if (production != null)
                 {
                     int milkToCollect = Mathf.Min(production.currentProductionCount, PlayerInventory.Instance.MilkingYield);
@@ -144,7 +144,6 @@ public class Animal : MonoBehaviour
                 GameManager.Instance.CurrentGameData.totalCowsEaten++;
             }
         }
-
         if (transform.parent != null && transform.parent.GetComponent<ObjectPool>() != null)
         {
             transform.parent.GetComponent<ObjectPool>().ReturnToPool(gameObject);

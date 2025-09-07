@@ -68,6 +68,7 @@ public class ShopUI : MonoBehaviour
 
     public void ShowShop()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         if (shopService == null)
         {
             shopService = ShopService.Instance;
@@ -80,6 +81,7 @@ public class ShopUI : MonoBehaviour
 
     public void HideShop()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         shopPanel.SetActive(false);
         GameManager.Instance.IsMenuOn = false;
         Time.timeScale = 1f;
@@ -87,6 +89,7 @@ public class ShopUI : MonoBehaviour
 
     public void ShowBuyPanel()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         buyPanel.SetActive(true);
         sellPanel.SetActive(false);
         PopulateBuyItems();
@@ -94,6 +97,7 @@ public class ShopUI : MonoBehaviour
 
     public void ShowSellPanel()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         buyPanel.SetActive(false);
         sellPanel.SetActive(true);
         PopulateSellItems();
@@ -156,6 +160,7 @@ public class ShopUI : MonoBehaviour
 
     public void OnClickConfirm()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         if (itemToPurchase != null)
         {
             int finalPrice = 0;
@@ -172,6 +177,8 @@ public class ShopUI : MonoBehaviour
             if (shopService.CanBuy(itemToPurchase))
             {
                 shopService.PurchaseItem(itemToPurchase);
+                // ★★★ 구매 성공 효과음 추가 ★★★
+                SoundManager.Instance.PlaySFX(SFXType.Item_Purchase);
             }
             else
             {
@@ -181,10 +188,14 @@ public class ShopUI : MonoBehaviour
         else if (isSellingChicken)
         {
             shopService.SellChicken();
+            // ★★★ 판매 성공 효과음 추가 ★★★
+            SoundManager.Instance.PlaySFX(SFXType.Item_Sell);
         }
         else if (animalToSell != null)
         {
             shopService.SellItem(animalToSell);
+            // ★★★ 판매 성공 효과음 추가 ★★★
+            SoundManager.Instance.PlaySFX(SFXType.Item_Sell);
         }
 
         RefreshShopItems();
@@ -193,6 +204,7 @@ public class ShopUI : MonoBehaviour
 
     public void OnClickCancel()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         itemToPurchase = null;
         animalToSell = null;
         isSellingChicken = false;

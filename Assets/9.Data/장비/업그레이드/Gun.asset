@@ -13,15 +13,15 @@ MonoBehaviour:
   m_Name: Gun
   m_EditorClassIdentifier: 
   upgradeLevels:
-  - upgradePrice: 1000
+  - upgradePrice: 3000
     damage: 0
-  - upgradePrice: 2000
+  - upgradePrice: 6000
     damage: 20
-  - upgradePrice: 4000
+  - upgradePrice: 12000
     damage: 40
-  - upgradePrice: 8000
+  - upgradePrice: 24000
     damage: 60
-  - upgradePrice: 16000
+  - upgradePrice: 48000
     damage: 80
-  - upgradePrice: 32000
+  - upgradePrice: 96000
     damage: 100

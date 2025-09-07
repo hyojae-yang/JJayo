@@ -256,6 +256,7 @@ public class GameManager : MonoBehaviour
 
         Time.timeScale = 0; // 게임 시간 정지
         GameManager.Instance.IsMenuOn = true;
+        SoundManager.Instance.PlaySFX(SFXType.Game_Clear);
         SoundManager.Instance.PlayGameClearBGM();
 
         // 2. UI 패널 활성화

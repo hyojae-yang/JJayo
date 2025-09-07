@@ -115,6 +115,7 @@ public class GameGuidePanel : MonoBehaviour
     // 다음 페이지로 이동하는 메서드 (오른쪽 버튼 클릭 시 호출)
     public void NextPage()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         // 마지막 페이지가 아닌 경우에만 이동
         if (currentPageIndex < guidePages.Count - 1)
         {
@@ -126,6 +127,7 @@ public class GameGuidePanel : MonoBehaviour
     // 이전 페이지로 이동하는 메서드 (왼쪽 버튼 클릭 시 호출)
     public void PreviousPage()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         // 첫 페이지가 아닌 경우에만 이동
         if (currentPageIndex > 0)
         {

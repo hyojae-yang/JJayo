@@ -1,6 +1,8 @@
+// ShopItemUI.cs
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.Linq;
 
 public class ShopItemUI : MonoBehaviour
 {
@@ -34,9 +36,10 @@ public class ShopItemUI : MonoBehaviour
             _actionButtonText.text = "구매";
         }
 
+        bool isInteractable = true; // 기본값은 활성화
+
         if (itemData.itemType == ItemType.Upgrade)
         {
-            // GetCurrentUpgradeLevel() 메서드에서 올바른 레벨을 가져오도록 수정되었습니다.
             int currentLevel = GetCurrentUpgradeLevel();
             int maxLevel = itemData.upgradeData.GetMaxLevel();
 
@@ -44,47 +47,94 @@ public class ShopItemUI : MonoBehaviour
             {
                 itemPriceText.text = "최대 레벨";
                 if (_actionButtonText != null) _actionButtonText.text = "최대";
-                actionButton.interactable = false;
+                isInteractable = false;
             }
             else
             {
                 int nextPrice = itemData.upgradeData.GetUpgradePrice(currentLevel);
                 itemPriceText.text = nextPrice.ToString("C0");
-                actionButton.interactable = true;
             }
         }
         else if (itemData.itemType == ItemType.Building)
         {
-            bool isOwned = false;
-            if (_shopUI.shopService != null && _shopUI.shopService.gameManager != null && _shopUI.shopService.gameManager.CurrentGameData != null)
+            // 닭장 건물 ID는 프로젝트 내에서 "ChickenCoop" 같은 고유한 값으로 설정되어 있어야 합니다.
+            if (itemData.buildingData.buildingId == "ChickenCoop")
             {
-                isOwned = _shopUI.shopService.gameManager.CurrentGameData.IsBuildingOwned(itemData.buildingData.buildingId);
+                bool isOwned = BuildingManager.Instance.IsBuildingOwned(itemData.buildingData.buildingId);
+                if (isOwned)
+                {
+                    itemPriceText.text = "보유중";
+                    if (_actionButtonText != null) _actionButtonText.text = "보유중";
+                    isInteractable = false;
+                }
+                else
+                {
+                    itemPriceText.text = itemData.buildingData.buildingPrice.ToString("C0");
+                }
             }
             else
             {
-                isOwned = false;
-            }
+                // 다른 건물은 GameData에서 확인
+                bool isOwned = false;
+                if (_shopUI.shopService != null && _shopUI.shopService.gameManager != null && _shopUI.shopService.gameManager.CurrentGameData != null)
+                {
+                    isOwned = _shopUI.shopService.gameManager.CurrentGameData.IsBuildingOwned(itemData.buildingData.buildingId);
+                }
 
-            if (isOwned)
+                if (isOwned)
+                {
+                    itemPriceText.text = "보유중";
+                    if (_actionButtonText != null) _actionButtonText.text = "보유중";
+                    isInteractable = false;
+                }
+                else
+                {
+                    itemPriceText.text = itemData.buildingData.buildingPrice.ToString("C0");
+                }
+            }
+        }
+        else if (itemData.itemType == ItemType.Animal)
+        {
+            // 닭(Chicken)일 경우 닭장 유무를 확인
+            if (itemData.animalData.animalType == AnimalType.Chicken)
             {
-                itemPriceText.text = "보유중";
-                if (_actionButtonText != null) _actionButtonText.text = "보유중";
-                actionButton.interactable = false;
+                if (BuildingManager.Instance != null)
+                {
+                    bool hasChickenCoop = BuildingManager.Instance.IsBuildingOwned("ChickenCoop"); // 닭장 ID로 확인
+                    isInteractable = hasChickenCoop;
+                    if (!hasChickenCoop)
+                    {
+                        itemPriceText.text = "닭장 필요";
+                    }
+                    else
+                    {
+                        itemPriceText.text = itemData.itemPrice.ToString("C0");
+                    }
+                }
+                else
+                {
+                    isInteractable = false;
+                    itemPriceText.text = "관리자 없음";
+                }
             }
             else
             {
-                itemPriceText.text = itemData.buildingData.buildingPrice.ToString("C0");
-                actionButton.interactable = true;
+                // 젖소(Cow)일 경우 기존 로직 유지
+                itemPriceText.text = itemData.itemPrice.ToString("C0");
             }
         }
         else
         {
             itemPriceText.text = itemData.itemPrice.ToString("C0");
-            actionButton.interactable = true;
         }
 
+        actionButton.interactable = isInteractable;
         actionButton.onClick.RemoveAllListeners();
-        actionButton.onClick.AddListener(() => _shopUI.ShowConfirmationPanelForBuy(_currentItemData));
+        actionButton.onClick.AddListener(() =>
+        {
+            SoundManager.Instance.PlaySFX(SFXType.Button_Click);
+            _shopUI.ShowConfirmationPanelForBuy(_currentItemData);
+        });
     }
 
     public void SetupSellItem(ShopUI shopUI, Animal animalToSell)
@@ -102,7 +152,11 @@ public class ShopItemUI : MonoBehaviour
         }
 
         actionButton.onClick.RemoveAllListeners();
-        actionButton.onClick.AddListener(() => _shopUI.ShowConfirmationPanelForSell(_animalToSell));
+        actionButton.onClick.AddListener(() =>
+        {
+            SoundManager.Instance.PlaySFX(SFXType.Button_Click);
+            _shopUI.ShowConfirmationPanelForSell(_animalToSell);
+        });
     }
 
     public void SetupSellChicken(ShopUI shopUI, int price, Sprite chickenIcon)
@@ -119,7 +173,11 @@ public class ShopItemUI : MonoBehaviour
         itemNameText.text = "닭 판매";
 
         actionButton.onClick.RemoveAllListeners();
-        actionButton.onClick.AddListener(() => _shopUI.ShowConfirmationPanelForSellChicken(price));
+        actionButton.onClick.AddListener(() =>
+        {
+            SoundManager.Instance.PlaySFX(SFXType.Button_Click);
+            _shopUI.ShowConfirmationPanelForSellChicken(price);
+        });
     }
 
     private int GetCurrentUpgradeLevel()
@@ -129,7 +187,6 @@ public class ShopItemUI : MonoBehaviour
             return 0;
         }
 
-        // ★★★ 이 부분에 창고 업그레이드 로직이 추가되었습니다. ★★★
         if (_currentItemData.upgradeData is BasketUpgradeData) return _shopUI.shopService.gameManager.CurrentGameData.basketLevel;
         if (_currentItemData.upgradeData is MilkerUpgradeData) return _shopUI.shopService.gameManager.CurrentGameData.milkerLevel;
         if (_currentItemData.upgradeData is GunUpgradeData) return _shopUI.shopService.gameManager.CurrentGameData.gunLevel;

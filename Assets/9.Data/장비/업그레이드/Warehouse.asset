@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: Warehouse
   m_EditorClassIdentifier: 
   levels:
-  - price: 10000
-    freshnessDecayMultiplier: 0.9
-  - price: 20000
-    freshnessDecayMultiplier: 0.8
   - price: 30000
+    freshnessDecayMultiplier: 0.9
+  - price: 60000
+    freshnessDecayMultiplier: 0.8
+  - price: 90000
     freshnessDecayMultiplier: 0.7
-  - price: 40000
+  - price: 120000
     freshnessDecayMultiplier: 0.6
-  - price: 50000
+  - price: 150000
     freshnessDecayMultiplier: 0.5

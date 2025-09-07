@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2abbf4080b335e94cae47429c7c4fc9d, type: 3}
   m_Name: CowItemCardData 1
   m_EditorClassIdentifier: 
-  itemName: "\uC816\uC18C2"
+  itemName: "\uB808\uB4DC \uB370\uB2C8\uC2DC"
   itemPrice: 800
   itemIcon: {fileID: 910929823126855903, guid: 87ba9154a408a514483311c84c975a15, type: 3}
   itemPrefab: {fileID: 746704991644772496, guid: c3338b9fadb310c4fbe8c0d7ad9fa3b5, type: 3}

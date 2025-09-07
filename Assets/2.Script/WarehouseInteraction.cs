@@ -8,6 +8,7 @@ public class WarehouseInteraction : MonoBehaviour
     /// </summary>
     void OnMouseDown()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         if (GameManager.Instance.IsMenuOn) return;
         if (PlayerInventory.Instance != null)
         {

@@ -10,6 +10,7 @@ TagManager:
   - ShopPanel
   - ReputationText
   - GameClearPanel
+  - BGM
   layers:
   - Default
   - TransparentFX

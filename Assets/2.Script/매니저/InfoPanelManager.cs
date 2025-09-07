@@ -84,6 +84,7 @@ public class InfoPanelManager : MonoBehaviour
 
     public void ToggleInfoPanel()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         bool isActive = mainInfoPanel.activeSelf;
         mainInfoPanel.SetActive(!isActive);
         Time.timeScale = isActive ? 1 : 0;
@@ -98,6 +99,7 @@ public class InfoPanelManager : MonoBehaviour
 
     public void ShowPanel(int panelIndex)
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         panel1_UpgradePanel.SetActive(false);
         panel2_InventoryPanel.SetActive(false);
         panel3_CowInfoPanel.SetActive(false);
@@ -264,12 +266,14 @@ public class InfoPanelManager : MonoBehaviour
 
     public void GoToTitleScene()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         SceneManager.LoadScene("TitleScene");
         GameManager.Instance.ResetGameData();
     }
 
     public void OnSaveButtonClicked()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         if (gameManager != null)
         {
             gameManager.SaveGame();

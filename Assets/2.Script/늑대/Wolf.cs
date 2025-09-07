@@ -74,7 +74,6 @@ public class Wolf : MonoBehaviour
 
                 if (targetCow == null)
                 {
-                    Debug.Log("젖소 타겟이 모두 사라졌습니다. 임무 실패! 화면 밖으로 돌아갑니다.");
                     isReturning = true;
                 }
             }
@@ -140,6 +139,7 @@ public class Wolf : MonoBehaviour
         if (health <= 0)
         { // ★★★ 이 줄을 추가합니다. ★★★
             GameManager.Instance.CurrentGameData.totalWolvesKilled++;
+            SoundManager.Instance.PlaySFX(SFXType.Wolf_Die);
             if (wolfManager != null)
             {
                 wolfManager.ReturnWolfToPool(gameObject);
@@ -152,7 +152,6 @@ public class Wolf : MonoBehaviour
     {
         isReturning = true;
         targetCow = null;
-        Debug.Log("늑대가 젖소 처치에 성공했습니다. 임무 완료! 풀로 돌아갑니다.");
     }
 
     // ★★★ 추가된 부분: 늑대 클릭 시 총알 데미지 처리 ★★★
@@ -163,6 +162,7 @@ public class Wolf : MonoBehaviour
             if (GameManager.Instance.CurrentGameData.bulletCount > 0)
             {
                 GameManager.Instance.CurrentGameData.bulletCount -= 1;
+                SoundManager.Instance.PlaySFX(SFXType.Gun_Shot);
                 TakeDamage(PlayerInventory.Instance.GunDamage);
 
             }
@@ -180,7 +180,6 @@ public class Wolf : MonoBehaviour
         {
             if (wolfManager != null)
             {
-                Debug.Log("늑대가 화면 밖으로 도망쳤습니다! 풀로 돌아갑니다.");
                 wolfManager.ReturnWolfToPool(gameObject);
             }
         }

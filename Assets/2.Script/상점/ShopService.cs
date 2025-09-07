@@ -1,3 +1,4 @@
+ï»¿// ShopService.cs
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ public class ShopService : MonoBehaviour
 {
     public static ShopService Instance { get; private set; }
 
-    [Header("Dependencies - ÀÎ½ºÆåÅÍ·Î ¿¬°á")]
+    [Header("Dependencies - ì¸ìŠ¤í™í„°ë¡œ ì—°ê²°")]
     public MoneyManager moneyManager;
     public ShopManager shopManager;
 
@@ -35,7 +36,7 @@ public class ShopService : MonoBehaviour
     {
         if (shopManager == null)
         {
-            Debug.LogError("ShopManager°¡ ÇÒ´çµÇÁö ¾Ê¾Æ ºó ¸®½ºÆ®¸¦ ¹İÈ¯ÇÕ´Ï´Ù.");
+            Debug.LogError("ShopManagerê°€ í• ë‹¹ë˜ì§€ ì•Šì•„ ë¹ˆ ë¦¬ìŠ¤íŠ¸ë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.");
             return new List<PurchasableItemData>();
         }
 
@@ -48,10 +49,22 @@ public class ShopService : MonoBehaviour
 
         var availableItems = allItems.Where(item =>
         {
+            // 1. ì´ë¯¸ ì†Œìœ í•œ ì¥ë¹„(Equipment)ëŠ” ìƒì ì—ì„œ ì œì™¸
             if (item.itemType == ItemType.Equipment)
             {
                 return !gameManager.CurrentGameData.ownedEquipmentIds.Contains(item.equipmentData.id);
             }
+            // 2. ì´ ì—…ê·¸ë ˆì´ë“œëŠ” ì´ì„ ì†Œìœ í•˜ê³  ìˆì„ ë•Œë§Œ í‘œì‹œ
+            else if (item.itemType == ItemType.Upgrade && item.upgradeData is GunUpgradeData)
+            {
+                return gameManager.CurrentGameData.gunLevel > 0;
+            }
+            // 3. ì´ì•Œ(Consumable)ì€ ì´ì„ ì†Œìœ í•˜ê³  ìˆì„ ë•Œë§Œ í‘œì‹œ
+            else if (item.itemType == ItemType.Consumable && item.itemName == "ì´ì•Œ(10ê°œ)")
+            {
+                return gameManager.CurrentGameData.ownedEquipmentIds.Contains("Gun");
+            }
+
             return true;
         }).ToList();
 
@@ -83,7 +96,7 @@ public class ShopService : MonoBehaviour
             case ItemType.Equipment: return EquipmentHandler.Instance.CanBuy(itemData.equipmentData);
             case ItemType.Upgrade: return UpgradeHandler.Instance.CanBuy(itemData.upgradeData);
             case ItemType.Consumable:
-                if (itemData.consumableData != null && itemData.itemName == "ÃÑ¾Ë(30°³)")
+                if (itemData.consumableData != null && itemData.itemName == "ì´ì•Œ(10ê°œ)")
                 {
                     return gameData.ownedEquipmentIds.Contains("Gun");
                 }
@@ -114,7 +127,7 @@ public class ShopService : MonoBehaviour
 
         if (!moneyManager.SpendMoney(finalPrice))
         {
-            if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("µ·ÀÌ ºÎÁ·ÇÕ´Ï´Ù.");
+            if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("ëˆì´ ë¶€ì¡±í•©ë‹ˆë‹¤.");
             return;
         }
 
@@ -122,7 +135,6 @@ public class ShopService : MonoBehaviour
         {
             case ItemType.Animal:
                 AnimalHandler.Instance.Purchase(itemToPurchase.animalData);
-                // ¡Ú¡Ú¡Ú ÀÌ ºÎºĞ¿¡ ¾Æ·¡ ÄÚµå¸¦ Ãß°¡ÇÕ´Ï´Ù. ¡Ú¡Ú¡Ú
                 if (itemToPurchase.animalData.animalType == AnimalType.Cow)
                 {
                     gameManager.CurrentGameData.totalCowsPurchased++;
@@ -131,12 +143,10 @@ public class ShopService : MonoBehaviour
                 {
                     gameManager.CurrentGameData.totalChickensPurchased++;
                 }
-                // ¡Ú¡Ú¡Ú Ãß°¡ ³¡ ¡Ú¡Ú¡Ú
-                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification(itemToPurchase.itemName + "À»(¸¦) ±¸¸ÅÇß½À´Ï´Ù!");
+                if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification(itemToPurchase.itemName + "ì„(ë¥¼) êµ¬ë§¤í–ˆìŠµë‹ˆë‹¤!");
                 break;
             case ItemType.Building:
                 BuildingHandler.Instance.Purchase(itemToPurchase.buildingData);
-                // ¡Ú¡Ú¡Ú ÀÌ ÁÙÀ» Ãß°¡ÇÕ´Ï´Ù. ¡Ú¡Ú¡Ú
                 if (itemToPurchase.buildingData.buildingId == "Factory")
                 {
                     if (GameManager.Instance != null)
@@ -144,7 +154,6 @@ public class ShopService : MonoBehaviour
                         GameManager.Instance.EndGame();
                     }
                 }
-                // ¡Ú¡Ú¡Ú Ãß°¡ ³¡ ¡Ú¡Ú¡Ú
                 break;
             case ItemType.Equipment:
                 EquipmentHandler.Instance.Purchase(itemToPurchase.equipmentData);
@@ -153,12 +162,12 @@ public class ShopService : MonoBehaviour
                 UpgradeHandler.Instance.Purchase(itemToPurchase.upgradeData);
                 break;
             case ItemType.Consumable:
-                if (itemToPurchase.itemName == "ÃÑ¾Ë(10°³)")
+                if (itemToPurchase.itemName == "ì´ì•Œ(10ê°œ)")
                 {
                     gameData.bulletCount += itemToPurchase.consumableData.amount;
                     if (NotificationManager.Instance != null)
                     {
-                        NotificationManager.Instance.ShowNotification(itemToPurchase.itemName + "À»(¸¦) ±¸¸ÅÇß½À´Ï´Ù.");
+                        NotificationManager.Instance.ShowNotification(itemToPurchase.itemName + "ì„(ë¥¼) êµ¬ë§¤í–ˆìŠµë‹ˆë‹¤.");
                     }
                     if (InfoPanelManager.Instance != null)
                     {
@@ -194,12 +203,11 @@ public class ShopService : MonoBehaviour
         {
             moneyManager.AddMoney(GetChickenSellPrice());
             AnimalHandler.Instance.RemoveChicken();
-            // ¡Ú¡Ú¡Ú ÀÌ ÁÙÀ» Ãß°¡ÇÕ´Ï´Ù. ¡Ú¡Ú¡Ú
             GameManager.Instance.CurrentGameData.totalChickensSold++;
         }
         else
         {
-            if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("ÆÇ¸ÅÇÒ ´ßÀÌ ¾ø½À´Ï´Ù.");
+            if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification("íŒë§¤í•  ë‹­ì´ ì—†ìŠµë‹ˆë‹¤.");
         }
     }
 

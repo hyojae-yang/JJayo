@@ -45,6 +45,7 @@ public class GameClearPanel : MonoBehaviour
 
     public void GoToTitleScene()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         SceneManager.LoadScene("TitleScene");
     }
 }

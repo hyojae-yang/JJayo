@@ -45,13 +45,11 @@ public class Warehouse : MonoBehaviour
     public void AddEggs(List<float> newEggs)
     {
         storedEggFreshness.AddRange(newEggs);
-        NotificationManager.Instance.ShowNotification($"창고에 달걀 {newEggs.Count}개를 추가했습니다. 현재 총 달걀: {storedEggFreshness.Count}개");
     }
 
     public void AddMilk(List<Milk> newMilkList)
     {
         storedMilkList.AddRange(newMilkList);
-        NotificationManager.Instance.ShowNotification($"창고에 우유 {newMilkList.Count}개를 추가했습니다. 현재 총 우유: {storedMilkList.Count}개");
     }
 
     private void DecayFreshness()
@@ -156,6 +154,7 @@ public class Warehouse : MonoBehaviour
 
     public void SellMilk(int amount)
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         if (CanSellMilk(amount, 0)) // 여기서 신선도 조건은 이미 TraderManager에서 체크했으므로 0으로 설정
         {
             // 신선도가 낮은 우유부터 판매 (가장 오래된 우유부터 처리)
@@ -168,6 +167,7 @@ public class Warehouse : MonoBehaviour
 
     public void SellEggs(int amount)
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         if (CanSellEggs(amount))
         {
             storedEggFreshness.Sort(); // 신선도 낮은 달걀부터 정렬

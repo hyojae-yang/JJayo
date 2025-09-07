@@ -31,24 +31,28 @@ public class TitleScreenManager : MonoBehaviour
 
     public void OnContinueClicked()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         isNewGameMode = false;
         saveSlotPanel.SetActive(true);
     }
 
     public void OnNewGameClicked()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         isNewGameMode = true;
         saveSlotPanel.SetActive(true);
     }
 
     public void HideSaveSlotPanel()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         saveSlotPanel.SetActive(false);
     }
 
     // ★★★ 추가된 메서드 ★★★
     public void ShowHowToPlayPanel()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         if (howToPlayPanel != null)
         {
             howToPlayPanel.SetActive(true);
@@ -58,6 +62,7 @@ public class TitleScreenManager : MonoBehaviour
     // ★★★ 추가된 메서드 ★★★
     public void HideHowToPlayPanel()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         if (howToPlayPanel != null)
         {
             howToPlayPanel.SetActive(false);
@@ -67,6 +72,7 @@ public class TitleScreenManager : MonoBehaviour
     // ★★★ 추가된 메서드 ★★★
     public void ShowSettingsPanel()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         if (settingsPanel != null)
         {
             settingsPanel.SetActive(true);
@@ -76,6 +82,7 @@ public class TitleScreenManager : MonoBehaviour
     // ★★★ 추가된 메서드 ★★★
     public void HideSettingsPanel()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         if (settingsPanel != null)
         {
             settingsPanel.SetActive(false);
@@ -85,6 +92,7 @@ public class TitleScreenManager : MonoBehaviour
     // ★★★ 추가된 메서드 ★★★
     public void QuitGame()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         Debug.Log("게임 종료!");
         Application.Quit();
 
@@ -135,12 +143,17 @@ public class TitleScreenManager : MonoBehaviour
                 newSlot.SetupEmptySlot(displayName);
             }
 
-            newSlot.AddListener(() => OnSlotClicked(fileName, isFilled));
+            // ★★★ 이 부분을 아래와 같이 수정해야 합니다. ★★★
+            newSlot.AddListener(() => {
+                SoundManager.Instance.PlaySFX(SFXType.Button_Click);
+                OnSlotClicked(fileName, isFilled);
+            });
         }
     }
 
     public void OnSlotClicked(string fileName, bool isFilled)
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         selectedFileName = fileName;
 
         if (isNewGameMode)
@@ -162,6 +175,7 @@ public class TitleScreenManager : MonoBehaviour
 
     public void OnConfirmClicked()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         if (string.IsNullOrEmpty(selectedFileName))
         {
             Debug.LogWarning("선택된 파일명이 없습니다. 게임을 시작할 수 없습니다.");

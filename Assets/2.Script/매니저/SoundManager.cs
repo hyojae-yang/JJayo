@@ -15,10 +15,14 @@ public enum SFXType
     Wolf_Die,
     Item_Purchase,
     Trader_Appear,
+    Trader_Yes,
+    Trader_No,
     Monthly_Review,
+    Item_Sell,
+    Chicken,
     Game_Clear // GameManager에서 직접 호출하지만, 클립 관리를 위해 포함
 }
-//SoundManager.Instance.PlaySFX(SFXType.Cow_Milking)//다른 스크립트에서 사용 예시
+//SoundManager.Instance.PlaySFX(SFXType.Button_Click);//다른 스크립트에서 사용 예시
 // 사운드 클립과 타입을 연결하기 위한 직렬화 가능한 클래스
 [Serializable]
 public class SoundClip
@@ -70,14 +74,17 @@ public class SoundManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 씬 로드 시 BGM과 SFX AudioSource를 찾아 할당
-        // BGM 소스만 씬에 배치했다고 가정
-        bgmSource = FindFirstObjectByType<AudioSource>();
-        if (bgmSource != null)
+        // ★★★ 수정된 부분: "BGM" 태그를 가진 오브젝트를 찾습니다. ★★★
+        GameObject bgmObject = GameObject.FindWithTag("BGM");
+        if (bgmObject != null)
         {
-            // BGM 루프 설정
-            bgmSource.loop = true;
-            PlayBGMByScene(scene.name);
+            bgmSource = bgmObject.GetComponent<AudioSource>();
+            if (bgmSource != null)
+            {
+                // BGM 루프 설정
+                bgmSource.loop = true;
+                PlayBGMByScene(scene.name);
+            }
         }
     }
 

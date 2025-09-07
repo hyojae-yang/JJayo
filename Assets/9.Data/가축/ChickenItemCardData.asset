@@ -13,8 +13,12 @@ MonoBehaviour:
   m_Name: ChickenItemCardData
   m_EditorClassIdentifier: 
   itemName: "\uB2ED"
-  itemPrice: 300
+  itemPrice: 2000
   itemIcon: {fileID: 151245714796005254, guid: 8afec7f21d82b6241a43292c480b5fdb, type: 3}
   itemPrefab: {fileID: 8979693368173043311, guid: e70ab5643f9cf4a4d9cd964a7d905c5f, type: 3}
   itemType: 0
   animalData: {fileID: 11400000, guid: b49c52add6c09c44c811d92e66d2d4ff, type: 2}
+  buildingData: {fileID: 0}
+  equipmentData: {fileID: 0}
+  consumableData: {fileID: 0}
+  upgradeData: {fileID: 0}

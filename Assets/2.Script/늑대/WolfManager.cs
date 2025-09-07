@@ -141,6 +141,10 @@ public class WolfManager : MonoBehaviour
             {
                 SpawnWolf();
             }
+
+            // ★★★ 추가된 코드: 늑대 등장 효과음 재생 ★★★
+            SoundManager.Instance.PlaySFX(SFXType.Wolf_Appear);
+
             NotificationManager.Instance.ShowNotification("늑대가 나타났습니다! 젖소를 지키세요!");
         }
     }

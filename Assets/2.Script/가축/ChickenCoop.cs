@@ -76,6 +76,7 @@ public class ChickenCoop : MonoBehaviour
             // ★★★ 수정된 부분: 저장된 달걀 리스트를 PlayerInventory로 전달 ★★★
             if (GameManager.Instance.CurrentGameData.savedChickenEggs.Count > 0)
             {
+                SoundManager.Instance.PlaySFX(SFXType.Chicken);
                 int eggsTransferred = PlayerInventory.Instance.AddEggs(new List<float>(GameManager.Instance.CurrentGameData.savedChickenEggs));
                 GameManager.Instance.CurrentGameData.savedChickenEggs.Clear(); // 닭장에 있는 알 리스트를 비움
 

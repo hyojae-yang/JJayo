@@ -72,6 +72,7 @@ public class MonthlyReviewManager : MonoBehaviour
 
     private IEnumerator PerformReview()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Monthly_Review);
         // 게임 일시 정지
         Time.timeScale = 0f;
         GameManager.Instance.IsMenuOn = true;

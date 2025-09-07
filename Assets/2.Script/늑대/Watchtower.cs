@@ -71,7 +71,7 @@ public class Watchtower : MonoBehaviour
                 if (wolfComponent != null)
                 {
                     wolfComponent.TakeDamage(playerInventory.GunDamage);
-
+                    SoundManager.Instance.PlaySFX(SFXType.Gun_Shot);
                     NotificationManager.Instance.ShowNotification("감시탑이 늑대를 공격했습니다! 남은 총알: " + gameManager.CurrentGameData.bulletCount);
                 }
 
@@ -82,7 +82,7 @@ public class Watchtower : MonoBehaviour
             {
                 // 총알 부족 알림
                 notificationManager.ShowNotification("감시탑에 총알이 부족합니다!");
-                fireCooldownTimer = 10f; // 총알이 없으면 10초 후에 다시 확인
+                fireCooldownTimer = 3f; // 총알이 없으면 3초 후에 다시 확인
             }
         }
     }

@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: ChickenCoopData
   m_EditorClassIdentifier: 
   coopName: "\uB2ED\uC7A5"
-  eggProductionInterval: 5
-  purchaseCost: 3000
+  eggProductionInterval: 1
+  purchaseCost: 30000

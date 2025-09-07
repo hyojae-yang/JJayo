@@ -78,6 +78,7 @@ public class TraderUI : MonoBehaviour
     {
         if (traderUIPanel != null)
         {
+            SoundManager.Instance.PlaySFX(SFXType.Trader_Appear);
             traderUIPanel.SetActive(true);
             GameManager.Instance.IsMenuOn = true;
             Time.timeScale = 0;
@@ -152,6 +153,7 @@ public class TraderUI : MonoBehaviour
 
     public void OnConfirmButtonClicked()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         if (resultPanel != null)
         {
             resultPanel.SetActive(false);
@@ -161,6 +163,7 @@ public class TraderUI : MonoBehaviour
 
     public void OnOpenEggPanelButtonClicked()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         if (eggSellPanel != null)
         {
             eggSellPanel.SetActive(true);
@@ -174,6 +177,7 @@ public class TraderUI : MonoBehaviour
         // ★★★ 수정: PlayerInventory가 아닌 Warehouse에서 달걀 개수를 가져오도록 변경 ★★★
         if (Warehouse.Instance != null && eggsToSell < Warehouse.Instance.GetEggCount())
         {
+            SoundManager.Instance.PlaySFX(SFXType.Button_Click);
             eggsToSell++;
             UpdateEggUI();
         }
@@ -183,6 +187,7 @@ public class TraderUI : MonoBehaviour
     {
         if (eggsToSell > 0)
         {
+            SoundManager.Instance.PlaySFX(SFXType.Button_Click);
             eggsToSell--;
             UpdateEggUI();
         }
@@ -203,6 +208,7 @@ public class TraderUI : MonoBehaviour
 
     public void OnSellEggsButtonClicked()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         if (eggsToSell > 0)
         {
             // 달걀 판매 로직을 TraderManager에 위임
@@ -220,6 +226,7 @@ public class TraderUI : MonoBehaviour
 
     public void OnCloseEggPanelButtonClicked()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         if (eggSellPanel != null)
         {
             eggSellPanel.SetActive(false);

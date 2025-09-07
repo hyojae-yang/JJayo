@@ -28,6 +28,7 @@ public class ConfirmationPanel : MonoBehaviour
     // ★★★ 확인창을 숨기는 함수 ★★★
     public void Hide()
     {
+        SoundManager.Instance.PlaySFX(SFXType.Button_Click);
         gameObject.SetActive(false); // 패널 비활성화
     }
 }

@@ -17,7 +17,7 @@ public class TraderManager : MonoBehaviour
     public int maxRequiredFreshness = 25;
     public int baseMilkPrice = 30;
 
-    public int reputationPerTrade = 1;
+    public int reputationPerTrade = 2;
     public int reputationDeclinePenalty = 5;
     public int reputationHaggleFailurePenalty = 10;
 
@@ -82,7 +82,7 @@ public class TraderManager : MonoBehaviour
         int reputationBonusStep = gameData.reputation / 50;
 
         // ★★★ 요구 우유 개수 재계산 (최소값 1로 제한) ★★★
-        int milkReputationBonus = reputationBonusStep * 5;
+        int milkReputationBonus = reputationBonusStep * 10;
         int calculatedMilkAmount = UnityEngine.Random.Range(minRequiredMilk + milkReputationBonus, maxRequiredMilk + milkReputationBonus);
         traderData.requiredMilkAmount = Mathf.Max(1, calculatedMilkAmount);
 
@@ -117,6 +117,7 @@ public class TraderManager : MonoBehaviour
             GameManager.Instance.ChangeReputation(reputationPerTrade);
             if (TraderUI.Instance != null)
             {
+                SoundManager.Instance.PlaySFX(SFXType.Trader_Yes);
                 TraderUI.Instance.DisplayResult(true, traderData.offeredPrice, reputationPerTrade, "거래를 성공적으로 완료했습니다!", traderData.eggsSoldToday, traderData.eggRevenueToday);
             }
         }
@@ -125,6 +126,7 @@ public class TraderManager : MonoBehaviour
             GameManager.Instance.ChangeReputation(-1);
             if (TraderUI.Instance != null)
             {
+                SoundManager.Instance.PlaySFX(SFXType.Trader_No);
                 TraderUI.Instance.DisplayResult(false, 0, -1, "요구 개수 또는 신선도가 부족하여 거래가 무산되었습니다.", traderData.eggsSoldToday, traderData.eggRevenueToday);
             }
         }
@@ -135,6 +137,7 @@ public class TraderManager : MonoBehaviour
         GameManager.Instance.ChangeReputation(-reputationDeclinePenalty);
         if (TraderUI.Instance != null)
         {
+            SoundManager.Instance.PlaySFX(SFXType.Trader_No);
             TraderUI.Instance.DisplayResult(false, 0, -reputationDeclinePenalty, "상인의 거래를 거절하여 명성도가 떨어졌습니다.", traderData.eggsSoldToday, traderData.eggRevenueToday);
         }
     }
@@ -153,6 +156,7 @@ public class TraderManager : MonoBehaviour
                 GameManager.Instance.ChangeReputation(0);
                 if (TraderUI.Instance != null)
                 {
+                    SoundManager.Instance.PlaySFX(SFXType.Trader_Yes);
                     TraderUI.Instance.DisplayResult(true, finalPrice, 0, $"흥정에 성공하여 {bonusPrice} 골드를 추가로 받았습니다!", traderData.eggsSoldToday, traderData.eggRevenueToday);
                 }
             }
@@ -161,6 +165,7 @@ public class TraderManager : MonoBehaviour
                 GameManager.Instance.ChangeReputation(-reputationHaggleFailurePenalty);
                 if (TraderUI.Instance != null)
                 {
+                    SoundManager.Instance.PlaySFX(SFXType.Trader_No);
                     TraderUI.Instance.DisplayResult(false, 0, -reputationHaggleFailurePenalty, "흥정에 실패했습니다. 상인의 기분이 나빠 명성도가 크게 떨어졌습니다.", traderData.eggsSoldToday, traderData.eggRevenueToday);
                 }
             }
@@ -169,6 +174,7 @@ public class TraderManager : MonoBehaviour
         {
             if (TraderUI.Instance != null)
             {
+                SoundManager.Instance.PlaySFX(SFXType.Trader_No);
                 TraderUI.Instance.DisplayResult(false, 0, -1, "요구 개수 또는 신선도가 부족하여 흥정을 시도할 수 없습니다.", traderData.eggsSoldToday, traderData.eggRevenueToday);
             }
         }

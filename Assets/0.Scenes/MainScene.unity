@@ -17343,7 +17343,7 @@ GameObject:
   - component: {fileID: 1280940423}
   m_Layer: 0
   m_Name: Audio Source
-  m_TagString: Untagged
+  m_TagString: BGM
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -17363,7 +17363,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -17942,12 +17942,12 @@ MonoBehaviour:
     currentEggPrice: 0
     eggsSoldToday: 0
     eggRevenueToday: 0
-  minRequiredMilk: 10
-  maxRequiredMilk: 20
+  minRequiredMilk: 30
+  maxRequiredMilk: 50
   minRequiredFreshness: 0
   maxRequiredFreshness: 3
   baseMilkPrice: 30
-  reputationPerTrade: 1
+  reputationPerTrade: 2
   reputationDeclinePenalty: 5
   reputationHaggleFailurePenalty: 10
   baseEggPrice: 10
@@ -22254,7 +22254,7 @@ MonoBehaviour:
   wolfObjectPool: {fileID: 125220279}
   baseHealth: 100
   baseDamage: 20
-  difficultyScale: 1.2
+  difficultyScale: 1.5
 --- !u!4 &1602844449
 Transform:
   m_ObjectHideFlags: 0

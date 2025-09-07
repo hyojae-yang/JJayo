@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03673a69712f9a04c8a8afe517a15159, type: 3}
   m_Name: CowData 5
   m_EditorClassIdentifier: 
-  animalName: "\uC816\uC18C6"
+  animalName: "\uAC74\uC9C0"
   animalPrice: 4000
   animalIcon: {fileID: -8669438839905402324, guid: 5b3f93e1bb82fe64bba3557de0941fe8, type: 3}
   animalPrefab: {fileID: 746704991644772496, guid: 748cf01e95d55a54d998ef0329dba446, type: 3}

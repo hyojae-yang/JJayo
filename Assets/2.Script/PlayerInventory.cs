@@ -168,8 +168,6 @@ public class PlayerInventory : MonoBehaviour
 
     public void TransferToWarehouse()
     {
-        NotificationManager.Instance.ShowNotification($"현재 알: {eggFreshnessList.Count}개, 현재 우유: {milkList.Count}개");
-
         if (eggFreshnessList.Count > 0)
         {
             if (Warehouse.Instance != null)
