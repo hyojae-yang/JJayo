@@ -268,7 +268,7 @@ PlayerSettings:
   AndroidTargetArchitectures: 2
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: "F:/GitHub/\uD0C0\uC774\uCFE4 \uD0A4\uCF54\uB4DC(\uC911\uC694!)/JjayoTayccon.keystore"
+  AndroidKeystoreName: '{inproject}: tycoonkey/JjayoTayccon.keystore'
   AndroidKeyaliasName: jjayotaycoon
   AndroidEnableArmv9SecurityFeatures: 0
   AndroidEnableArm64MTE: 0
