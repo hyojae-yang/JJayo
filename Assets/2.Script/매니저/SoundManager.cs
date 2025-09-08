@@ -20,9 +20,9 @@ public enum SFXType
     Monthly_Review,
     Item_Sell,
     Chicken,
-    Game_Clear // GameManager에서 직접 호출하지만, 클립 관리를 위해 포함
+    Game_Clear
 }
-//SoundManager.Instance.PlaySFX(SFXType.Button_Click);//다른 스크립트에서 사용 예시
+
 // 사운드 클립과 타입을 연결하기 위한 직렬화 가능한 클래스
 [Serializable]
 public class SoundClip
@@ -37,13 +37,19 @@ public class SoundManager : MonoBehaviour
 
     [Header("Audio Sources")]
     [SerializeField] private AudioSource bgmSource;
-    [SerializeField] private ObjectPool sfxPool; // 같은 오브젝트에 부착된 ObjectPool 스크립트
+    [SerializeField] private ObjectPool sfxPool;
 
     [Header("Audio Clips")]
     [SerializeField] private AudioClip titleBGM;
     [SerializeField] private AudioClip mainBGM;
     [SerializeField] private AudioClip gameClearBGM;
     [SerializeField] private List<SoundClip> sfxClips;
+
+    [Header("Volume Settings")]
+    [Range(0f, 1f)]
+    [SerializeField] private float bgmVolume = 0.5f;
+    [Range(0f, 1f)]
+    [SerializeField] private float sfxVolume = 0.8f;
 
     private Dictionary<SFXType, AudioClip> sfxDictionary;
 
@@ -53,38 +59,14 @@ public class SoundManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            InitializeSFXDictionary();
+            // ★ 추가된 코드: 초기 BGM 설정
+            PlayBGM("TitleScene");
         }
         else
         {
             Destroy(gameObject);
-        }
-
-        InitializeSFXDictionary();
-    }
-
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        // ★★★ 수정된 부분: "BGM" 태그를 가진 오브젝트를 찾습니다. ★★★
-        GameObject bgmObject = GameObject.FindWithTag("BGM");
-        if (bgmObject != null)
-        {
-            bgmSource = bgmObject.GetComponent<AudioSource>();
-            if (bgmSource != null)
-            {
-                // BGM 루프 설정
-                bgmSource.loop = true;
-                PlayBGMByScene(scene.name);
-            }
         }
     }
 
@@ -101,7 +83,7 @@ public class SoundManager : MonoBehaviour
     }
 
     // --- BGM 관련 메서드 ---
-    public void PlayBGMByScene(string sceneName)
+    public void PlayBGM(string sceneName)
     {
         if (bgmSource == null) return;
 
@@ -121,6 +103,8 @@ public class SoundManager : MonoBehaviour
         if (clipToPlay != null && bgmSource.clip != clipToPlay)
         {
             bgmSource.clip = clipToPlay;
+            bgmSource.loop = true;
+            bgmSource.volume = bgmVolume;
             bgmSource.Play();
         }
     }
@@ -133,7 +117,6 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    // GameManager에서 호출하여 게임 클리어 BGM을 재생
     public void PlayGameClearBGM()
     {
         if (bgmSource != null && gameClearBGM != null)
@@ -141,6 +124,7 @@ public class SoundManager : MonoBehaviour
             bgmSource.Stop();
             bgmSource.loop = false;
             bgmSource.clip = gameClearBGM;
+            bgmSource.volume = bgmVolume;
             bgmSource.Play();
         }
     }
@@ -160,13 +144,14 @@ public class SoundManager : MonoBehaviour
         if (sfxSource != null)
         {
             AudioClip clipToPlay = sfxDictionary[sfxType];
+            sfxSource.volume = sfxVolume;
             sfxSource.PlayOneShot(clipToPlay);
             StartCoroutine(ReturnToPoolAfterDelay(sfxObject, clipToPlay.length));
         }
         else
         {
             Debug.LogError("SoundManager: 풀에서 가져온 오브젝트에 AudioSource 컴포넌트가 없습니다.");
-            sfxPool.ReturnToPool(sfxObject); // 문제가 발생해도 풀로 반환
+            sfxPool.ReturnToPool(sfxObject);
         }
     }
 
@@ -176,15 +161,18 @@ public class SoundManager : MonoBehaviour
         sfxPool.ReturnToPool(obj);
     }
 
-    public void SetVolume(float bgmVolume, float sfxVolume)
+    // --- 볼륨 조절을 위한 외부 호출 메서드 ---
+    public void SetBGMVolume(float volume)
     {
+        bgmVolume = volume;
         if (bgmSource != null)
         {
             bgmSource.volume = bgmVolume;
         }
-        if (sfxPool != null)
-        {
-            // 풀의 모든 AudioSource 볼륨 조절 (선택 사항)
-        }
+    }
+
+    public void SetSFXVolume(float volume)
+    {
+        sfxVolume = volume;
     }
 }

@@ -134,8 +134,7 @@ public class InfoPanelManager : MonoBehaviour
             int level = gameManager.CurrentGameData.pastureLevel;
             pastureLevelText.text = $"레벨: {level}";
             var freshnessRange = pastureManager.pastureUpgradeData.GetFreshnessRange(level);
-            // ★★★ 2배 로직 추가 반영: UI에도 2배로 표시 ★★★
-            pastureStatsText.text = $"신선도 범위: {freshnessRange.min * 2}% ~ {freshnessRange.max * 2}%";
+            pastureStatsText.text = $"신선도 범위: {freshnessRange.min}% ~ {freshnessRange.max}%";
         }
         else
         {

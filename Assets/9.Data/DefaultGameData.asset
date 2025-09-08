@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DefaultGameData
   m_EditorClassIdentifier: 
   money: 1500
-  reputation: 50
+  reputation: 30
   day: 1
   month: 1
   year: 1

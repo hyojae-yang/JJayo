@@ -82,7 +82,6 @@ public class Animal : MonoBehaviour
 
                     if (collectedCount > 0)
                     {
-                        NotificationManager.Instance.ShowNotification($"{animalData.animalName}의 우유를 수거했습니다.");
                         // 우유를 수거했으므로 빈 클릭 카운터 리셋
                         emptyClickCount = 0;
                     }
@@ -92,7 +91,6 @@ public class Animal : MonoBehaviour
             else
             {
                 emptyClickCount++;
-                NotificationManager.Instance.ShowNotification("우유가 부족합니다.");
                 if (emptyClickCount >= maxEmptyClicks)
                 {
                     Die(); // 빈 클릭 횟수 초과로 인한 사망

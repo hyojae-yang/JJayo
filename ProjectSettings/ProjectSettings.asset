@@ -142,7 +142,7 @@ PlayerSettings:
   loadStoreDebugModeEnabled: 0
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
-  bundleVersion: 0.1.0.0
+  bundleVersion: 0.1.0.1
   preloadedAssets:
   - {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   metroInputSource: 0
@@ -174,7 +174,7 @@ PlayerSettings:
     iPhone: 0
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
-  AndroidBundleVersionCode: 1
+  AndroidBundleVersionCode: 2
   AndroidMinSdkVersion: 23
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
@@ -268,7 +268,7 @@ PlayerSettings:
   AndroidTargetArchitectures: 2
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: '{inproject}: tycoonkey/JjayoTayccon.keystore'
+  AndroidKeystoreName: "{inproject}: \uD0C0\uC774\uCFE4 \uD0A4\uCF54\uB4DC(\uC911\uC694!)/JjayoTayccon.keystore"
   AndroidKeyaliasName: jjayotaycoon
   AndroidEnableArmv9SecurityFeatures: 0
   AndroidEnableArm64MTE: 0
