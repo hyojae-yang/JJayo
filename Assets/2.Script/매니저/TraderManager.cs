@@ -82,12 +82,12 @@ public class TraderManager : MonoBehaviour
         int reputationBonusStep = gameData.reputation / 50;
 
         // ★★★ 요구 우유 개수 재계산 (최소값 1로 제한) ★★★
-        int milkReputationBonus = reputationBonusStep * 10;
+        int milkReputationBonus = reputationBonusStep * 20;
         int calculatedMilkAmount = UnityEngine.Random.Range(minRequiredMilk + milkReputationBonus, maxRequiredMilk + milkReputationBonus);
         traderData.requiredMilkAmount = Mathf.Max(1, calculatedMilkAmount);
 
         // ★★★ 요구 신선도 재계산 (최소값 1, 최대값 95로 제한) ★★★
-        int freshnessReputationBonus = reputationBonusStep;
+        int freshnessReputationBonus = reputationBonusStep * 5;
         int calculatedFreshness = UnityEngine.Random.Range(minRequiredFreshness + freshnessReputationBonus, maxRequiredFreshness + freshnessReputationBonus);
         traderData.requiredFreshness = Mathf.Clamp(calculatedFreshness, 1, 95);
 
